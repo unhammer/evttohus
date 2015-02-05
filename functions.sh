@@ -49,8 +49,9 @@ convert_ccat () {
     trash=$(mktemp -d -t convert2xml.XXXXXXXXXXXX) || exit $?
     # since convert2xml scatters files like -0.jpg all around cwd:
     cd "${trash}"
-    convert2xml $GTBOUND/orig/$lang
-    convert2xml $GTFREE/orig/$lang
+    convert2xml $GTBOUND/orig/$lang & P1=$!
+    convert2xml $GTFREE/orig/$lang & P2=$!
+    wait $P1 $P2
     cat <(ccat -a -l $lang $GTBOUND/converted/$lang) \
         <(ccat -a -l $lang $GTFREE/converted/$lang)
     rm -rf "${trash}"

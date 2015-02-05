@@ -6,6 +6,8 @@ set -e -u
 
 source functions.sh
 
+trap 'kill 0' EXIT
+
 test -d tmp || mkdir tmp
 
 cd tmp
