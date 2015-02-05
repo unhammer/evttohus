@@ -1,0 +1,16 @@
+(* -*- mode: tuareg -*- *)
+
+(* Added by OPAM. *)
+let () =
+  try Topdirs.dir_directory (Sys.getenv "OCAML_TOPLEVEL_PATH")
+  with Not_found -> ()
+;;
+
+#require "uutf";;
+#require "uucp";;
+
+(* Using Batteries: *)
+#use "topfind";;
+Toploop.use_silently
+             Format.err_formatter (Filename.concat (Findlib.package_directory
+             "batteries") "battop.ml");;
