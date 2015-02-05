@@ -44,11 +44,15 @@ xmlgrep_fad () {
     xmlstarlet sel -t -m '//e[@src="fad"]/lg/l/text()' -c . -n "$@"
 }
 
-convert_ccat () {
+convert_all () {
     lang=$1
     convert2xml $GTBOUND/orig/$lang & P1=$!
     convert2xml $GTFREE/orig/$lang & P2=$!
     wait $P1 $P2
+}
+
+ccat_all () {
+    lang=$1
     cat <(ccat -a -l $lang $GTBOUND/converted/$lang) \
         <(ccat -a -l $lang $GTFREE/converted/$lang)
 }

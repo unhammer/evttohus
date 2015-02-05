@@ -12,8 +12,17 @@ test -d tmp || mkdir tmp
 
 cd tmp
 
+
+if [[ $# -ge 1 ]]; then
+    echo "Converting corpora ..."
+    for lang in smj sme; do 
+        convert_all $lang
+    done
+else
+    echo "Skipping corpus conversion ..."
+fi
 for lang in smj sme; do
-    #convert_ccat $lang | xz - > corpus.$lang.xz
+    ccat_all $lang | xz - > corpus.$lang.xz
     xzcat *.$lang.xz | ana $lang | lemma_per_line | to_freqlist > lm-freqlist.$lang
     xzcat *.$lang.xz | poormans_tokeniser | to_freqlist > form-freqlist.$lang
 done
