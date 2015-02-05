@@ -13,7 +13,7 @@ test -d tmp || mkdir tmp
 cd tmp
 
 for lang in smj sme; do
-    convert_ccat $lang | xz - > corpus.$lang.xz
+    #convert_ccat $lang | xz - > corpus.$lang.xz
     xzcat *.$lang.xz | ana $lang | lemma_per_line | to_freqlist > lm-freqlist.$lang
     xzcat *.$lang.xz | poormans_tokeniser | to_freqlist > form-freqlist.$lang
 done
@@ -23,13 +23,12 @@ xmlgrep_fad $GTHOME/words/dicts/smenob/src/[^V]*.xml >fad-nonverb.sme
 
 # TODO: any point in lemmatising sme before smjifying? (should all be
 # lemmatised already but who knows)
-
 (
     cd $GTHOME/words/dicts/smesmj/scripts
     make
-    < fad-verb.sme    lookup_good sme2smj-verb.bin  >fad.sme.smjifisert-verb
-    < fad-nonverb.sme lookup_good sme2smj-nomen.bin >fad.sme.smjifisert-nonverb
 )
+< fad-verb.sme    lookup_good $GTHOME/words/dicts/smesmj/scripts/sme2smj-verb.bin  >fad.sme.smjifisert-verb
+< fad-nonverb.sme lookup_good $GTHOME/words/dicts/smesmj/scripts/sme2smj-nomen.bin >fad.sme.smjifisert-nonverb
 cat fad-verb.sme fad-nonverb.sme \
     | lookup_good $GTHOME/words/dicts/smesmj/bin/smesmj.fst >fad.sme.smjifisert-ordbok
 
