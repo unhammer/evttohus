@@ -1,11 +1,10 @@
 #!/bin/bash
 
+noconvert=$1
+
 cd "$(dirname "$0")"
-
 set -e -u
-
 source functions.sh
-
 trap 'kill 0' EXIT
 
 test -d tmp || mkdir tmp
