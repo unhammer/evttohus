@@ -1,33 +1,28 @@
 #!/bin/bash
 
-noconvert=$1
-
 cd "$(dirname "$0")"
 set -e -u
 source functions.sh
 trap 'kill 0' EXIT
 
-test -d tmp || mkdir tmp
-
-cd tmp
-
+./dicts-to-tsv.sh
 
 if [[ $# -ge 1 ]]; then
-    echo "Converting corpora ..."
-    for lang in smj sme; do 
-        convert_all $lang
+    shift
+    for lang in smj sme; do
+        ./make-freq.sh $lang "$@"
     done
-else
-    echo "Skipping corpus conversion ..."
 fi
-for lang in smj sme; do
-    ccat_all $lang | xz - > corpus.$lang.xz
-    xzcat *.$lang.xz | ana $lang | lemma_per_line | to_freqlist > lm-freqlist.$lang
-    xzcat *.$lang.xz | poormans_tokeniser | to_freqlist > form-freqlist.$lang
-done
 
-xmlgrep_fad $GTHOME/words/dicts/smenob/src/V*.xml    >fad-verb.sme
-xmlgrep_fad $GTHOME/words/dicts/smenob/src/[^V]*.xml >fad-nonverb.sme
+test -d tmp || mkdir tmp
+cd tmp
+
+cat <(cut -f1  ../words-src-fad/smenob/V*.tsv) \
+    <(cut -f2- ../words-src-fad/nobsme/V*.tsv | tr '\t' '\n') \
+    | sort -u > verb.sme
+cat <(cut -f1  ../words-src-fad/smenob/[^V]*.tsv) \
+    <(cut -f2- ../words-src-fad/nobsme/[^V]*.tsv | tr '\t' '\n') \
+    | sort -u > nonverb.sme
 
 # TODO: any point in lemmatising sme before smjifying? (should all be
 # lemmatised already but who knows)
@@ -35,18 +30,16 @@ xmlgrep_fad $GTHOME/words/dicts/smenob/src/[^V]*.xml >fad-nonverb.sme
     cd $GTHOME/words/dicts/smesmj/scripts
     make
 )
-< fad-verb.sme    lookup_good $GTHOME/words/dicts/smesmj/scripts/sme2smj-verb.bin  >fad.sme.smjifisert-verb
-< fad-nonverb.sme lookup_good $GTHOME/words/dicts/smesmj/scripts/sme2smj-nomen.bin >fad.sme.smjifisert-nonverb
-cat fad-verb.sme fad-nonverb.sme \
-    | lookup_good $GTHOME/words/dicts/smesmj/bin/smesmj.fst >fad.sme.smjifisert-ordbok
+< verb.sme    lookup_good $GTHOME/words/dicts/smesmj/scripts/sme2smj-verb.bin  >sme.smjifisert-verb
+< nonverb.sme lookup_good $GTHOME/words/dicts/smesmj/scripts/sme2smj-nomen.bin >sme.smjifisert-nonverb
+cat verb.sme nonverb.sme \
+    | lookup_good $GTHOME/words/dicts/smesmj/bin/smesmj.fst >sme.smjifisert-ordbok
 
 
-join_freq fad.sme.smjifisert-verb lm-freqlist.smj > lm-belagt-smjifisert-verb
-join_freq fad.sme.smjifisert-nonverb lm-freqlist.smj > lm-belagt-smjifisert-nonverb
-join_freq fad.sme.smjifisert-ordbok lm-freqlist.smj > lm-belagt-smjifisert-ordbok
+for t in lms forms; do
+    for fst in verb nonverb ordbok; do
+        join_freq sme.smjifisert-$fst ../freq/$t.smj > $t-belagt-smjifisert-$fst
+    done
+done
 
-join_freq fad.sme.smjifisert-verb form-freqlist.smj > form-belagt-smjifisert-verb
-join_freq fad.sme.smjifisert-nonverb form-freqlist.smj > form-belagt-smjifisert-nonverb
-join_freq fad.sme.smjifisert-ordbok form-freqlist.smj > form-belagt-smjifisert-ordbok
-
-wc -l *belagt-smjifisert*
+wc -l *-belagt-smjifisert-*

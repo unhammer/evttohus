@@ -5,10 +5,14 @@ lookup_good () {
     lookup -q "${fst}" | grep -v '+?$' |grep .
 }
 
+preprocess () {
+    lang=$1
+    $GTHOME/gt/script/preprocess --abbr=$GTHOME/langs/${lang}/tools/preprocess/abbr.txt
+}
+
 ana () {
     lang=$1
-    $GTHOME/gt/script/preprocess --abbr=$GTHOME/langs/${lang}/tools/preprocess/abbr.txt \
-        |lookup -q $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
+    preprocess $lang | lookup -q $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
 }
 
 lemma_per_line () {
@@ -24,8 +28,8 @@ to_freqlist () {
     sort|uniq -c|sort -nr|sed $'s/^ *//;s/ /\t/'
 }
 
-poormans_tokeniser () {
-    sed "s/[…““’]/'/g" | tr $' ;/\\0123456789{}[]«»"_.?:-:,)(””!¶\t'"'" '\n'
+clean_punct () {
+    sed "s/[…““’]/'/g" | tr $' ;/\\0123456789{}[]«»"_.?:-:,)(””!¶\t'"'" ' '
 }
 
 join_freq () {

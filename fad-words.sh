@@ -5,18 +5,10 @@
 
 noconvert=$1
 
-source ~/virt_env/ct-svn/bin/activate
-
+cd "$(dirname "$0")"
 set -e -u
-
-SUM_NOB=$(mktemp -t fad-words.XXXXXXXXXXXX)
-cleanup () {
-    rm -f "${SUM_NOB}"
-    kill $$
-}
-trap cleanup EXIT
-
-
+source functions.sh
+trap 'kill 0' EXIT
 
 smenob_fad () {
     xmlstarlet sel -t -m '//e[@src="fad"]/mg/tg/t/text()' -c . -n $GTHOME/words/dicts/smenob/src/*.xml
