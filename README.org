@@ -1,0 +1,2 @@
+various scripts and such used to create dictionary candidates for nob2smj
+and nob2sma from nob2sme dictionary + corpora
