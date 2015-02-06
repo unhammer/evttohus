@@ -60,3 +60,58 @@ ccat_all () {
     cat <(ccat -a -l $lang $GTBOUND/converted/$lang) \
         <(ccat -a -l $lang $GTFREE/converted/$lang)
 }
+
+
+dict_xml2tsv () {
+    restriction=$1
+    shift
+    # forall e where $restriction
+    #   print lg/l/text
+    #   forall mg/tg/t:
+    #     print text()
+    #   print "\n"
+    xmlstarlet sel -t \
+        -m "//e${restriction}" -c './lg/l/text()' \
+        -m './mg/tg/t' -o $'\t' -c './text()' \
+        -b -n \
+        "$@"
+}
+
+dir2tsv () {
+    # Will output into "$dir" under cwd
+    restriction=$1
+    dir=$2
+    test -d $dir || mkdir $dir
+    for xml in $GTHOME/words/dicts/$dir/src/*.xml; do
+        tsv=$dir/$(basename "$xml")
+        tsv=${tsv%%.xml}.tsv
+        if ! dict_xml2tsv "${restriction}" "${xml}" > "${tsv}"; then
+            # No hits for that file:
+            test -s "${tsv}" || rm -f "${tsv}"
+        fi
+    done
+}
+
+dicts2tsv () {
+    restriction=$1
+    shift
+    for lang1 in "$@"; do
+        for lang2 in "$@"; do
+            dir=${lang1}${lang2}
+            if [[ $lang1 = $lang2 ]]; then
+                continue
+            elif [[ ! -d $GTHOME/words/dicts/$dir ]]; then
+                echo "$GTHOME/words/dicts/$dir doesn't exist yet" >&2
+                continue
+            else
+                dir2tsv "${restriction}" "${dir}"
+            fi
+        done
+    done
+
+    for lang in "$@"; do
+        cat <(cut -f1  ${lang}???/*.tsv) \
+            <(cut -f2- ???${lang}/*.tsv | tr '\t' '\n') \
+            | sort -u > ${lang}
+    done
+}
