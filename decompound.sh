@@ -2,8 +2,15 @@
 
 set -e -u
 
+# Restrict to words with src=fad:
+words=words-src-fad
+# Uncomment to try on all words:
+#words=words
+
 source functions.sh
-lang=$1
+lang1=$1
+lang2=$2
+dir=${lang1}${lang2}
 
 uniq_ana () {
     # not enough to run uniq since each ana-group is not sorted
@@ -28,11 +35,22 @@ END {
 }
 
 
-cat <(cut -f1  words-src-fad/${lang}???/N_*.tsv) \
-    <(cut -f2- words-src-fad/???${lang}/N_*.tsv | tr '\t' '\n') \
-    | sort -u \
-    | ana sme \
-    | grep '+Cmp#.*+N[^#]*$' \
-    | sed 's/+[^#]*#*/	/g;s/	$//' \
-    | uniq_ana \
-    | gawk -vdict=words/smesmj/N_smesmj.tsv -f compound-translate.awk
+test -d out || mkdir out
+test -d out/${dir} || mkdir out/${dir}
+
+for pos in N V A; do
+    dict=words/${dir}/${pos}_smesmj.tsv
+    echo -n "${pos} compound analyses found: " >&2
+    cat <(cut -f1  ${words}/${lang1}???/${pos}_*.tsv) \
+        <(cut -f2- ${words}/???${lang1}/${pos}_*.tsv | tr '\t' '\n') \
+        | sort -u \
+        | ana ${lang1} \
+        | grep "+Cmp#.*+${pos}[^#]*$" \
+        | tee >(wc -l >&2) \
+        | sed 's/+[^#]*#*/	/g;s/	$//' \
+        | uniq_ana \
+        | gawk -vdict=${dict} -f compound-translate.awk \
+        > out/${dir}/${pos}.decomp
+    echo -n "${pos} compounds translated:    " >&2
+    grep -v '^#' out/${dir}/${pos}.decomp | wc -l >&2
+done
