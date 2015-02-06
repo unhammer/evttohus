@@ -27,5 +27,12 @@ END {
 '
 }
 
-sort -u words-src-fad/$lang | ana sme \
-    | grep +Cmp | sed 's/+[^#]*#*/	/g' | uniq_ana
+cat <(cut -f1  words-src-fad/${lang}???/N_*.tsv) \
+    <(cut -f2- words-src-fad/???${lang}/N_*.tsv | tr '\t' '\n') \
+    | sort -u \
+    | ana sme \
+    | grep '+Cmp#.*+N[^#]*$' \
+    | sed 's/+[^#]*#*/	/g' \
+    | uniq_ana \
+    > tmp/N_dec.sme
+
