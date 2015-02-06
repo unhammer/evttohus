@@ -100,8 +100,8 @@ dicts2tsv () {
             dir=${lang1}${lang2}
             if [[ $lang1 = $lang2 ]]; then
                 continue
-            elif [[ ! -d $GTHOME/words/dicts/$dir ]]; then
-                echo "$GTHOME/words/dicts/$dir doesn't exist yet" >&2
+            elif [[ ! -d $GTHOME/words/dicts/$dir/src ]]; then
+                echo "\$GTHOME/words/dicts/$dir doesn't exist (yet)" >&2
                 continue
             else
                 dir2tsv "${restriction}" "${dir}"
