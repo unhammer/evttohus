@@ -14,9 +14,16 @@ test -d words || mkdir words
     for csv in $GTHOME/words/dicts/$dir/src/*.csv; do
         tsv=$dir/$(basename "$csv")
         tsv=${tsv%%.csv}.tsv
-        # "normalise" PoS names:
-        tsv=$(echo "$tsv"|perl -wnpe 's/(\w+)_/\u\L$1_/;s/Cc_/CC_/;s/Cs_/CS_/;s/(Pp|Prep)_/Pr_/;s/P_/Po_/;')
         cut -f1-2 <"${csv}" > "${tsv}"
+    done
+
+    for tsv in {smesmj,smanob,smasme}/*.tsv; do
+        # normalise PoS names a bit:
+        norm=$(echo "$tsv" | perl -wnpe '
+          s/(\w+)_/\u\L$1_/;
+          s/Cc_/CC_/; s/Cs_/CS_/; s/(Pp|Prep)_/Pr_/; s/P_/Po_/; s/I_/Ij_/;'
+        )
+        mv "${tsv}" "${norm}"
     done
 )
 
