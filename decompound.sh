@@ -40,6 +40,7 @@ test -d out/${dir} || mkdir out/${dir}
 
 for pos in N V A; do
     dict=words/${dir}/${pos}_${dir}.tsv
+    if [[ ! -f ${dict} ]]; then echo "${dict} doesn't exist"; continue; fi
     echo -n "${pos} compound analyses found: " >&2
     cat <(cut -f1  ${words}/${lang1}???/${pos}_*.tsv) \
         <(cut -f2- ${words}/???${lang1}/${pos}_*.tsv | tr '\t' '\n') \
