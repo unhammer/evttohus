@@ -2,9 +2,12 @@
 
 set -e -u
 
+dir=smesmj
+
 make
 
 test -d out || mkdir out
+test -d out/${dir} || mkdir out/${dir}
 test -d tmp || mkdir tmp
 
 sed 's/[´`¨~<=>|°·‘§©@€*\&%+́–¼½¾¹]//g' form-freqlist.smj \
@@ -22,10 +25,10 @@ for f in ../out/smesmj/*; do
             | cut -f2- \
             | tr '\t' '\n' \
             | ./spell.native ${edits} tmp/smj.dawg \
-            | tee out/${edits}.spelt."$b" \
+            | tee tmp/${edits}.spelt."$b" \
             | awk -F'\t' '/IN_CORPUS/{next}$2{print}' \
-            > out/${edits}.sugg."$b"
-        gawk -f join_sugg.awk -vsuggs=out/${edits}.sugg."$b" "$f" \
-            > out/${edits}.sme.sugg."$b"
+            > tmp/${edits}.sugg."$b"
+        gawk -f join_sugg.awk -vsuggs=tmp/${edits}.sugg."$b" "$f" \
+            > out/${dir}/"$b"_sugg${edits}
     done
 done
