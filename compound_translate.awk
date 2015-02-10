@@ -62,7 +62,7 @@ $1 in trans {
     trgs = trg", "trgs
   }
   sub(/, $/, "", trgs)
-  printf "# %s in %s as %s\n", $1, dict, trgs
+  #printf "# %s in %s as %s\n", $1, dict, trgs
 }
 
 # TODO: could try to look up three-part compounds by their two-part
@@ -90,6 +90,10 @@ $1 in trans {
     }
   }
   if(good==1) {
-    print $1, combine(cand, 1)
+    translated_s=combine(cand, 1)
+    asplit(translated_s, translated, "\t")
+    for(t in translated) {
+      print $1, t
+    }
   }
 }

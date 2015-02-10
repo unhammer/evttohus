@@ -50,5 +50,5 @@ for pos in N V A; do
         | gawk -vdict=${dict} -f compound_translate.awk \
         > out/${dir}/${pos}_decomp
     echo -n "${pos} compounds translated:    " >&2
-    grep -v '^#' out/${dir}/${pos}_decomp | wc -l >&2
+    grep -v '^#' out/${dir}/${pos}_decomp|cut -f1|sort -u| wc -l >&2
 done
