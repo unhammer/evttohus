@@ -15,12 +15,17 @@ sed 's/[´`¨~<=>|°·‘§©@€*\&%+́–¼½¾¹]//g' form-freqlist.smj \
 
 ./comp.native tmp/smj.words.sorted tmp/smj.dawg
 
-for f in fad.sme.smjifisert-*verb; do
-    for n in 1 2; do
-        cut -f2 "$f" \
-            | ./spell.native $n tmp/smj.dawg \
-            | tee out/$n.spelt."$f" \
+for f in ../out/smesmj/*; do
+    b=$(basename "$f")
+    for max_edits in 1 2; do
+        grep -v '^#' "$f" \
+            | cut -f2- \
+            | tr '\t' '\n' \
+            | ./spell.native ${max_edits} tmp/smj.dawg \
+            | tee out/$n.spelt."$b" \
             | awk -F'\t' '/IN_CORPUS/{next}$2{print}' \
-            > out/$n.sugg."$f"
+            > out/$n.sugg."$b"
+        gawk -f join_sugg.awk -vsuggs=out/$n.sugg."$b" "$f" \
+            > out/$n.sme.sugg."$b"
     done
 done
