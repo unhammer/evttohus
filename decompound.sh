@@ -12,28 +12,6 @@ lang1=$1
 lang2=$2
 dir=${lang1}${lang2}
 
-uniq_ana () {
-    # not enough to run uniq since each ana-group is not sorted
-    awk '
-BEGIN{OFS=FS="\t"; }
-$1!=form {
-    if(length(cohort)>0) {
-      for(r in cohort) print r
-      for(r in cohort) delete cohort[r]
-    }
-}
-END {
-    if(length(cohort)>0) {
-      for(r in cohort) print r
-    }
-}
-{
-  form=$1
-  cohort[$0]++
-}
-'
-}
-
 clean_ana () {
     lang=$1
     if [[ ${lang} = nob ]]; then
@@ -50,7 +28,9 @@ clean_ana () {
     else
         grep "+Cmp#.*+${pos}[^#]*$" \
             | sed 's/+[^#]*#*/	/g;s/	$//'
-    fi    
+    fi \
+        | awk -F'\t' 'NF<=4'
+    # NF==4 means three-part compounds – anything longer is likely to be bad
 }
 
 test -d out || mkdir out
@@ -65,9 +45,9 @@ for pos in N V A; do
         | sort -u \
         | ana ${lang1} \
         | clean_ana ${lang1} \
+        | gawk -f uniq_ana.awk \
         | tee >(wc -l >&2) \
-        | uniq_ana \
-        | gawk -vdict=${dict} -f compound-translate.awk \
+        | gawk -vdict=${dict} -f compound_translate.awk \
         > out/${dir}/${pos}.decomp
     echo -n "${pos} compounds translated:    " >&2
     grep -v '^#' out/${dir}/${pos}.decomp | wc -l >&2
