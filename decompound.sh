@@ -18,8 +18,10 @@ clean_ana () {
         # nob for some reason has completely different analysis format :(
         grep "#+Cmp.*+${pos}[^#]*$" \
             | sed 's/+X+N/+N/g' \
-            | sed 's/+[^#+]*#+CmpS*[+-]/	/g;s/+[^#]*$//' \
-            | sed ';s/		*/	/g'
+            | sed 's/+[^#+]*#+CmpS*+/	/g;
+                   s/+[^#+]*#+CmpS*-/-	/g;
+                   s/+[^#]*$//' \
+            | sed 's/		*/	/g'
         # samarbeidsspørsmål	samarbeid	+N#+CmpS+spørs+X+N#+Cmp+mål+N+Neu+Pl+Indef
         # forsøksråd	for	+N#+Cmp+søk+N#+CmpS+råd+N+Neu+Sg+Indef
         # primærprodukt	primær+A#+Cmp+produkt+N+Neu+Sg+Indef

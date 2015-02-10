@@ -74,9 +74,15 @@ $1 in trans {
   good=1
   for(i=2; i<=NF; i++) {
     src=$i
+    srcnodash=$i; sub(/-$/, "", srcnodash)
     if(src in trans) {
       for(trg in trans[src]) {
         cand[i-1][trg]++
+      }
+    }
+    else if(srcnodash in trans) {
+      for(trg in trans[srcnodash]) {  # look up without dash,
+        cand[i-1][trg"-"]++           # then re-add dash to result
       }
     }
     else {
