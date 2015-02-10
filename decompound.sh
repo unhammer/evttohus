@@ -30,9 +30,7 @@ clean_ana () {
     else
         grep "+Cmp#.*+${pos}[^#]*$" \
             | sed 's/+[^#]*#*/	/g;s/	$//'
-    fi \
-        | awk -F'\t' 'NF<=4'
-    # NF==4 means three-part compounds – anything longer is likely to be bad
+    fi
 }
 
 test -d out || mkdir out
