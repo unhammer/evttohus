@@ -22,6 +22,7 @@ cat <(cut -f1  words-src-fad/smenob/[^V]*.tsv) \
     <(cut -f2- words-src-fad/nobsme/[^V]*.tsv | tr '\t' '\n') \
     | sort -u > words-src-fad/nonV.sme
 
+
 # TODO: any point in lemmatising sme before smjifying? (should all be
 # lemmatised already but who knows)
 dir=smesmj
@@ -30,6 +31,10 @@ fsts=$GTHOME/words/dicts/${dir}
     cd ${fsts}/scripts
     make
 )
+
+test -d out || mkdir out
+test -d out/${dir} || mkdir out/${dir}
+
 < words-src-fad/V.sme    lookup_good ${fsts}/scripts/sme2smj-verb.bin  > out/${dir}/V_xfst
 < words-src-fad/nonV.sme lookup_good ${fsts}/scripts/sme2smj-nomen.bin > out/${dir}/nonV_xfst
 
