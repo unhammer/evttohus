@@ -68,6 +68,7 @@ for f in tmp/nobsmasme/*; do
     <"$f" freq_annotate 1 freq/lms.nob ${sumnob} ${sumsma} \
         | freq_annotate 2 freq/lms.sma ${sumsma} ${sumsma} \
         | freq_annotate 3 freq/lms.sme ${sumsme} ${sumsma} \
+        | sort -nr -k5,5 -k2,2 -t$'\t' \
         >out/nobsmasme/"$b"
 done
 for f in tmp/nobsmjsme/*; do
@@ -75,5 +76,6 @@ for f in tmp/nobsmjsme/*; do
     <"$f" freq_annotate 1 freq/lms.nob ${sumnob} ${sumsmj} \
         | freq_annotate 2 freq/lms.smj ${sumsmj} ${sumsmj} \
         | freq_annotate 3 freq/lms.sme ${sumsme} ${sumsmj} \
+        | sort -nr -k5,5 -k2,2 -t$'\t' \
         >out/nobsmjsme/"$b"
 done
