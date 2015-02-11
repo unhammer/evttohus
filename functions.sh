@@ -44,6 +44,20 @@ join_freq () {
     )
 }
 
+freq_annotate () {
+    # Look up a column ($1) of candidates from stdin in freqfile ($2)
+    # and append the freq to each line of the candidates
+    awk -v column="$1" -v freqs="$2" '
+BEGIN{
+  OFS=FS="\t"
+  while(getline<freqs)freq[$2]=$1
+}
+{
+  print $0,freq[$column]
+}'
+}
+
+
 xmlgrep_fad () {
     xmlstarlet sel -t -m '//e[@src="fad"]/lg/l/text()' -c . -n "$@"
 }
