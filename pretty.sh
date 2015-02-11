@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 set -e -u
 source functions.sh
 
-for d in out out/nobsmjsme out/nobsmasme tmp; do
+for d in out out/nobsmjsme out/nobsmasme tmp tmp/nobsmjsme tmp/nobsmasme; do
     test -d $d || mkdir $d
 done
 
@@ -46,7 +46,7 @@ for f in out/smesmj/* spell/out/smesmj/*; do
     pos=$(pos_glob "$b")
     cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/srctrg 2>/dev/null
     cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/trgsrc 2>/dev/null
-    < "$f" trans_annotate tmp/srctrg tmp/trgsrc 1 > out/nobsmjsme/"$b"
+    < "$f" trans_annotate tmp/srctrg tmp/trgsrc 1 > tmp/nobsmjsme/"$b"
 done
 
 for f in out/nobsma/*; do
@@ -54,19 +54,26 @@ for f in out/nobsma/*; do
     pos=$(pos_glob "$b")
     cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/srctrg 2>/dev/null
     cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/trgsrc 2>/dev/null
-    < "$f" trans_annotate tmp/srctrg tmp/trgsrc 3 > out/nobsmasme/"$b"
+    < "$f" trans_annotate tmp/srctrg tmp/trgsrc 3 > tmp/nobsmasme/"$b"
 done
 
 
-# TODO: freq's should be normalised somehow; perhaps by simply
-# cropping the corpus to the size of the smallest corpus
-for f in out/nobsmasme/*; do
-    <"$f" freq_annotate 1 freq/forms.nob \
-        | freq_annotate 2 freq/forms.sma \
-        | freq_annotate 3 freq/forms.sme >tmp/sma$(basename "$f")
+# Normalise frequency sums (to the smallest corpora, ie. smj/sma):
+sumnob=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/lms.nob)
+sumsma=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/lms.sma)
+sumsme=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/lms.sme)
+sumsmj=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/lms.smj)
+for f in tmp/nobsmasme/*; do
+    b=$(basename "$f")
+    <"$f" freq_annotate 1 freq/lms.nob ${sumnob} ${sumsma} \
+        | freq_annotate 2 freq/lms.sma ${sumsma} ${sumsma} \
+        | freq_annotate 3 freq/lms.sme ${sumsme} ${sumsma} \
+        >out/nobsmasme/"$b"
 done
-for f in out/nobsmjsme/*; do
-    <"$f" freq_annotate 1 freq/forms.nob \
-        | freq_annotate 2 freq/forms.smj \
-        | freq_annotate 3 freq/forms.sme >tmp/smj$(basename "$f")
+for f in tmp/nobsmjsme/*; do
+    b=$(basename "$f")
+    <"$f" freq_annotate 1 freq/lms.nob ${sumnob} ${sumsmj} \
+        | freq_annotate 2 freq/lms.smj ${sumsmj} ${sumsmj} \
+        | freq_annotate 3 freq/lms.sme ${sumsme} ${sumsmj} \
+        >out/nobsmjsme/"$b"
 done
