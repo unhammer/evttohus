@@ -60,6 +60,7 @@ let good_suggs input suggs =
   Set.filter (compose ((<) 2) UTF8.length) suggs
   |> Set.filter (same_upper input_has_upper)
   |> Set.filter (same_firstvc input_firstvc)
+  |> Set.remove input
 
 
 let () =
