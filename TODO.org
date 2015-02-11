@@ -1,3 +1,6 @@
+* TODO try spelling lms instead of forms
+  : git checkout spell-lms-instead-of-forms
+* TODO try grabbing word all lists from langs/smj etc. and adding to speller material
 * TODO add "word-lists" to corpus before make-freq?
 
 * TODO also try non-fad words for the sources that give the best candidates
