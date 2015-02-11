@@ -3,7 +3,6 @@
 cd "$(dirname "$0")"
 set -e -u
 source functions.sh
-trap 'kill 0' EXIT
 
 ./dicts-to-tsv.sh
 
@@ -30,8 +29,8 @@ cat <(cut -f1  words-src-fad/smenob/[^VNA]*.tsv) \
 dir=smesmj
 fsts=$GTHOME/words/dicts/${dir}
 (
-    cd ${fsts}/scripts
-    make
+    cd ${fsts}/scripts && make
+    cd ${fsts}/src && make
 )
 
 test -d out || mkdir out
@@ -51,8 +50,8 @@ done
 # Just print some frequency stats:
 test -d tmp || mkdir tmp
 for t in lms forms; do
-    for out in *_xfst *_lexc; do
-        join_freq out/${dir}/${out} freq/$t.smj > tmp/$t.belagt.${out}
+    for out in out/${dir}/*_{xfst,lexc}; do
+        join_freq ${out} freq/$t.smj > tmp/$t.belagt.$(basename ${out})
     done
 done
 wc -l tmp/{lms,forms}.belagt.*
