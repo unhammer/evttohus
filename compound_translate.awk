@@ -3,7 +3,7 @@
 
 ## Run like:
 
-# gawk -vdict=words/smesmj/N_smesmj.tsv compound-translate.awk < N_decompounded.sme
+# gawk -v dict=words/smesmj/N_smesmj.tsv compound-translate.awk < N_decompounded.sme
 
 ## where words/smesmj/N_smesmj.tsv has sme in the first column and smj
 ## in the following columns (there may be more than one
