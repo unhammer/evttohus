@@ -53,7 +53,7 @@ BEGIN{
   while(getline<freqs)freq[$2]=$1
 }
 {
-  print $0,freq[$column]
+  print $0,int(freq[$column])
 }'
 }
 

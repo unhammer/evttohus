@@ -1,3 +1,5 @@
+# some of these scripts make folders, doesn't work with -j2 yet
+
 all: out/nobsmasme out/nobsmjsme
 
 out/nobsmasme out/nobsmjsme: out/smesmj out/nobsma

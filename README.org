@@ -1,5 +1,5 @@
 Various scripts and such used to create dictionary candidates for nob2smj
 and nob2sma from nob2sme dictionary + corpora.
 
-* TODO freq-annotate out/** and spell/out/**
+* TODO shorten corpora to size of the smallest for comparable frequencies
 * TODO kwic-annotate out-files

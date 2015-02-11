@@ -1,6 +1,8 @@
 #!/bin/bash
 
+cd "$(dirname "$0")"
 set -e -u
+source functions.sh
 
 for d in out out/nobsmjsme out/nobsmasme tmp; do
     test -d $d || mkdir $d
@@ -39,18 +41,32 @@ pos_glob () {
     esac
 }
 
-for f in out/smesmj/*; do
+for f in out/smesmj/* spell/out/smesmj/*; do
     b=$(basename "$f")
     pos=$(pos_glob "$b")
-    cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/srctrg 2>/dev/null || echo "(no nobsme/${pos})"
-    cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/trgsrc 2>/dev/null || echo "(no nobsme/${pos})"
+    cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/srctrg 2>/dev/null
+    cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/trgsrc 2>/dev/null
     < "$f" trans_annotate tmp/srctrg tmp/trgsrc 1 > out/nobsmjsme/"$b"
 done
 
 for f in out/nobsma/*; do
     b=$(basename "$f")
     pos=$(pos_glob "$b")
-    cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/srctrg 2>/dev/null || echo "(no nobsme/${pos})"
-    cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/trgsrc 2>/dev/null || echo "(no smenob/${pos})"
+    cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/srctrg 2>/dev/null
+    cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/trgsrc 2>/dev/null
     < "$f" trans_annotate tmp/srctrg tmp/trgsrc 3 > out/nobsmasme/"$b"
+done
+
+
+# TODO: freq's should be normalised somehow; perhaps by simply
+# cropping the corpus to the size of the smallest corpus
+for f in out/nobsmasme/*; do
+    <"$f" freq_annotate 1 freq/forms.nob \
+        | freq_annotate 2 freq/forms.sma \
+        | freq_annotate 3 freq/forms.sme >tmp/sma$(basename "$f")
+done
+for f in out/nobsmjsme/*; do
+    <"$f" freq_annotate 1 freq/forms.nob \
+        | freq_annotate 2 freq/forms.smj \
+        | freq_annotate 3 freq/forms.sme >tmp/smj$(basename "$f")
 done
