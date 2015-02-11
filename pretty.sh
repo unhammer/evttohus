@@ -49,7 +49,7 @@ for f in out/smesmj/* spell/out/smesmj/*; do
     < "$f" trans_annotate tmp/srctrg tmp/trgsrc 1 > tmp/nobsmjsme/"$b"
 done
 
-for f in out/nobsma/*; do
+for f in out/nobsma/* spell/out/nobsma/*; do
     b=$(basename "$f")
     pos=$(pos_glob "$b")
     cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/srctrg 2>/dev/null
