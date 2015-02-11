@@ -15,12 +15,14 @@ if [[ $# -ge 1 ]]; then
 fi
 
 # Split words into verbs and nonverbs:
-cat <(cut -f1  words-src-fad/smenob/V*.tsv) \
-    <(cut -f2- words-src-fad/nobsme/V*.tsv | tr '\t' '\n') \
-    | sort -u > words-src-fad/V.sme
-cat <(cut -f1  words-src-fad/smenob/[^V]*.tsv) \
-    <(cut -f2- words-src-fad/nobsme/[^V]*.tsv | tr '\t' '\n') \
-    | sort -u > words-src-fad/nonV.sme
+for pos in V N A; do
+    cat <(cut -f1  words-src-fad/smenob/${pos}*.tsv) \
+        <(cut -f2- words-src-fad/nobsme/${pos}*.tsv | tr '\t' '\n') \
+        | sort -u > words-src-fad/${pos}.sme
+done
+cat <(cut -f1  words-src-fad/smenob/[^VNA]*.tsv) \
+    <(cut -f2- words-src-fad/nobsme/[^VNA]*.tsv | tr '\t' '\n') \
+    | sort -u > words-src-fad/nonVNA.sme
 
 
 # TODO: any point in lemmatising sme before smjifying? (should all be
@@ -35,16 +37,21 @@ fsts=$GTHOME/words/dicts/${dir}
 test -d out || mkdir out
 test -d out/${dir} || mkdir out/${dir}
 
-< words-src-fad/V.sme    lookup_good ${fsts}/scripts/sme2smj-verb.bin  > out/${dir}/V_xfst
-< words-src-fad/nonV.sme lookup_good ${fsts}/scripts/sme2smj-nomen.bin > out/${dir}/nonV_xfst
-
-cat words-src-fad/sme | lookup_good ${fsts}/bin/${dir}.fst >out/${dir}/all_lexc
+for pos in V N A nonVNA; do
+    if [[ ${pos} = V ]]; then
+        fstpos=sme2smj-verb.bin
+    else
+        fstpos=sme2smj-nomen.bin
+    fi
+    < words-src-fad/${pos}.sme lookup_good ${fsts}/scripts/${fstpos} > out/${dir}/${pos}_xfst
+    < words-src-fad/${pos}.sme lookup_good ${fsts}/bin/${dir}.fst    > out/${dir}/${pos}_lexc
+done
 
 
 # Just print some frequency stats:
 test -d tmp || mkdir tmp
 for t in lms forms; do
-    for out in V_xfst nonV_xfst all_lexc; do
+    for out in *_xfst *_lexc; do
         join_freq out/${dir}/${out} freq/$t.smj > tmp/$t.belagt.${out}
     done
 done
