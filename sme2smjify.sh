@@ -35,10 +35,10 @@ test -d out || mkdir out
 test -d out/${dir} || mkdir out/${dir}
 
 for pos in V N A nonVNA; do
-    if [[ ${pos} = V ]]; then
-        fstpos=sme2smj-verb.bin
+    if [[ ${pos} = nonVNA ]]; then
+        fstpos=sme2smj-N.bin
     else
-        fstpos=sme2smj-nomen.bin
+        fstpos=sme2smj-${pos}.bin
     fi
     < words-src-fad/${pos}.sme lookup_good ${fsts}/scripts/${fstpos} > out/${dir}/${pos}_xfst
     < words-src-fad/${pos}.sme lookup_good ${fsts}/bin/${dir}.fst    > out/${dir}/${pos}_lexc
