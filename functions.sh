@@ -69,15 +69,24 @@ xmlgrep_fad () {
 
 convert_all () {
     lang=$1
-    convert2xml $GTBOUND/orig/$lang & P1=$!
+    if [[ -n $GTBOUND ]]; then
+        convert2xml $GTBOUND/orig/$lang & P1=$!
+    else
+        echo "GTBOUND not set, only converting GTFREE"
+    fi
     convert2xml $GTFREE/orig/$lang & P2=$!
     wait $P1 $P2
 }
 
 ccat_all () {
     lang=$1
-    cat <(ccat -a -l $lang $GTBOUND/converted/$lang) \
-        <(ccat -a -l $lang $GTFREE/converted/$lang)
+    if [[ -n $GTBOUND ]]; then
+        cat <(ccat -a -l $lang $GTBOUND/converted/$lang) \
+            <(ccat -a -l $lang $GTFREE/converted/$lang)
+    else
+        echo "GTBOUND not set, only ccat-ing GTFREE"
+        ccat -a -l $lang $GTFREE/converted/$lang
+    fi
 }
 
 
