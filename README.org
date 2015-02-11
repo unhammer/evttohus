@@ -1,41 +1,35 @@
-Various scripts and such used to create dictionary candidates for nob2smj
-and nob2sma from nob2sme dictionary + corpora.
+Various scripts and such used to create dictionary candidates for
+nob2smj and nob2sma from nob2sme dictionary + corpora.
 
-Run =make= to make the stuff; the first time around you need to also run
-=make corpus=.
+* Prerequisites
+  The main prerequisites are
+  [[http://giellatekno.uit.no/doc/ling/CorpusTools.html][- CorpusTools]]
+  - the sme/nob/sma/smj analysers from $GTHOME/langs
+  - all sme/nob/sma/smj-related folders from $GTHOME/words/dicts 
 
-The results will appear in the =out/= directory, where e.g.
-=out/smesmj= has a two-column format where the first word is a sme
-input and the second is a smj candidate.
+  See [[http://giellatekno.uit.no/doc/infra/GettingStarted.html]] for how
+  to set things up – there's no need to mess up your ~/.bashrc, but
+  you'll need to set at least the $GTHOME/$GTFREE/$GTCORE (optionally
+  $GTBOUND) variables, and for now the Xerox tools (xfst/lookup etc.)
+  are needed.
 
-The files in =out/nobsmjsme= and =out/nobsmasme= include both nob and
-sme translations for the candidates, annotated with normalised
-frequencies for all the three words. The format is, tab-separated:
+* Running the candidate generation
 
-: nob	candidate	sme	fr_nob	fr_candidate	fr_sme
+  Run =make= to make the stuff; the first time around you need to also
+  run =make corpus=.
 
-* TODO simple rules for loans
-  | nob          | smj            | sme           |
-  |--------------+----------------+---------------|
-  | transkribere | transkribierit | transkriberit |
-  | initiere     | initieret      | initieret     |
+  The results will appear in the =out/= directory, where e.g.
+  =out/smesmj= has a two-column format where the first word is a sme
+  input and the second is a smj candidate.
 
-  If we need nob, we can't rely on xfst alone.
-  
-* TODO kintel, for nobsmj
-* TODO pretty.sh should include a "source" field or something
-  when we get kintel in there, we need to differentiate if something
-  came from nobsmj or smesmj
-  
-* TODO shorten corpora to size of the smallest for comparable frequencies?
-  Currently, =pretty.sh= will simply divide the sum of the larger by
-  the sum of the smallest corpus.
+  The files in =out/nobsmjsme= and =out/nobsmasme= include both nob
+  and sme translations for the candidates, annotated with normalised
+  frequencies for all the three words. The format is, tab-separated:
 
-* TODO use forms or lms for frequency?
-  Some of the dictionary entries are have 0 hits in lms, but hits in
-  forms (TV-nyheter), but we still get less 0's by using lms
+  : nob 	candidate	sme	fr_nob	fr_candidate	fr_sme
 
-  Could lemmatise before looking up frequency, but this is complicated
-  enough already …
+** Running the candidate-respelling
+  … currently uses some ocaml stuff, TODO
 
-* TODO kwic-annotate out-files
+* TODO stuff
+See [[file:TODO.org][TODO.org]].
