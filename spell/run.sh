@@ -8,7 +8,7 @@ test -d out || mkdir out
 test -d tmp || mkdir tmp
 
 for lang in sma smj; do
-    sed 's/[´`¨~<=>|°·‘§©@€*\&%+́–¼½¾¹]//g' ../freq/forms.${lang} \
+    sed 's/[´`¨~<=>|°·‘§©@€*\&%+́–¼½¾¹]//g' ../freq/lms.${lang} \
         | cut -f2 \
         | grep '^[A-Za-zæøåÆØÅöäÖÄáÁŋŊńŃñÑ]\{3,\}$' \
         | LC_ALL=C sort -u \
