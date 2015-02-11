@@ -3,12 +3,15 @@ all: out/nobsmasme out/nobsmjsme
 out/nobsmasme out/nobsmjsme: out/smesmj out/nobsma
 	./pretty.sh
 
-out/smesmj:
+out/smesmj: words words-src-fad
 	./sme2smjify.sh
 	./decompound.sh sme smj
 
-out/nobsma:
+out/nobsma: words words-src-fad
 	./decompound.sh nob sma
+
+words words-src-fad:
+	./dicts-to-tsv.sh
 
 
 

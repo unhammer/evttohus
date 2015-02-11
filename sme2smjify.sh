@@ -4,8 +4,6 @@ cd "$(dirname "$0")"
 set -e -u
 source functions.sh
 
-./dicts-to-tsv.sh
-
 if [[ $# -ge 1 ]]; then
     shift
     for lang in smj sme; do
