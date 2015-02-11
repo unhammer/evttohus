@@ -14,6 +14,14 @@ frequencies for all the three words. The format is, tab-separated:
 
 : nob	candidate	sme	fr_nob	fr_candidate	fr_sme
 
+* TODO simple rules for loans
+  | nob          | smj            | sme           |
+  |--------------+----------------+---------------|
+  | transkribere | transkribierit | transkriberit |
+  | initiere     | initieret      | initieret     |
+
+  If we need nob, we can't rely on xfst alone.
+  
 * TODO kintel, for nobsmj
 * TODO pretty.sh should include a "source" field or something
   when we get kintel in there, we need to differentiate if something
