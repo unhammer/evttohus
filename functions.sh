@@ -46,14 +46,19 @@ join_freq () {
 
 freq_annotate () {
     # Look up a column ($1) of candidates from stdin in freqfile ($2)
-    # and append the freq to each line of the candidates
-    awk -v column="$1" -v freqs="$2" '
+    # and append the freq to each line of the candidates.
+    # sum is the sum of freqs, norm is the sum of a freqfile.
+    awk -v column="$1" -v freqs="$2" -v sum="$3" -v norm="$4" '
 BEGIN{
   OFS=FS="\t"
   while(getline<freqs)freq[$2]=$1
 }
+function ceil(xs) {
+  x = sprintf("%d", xs)
+  return (x == int(x)) ? x : int(x)+1 
+}
 {
-  print $0,freq[$column]
+  print $0,ceil(freq[$column]*norm/sum)
 }'
 }
 

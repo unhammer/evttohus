@@ -3,3 +3,5 @@ spell/_build
 spell/dawg.ml
 spell/out/
 spell/tmp/
+out/
+tmp/
