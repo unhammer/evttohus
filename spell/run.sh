@@ -41,9 +41,11 @@ spell () {
             | ./spell.native ${edits} ${decomp} tmp/${lang}.dawg \
             | tee tmp/${edits}.spelt."$b" \
             | awk -F'\t' '/IN_CORPUS/{next}$2{print}' \
-                  > tmp/${edits}.sugg."$b"
+            > tmp/${edits}.sugg."$b"
         gawk -f join_sugg.awk -vsuggs=tmp/${edits}.sugg."$b" "$f" \
-             > out/${dir}/"$b"_sugg${edits}
+            | LC_ALL=C sort -u \
+            | LC_ALL=C comm -23 - <(LC_ALL=C sort -u "$f") \
+            > out/${dir}/"$b"_sugg${edits}
     done
 }
 
