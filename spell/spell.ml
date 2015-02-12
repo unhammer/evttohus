@@ -66,12 +66,14 @@ let good_suggs input suggs =
 let () =
   if not !Sys.interactive then
     match Sys.argv with
-    | [| _; max_edits; path |] ->
+    | [| _; max_edits; max_decomp; path |] ->
       let d = Dawg.unserialise_file path in
       let max_edits = Int.of_string max_edits in
+      let max_decomp = Int.of_string max_decomp in
+      let decomp_minlen = 5 in
       IO.lines_of stdin |> Enum.iter (fun l' ->
           let l = (String.trim l') in
-          let suggs = Dawg.lookup_edit d ~max_edits l in
+          let suggs = Dawg.lookup_edit_decomp d ~max_edits ~max_decomp ~decomp_minlen l in
           Printf.printf "%s" l;
           if Set.mem l suggs then Printf.printf "\tIN_CORPUS" else
             Set.iter (fun res -> Printf.printf "\t%s" res) (good_suggs l suggs);
