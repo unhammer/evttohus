@@ -143,3 +143,25 @@ dicts2tsv () {
             | sort -u > ${lang}
     done
 }
+
+lexc2lms () {
+    # ugly hack to grep some lemmas out of lexc's
+    sed 's/!.*//' \
+        | grep -v '^[;   ]*[@+-:<]' \
+        | grep ':.* .*;' \
+        | sed 's/[:+].*//' \
+        | tr -d '#%' \
+        | sed 's/^ *//'
+}
+
+all_lms_of_pos () {
+    lang=$1
+    pos=$2
+    lexc2lms < $GTHOME/langs/${lang}/src/morphology/lexicon.lexc \
+        | cat - words/${lang} <(cut -f2 freq/forms.${lang}) \
+        | sort -u \
+        | ana ${lang} \
+        | grep "+${pos}+[^#]*$" \
+        | cut -f1 \
+        | LC_ALL=C sort -u
+}

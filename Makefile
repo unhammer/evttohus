@@ -1,6 +1,6 @@
 # some of these scripts make folders, doesn't work with -j2 yet
 
-all: out/nobsmasme out/nobsmjsme
+all: out/nobsmasme out/nobsmjsme $(LMS)
 
 out/nobsmasme out/nobsmjsme: out/smesmj out/nobsma
 	./pretty.sh
@@ -15,6 +15,10 @@ out/nobsma: words words-src-fad
 words words-src-fad:
 	./dicts-to-tsv.sh
 
+
+LMS=words/sma.V words/sma.N words/sma.A words/smj.V words/smj.N words/smj.A
+$(LMS):
+	./grab-lms-of-pos.sh
 
 
 # The above goals depend on the corpus, but that takes forever … use
