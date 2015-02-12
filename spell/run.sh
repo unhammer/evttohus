@@ -7,13 +7,23 @@ make
 test -d out || mkdir out
 test -d tmp || mkdir tmp
 
+cleanwords () {
+    sed 's/[´`¨~<=>|°·‘§©@€*\&%+́–¼½¾¹]//g' \
+        | grep '^[A-Za-zæøåÆØÅöäÖÄáÁŋŊńŃñÑïÏ]\{3,\}\($\|	\)' \
+        | LC_ALL=C sort -u
+}
+
 for lang in sma smj; do
-    sed 's/[´`¨~<=>|°·‘§©@€*\&%+́–¼½¾¹]//g' ../freq/forms.${lang} \
-        | cut -f2 \
-        | grep '^[A-Za-zæøåÆØÅöäÖÄáÁŋŊńŃñÑ]\{3,\}$' \
-        | LC_ALL=C sort -u \
-                > tmp/${lang}.words.sorted
-    ./comp.native tmp/${lang}.words.sorted tmp/${lang}.dawg
+    for pos in V N A; do
+        cat <(sed 's/$/	F/' ../words/${lang}.${pos}) ../words/${lang}.[^${pos}] \
+            | cleanwords > tmp/${lang}.${pos}.sorted
+        ./comp.native tmp/${lang}.${pos}.sorted tmp/${lang}.${pos}.dawg
+    done
+    for pos in nonVNA; do
+        cat ../words/${lang}.* \
+            | cleanwords > tmp/${lang}.${pos}.sorted
+        ./comp.native tmp/${lang}.${pos}.sorted tmp/${lang}.${pos}.dawg
+    done
 done
 
 
@@ -22,16 +32,20 @@ spell () {
     f=$2
     dir=$3
     b=$(basename "$f")
+    decomp=1
+    pos=${b%%_*}
     for edits in 1 2; do
         grep -v '^#' "$f" \
             | cut -f2- \
             | tr '\t' '\n' \
-            | ./spell.native ${edits} tmp/${lang}.dawg \
+            | ./spell.native ${edits} ${decomp} tmp/${lang}.dawg \
             | tee tmp/${edits}.spelt."$b" \
             | awk -F'\t' '/IN_CORPUS/{next}$2{print}' \
-                  > tmp/${edits}.sugg."$b"
+            > tmp/${edits}.sugg."$b"
         gawk -f join_sugg.awk -vsuggs=tmp/${edits}.sugg."$b" "$f" \
-             > out/${dir}/"$b"_sugg${edits}
+            | LC_ALL=C sort -u \
+            | LC_ALL=C comm -23 - <(LC_ALL=C sort -u "$f") \
+            > out/${dir}/"$b"_sugg${edits}
     done
 }
 
