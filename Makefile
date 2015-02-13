@@ -31,6 +31,13 @@ freq/forms.% freq/lms.% freq/combined.%: freq/prepcorp.% freq/plaincorp.%
 freq/prepcorp.% freq/plaincorp.%: freq/.d # corpus
 	./prep-corp.sh $*
 
+apertium-sme-sma.sme-sma.dix:
+	svn export https://svn.code.sf.net/p/apertium/svn/nursery/apertium-sme-sma/$@
+apertium-sme-smj.sme-smj.dix:
+	svn export https://svn.code.sf.net/p/apertium/svn/nursery/apertium-sme-smj/$@
+apertium-sme-nob.sme-nob.dix:
+	svn export https://svn.code.sf.net/p/apertium/svn/trunk/apertium-sme-nob/$@
+
 # The above goals depend on the corpus, but that takes forever … use
 # this to re-make the full corpus:
 corpus:
