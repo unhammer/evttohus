@@ -17,7 +17,7 @@ cleanwords () {
 
 for lang in sma smj; do
     for pos in V N A; do
-        sed "s/$/${tab}F/" ../words/${lang}.${pos}) \
+        sed "s/$/${tab}F/" ../words/${lang}.${pos} \
             | cat - ../words/${lang}.[^${pos}] \
             | cleanwords > tmp/${lang}.${pos}.sorted
         ./comp.native tmp/${lang}.${pos}.sorted tmp/${lang}.${pos}.dawg
