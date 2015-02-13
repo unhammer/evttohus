@@ -43,10 +43,10 @@ spell () {
             | cut -f2- \
             | tr '\t' '\n' \
             | ./spell.native ${edits} ${decomp} tmp/${lang}.dawg \
-            | tee tmp/${edits}.spelt."$b" \
+            | tee tmp/${dir}_"$b"_spelt${edits} \
             | awk -F'\t' '/IN_CORPUS/{next}$2{print}' \
-            > tmp/${edits}.sugg."$b"
-        gawk -f join_sugg.awk -vsuggs=tmp/${edits}.sugg."$b" "$f" \
+            > tmp/${dir}_"$b"_sugg${edits}
+        gawk -f join_sugg.awk -vsuggs=tmp/${dir}_"$b"_sugg${edits} "$f" \
             | LC_ALL=C sort -u \
             | LC_ALL=C comm -23 - <(LC_ALL=C sort -u "$f") \
             > out/${dir}/"$b"_sugg${edits}
