@@ -3,7 +3,6 @@
 cd "$(dirname "$0")"
 set -e -u
 source functions.sh
-trap 'kill 0' EXIT
 
 lang=$1
 
