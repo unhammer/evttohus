@@ -15,6 +15,7 @@ cleanwords () {
         | LC_ALL=C sort -u
 }
 
+echo "Compiling dictionaries ..."
 for lang in sma smj; do
     for pos in V N A; do
         sed "s/$/${tab}F/" ../words/${lang}.${pos} \
@@ -52,11 +53,20 @@ spell () {
     done
 }
 
+echo "Spelling ..."
 test -d out/smesmj || mkdir out/smesmj
 for f in ../out/smesmj/*; do
-    spell smj "$f" smesmj
+    if [[ -f "$f" ]]; then
+        spell smj "$f" smesmj
+    else
+        echo "couldn't find $f"; exit 1
+    fi
 done
 test -d out/nobsma || mkdir out/nobsma
 for f in ../out/nobsma/*; do
-    spell sma "$f" nobsma
+    if [[ -f "$f" ]]; then
+        spell sma "$f" nobsma
+    else
+        echo "couldn't find $f"; exit 1
+    fi
 done
