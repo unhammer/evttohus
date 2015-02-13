@@ -23,11 +23,15 @@
   Currently, =pretty.sh= will simply divide the sum of the larger by
   the sum of the smallest corpus.
 
-* TODO use forms or lms for frequency?
+* DONE use forms or lms for frequency?
   Some of the dictionary entries are have 0 hits in lms, but hits in
   forms (TV-nyheter), but we still get less 0's by using lms
 
   Could lemmatise before looking up frequency, but this is complicated
   enough already …
+
+  → We just sum them. This will give dictionary-forms like N.Sg.Nom
+  artificially high frequencies, but *we want to prioritise such hits
+  anyway*.
 
 * TODO kwic-annotate out-files
