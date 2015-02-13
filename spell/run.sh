@@ -7,20 +7,23 @@ make
 test -d out || mkdir out
 test -d tmp || mkdir tmp
 
+tab=$'\t'
+
 cleanwords () {
     sed 's/[´`¨~<=>|°·‘§©@€*\&%+́–¼½¾¹]//g' \
-        | grep '^[A-Za-zæøåÆØÅöäÖÄáÁŋŊńŃñÑïÏ]\{3,\}\($\|	\)' \
+        | grep "^[A-Za-zæøåÆØÅöäÖÄáÁŋŊńŃñÑïÏ]\{3,\}\($\|${tab}\)" \
         | LC_ALL=C sort -u
 }
 
 for lang in sma smj; do
     for pos in V N A; do
-        cat <(sed 's/$/	F/' ../words/${lang}.${pos}) ../words/${lang}.[^${pos}] \
+        sed "s/$/${tab}F/" ../words/${lang}.${pos}) \
+            | cat - ../words/${lang}.[^${pos}] \
             | cleanwords > tmp/${lang}.${pos}.sorted
         ./comp.native tmp/${lang}.${pos}.sorted tmp/${lang}.${pos}.dawg
     done
     for pos in nonVNA; do
-        cat ../words/${lang}.* \
+        sed "s/$/${tab}F/" ../words/${lang}.* \
             | cleanwords > tmp/${lang}.${pos}.sorted
         ./comp.native tmp/${lang}.${pos}.sorted tmp/${lang}.${pos}.dawg
     done
