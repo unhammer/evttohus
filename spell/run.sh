@@ -42,7 +42,7 @@ spell () {
         grep -v '^#' "$f" \
             | cut -f2- \
             | tr '\t' '\n' \
-            | ./spell.native ${edits} ${decomp} tmp/${lang}.dawg \
+            | ./spell.native ${edits} ${decomp} tmp/${lang}.${pos}.dawg \
             | tee tmp/${dir}_"$b"_spelt${edits} \
             | awk -F'\t' '/IN_CORPUS/{next}$2{print}' \
             > tmp/${dir}_"$b"_sugg${edits}
