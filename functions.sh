@@ -7,7 +7,8 @@ lookup_good () {
 
 preproc () {
     lang=$1
-    $GTHOME/gt/script/preprocess --abbr=$GTHOME/langs/${lang}/tools/preprocess/abbr.txt
+    shift
+    $GTHOME/gt/script/preprocess --abbr=$GTHOME/langs/${lang}/tools/preprocess/abbr.txt "$@"
 }
 
 ana () {
