@@ -35,3 +35,12 @@
   anyway*.
 
 * TODO kwic-annotate out-files
+
+* TODO run through usmjNorm and take lemmas for words marked Err/Sub ?
+  
+* TODO lemmatising para/toktmx: analyse forms first, then add to sentences
+  No idea how to make /usr/local/bin/lookup ignore any input, so no
+  good way to split sentences and then patch them back together.
+
+  Simple solution: just ana all the words, read it into an awk assoc
+  table and apply ana's with awk.
