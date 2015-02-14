@@ -13,7 +13,8 @@ preproc () {
 
 ana () {
     lang=$1
-    preproc $lang | lookup -q $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
+    shift
+    preproc ${lang} "$@" | lookup -q $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
 }
 
 lemma_per_line () {
