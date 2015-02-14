@@ -3,9 +3,10 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
 
 * Prerequisites
   The main prerequisites are
-  [[http://giellatekno.uit.no/doc/ling/CorpusTools.html][- CorpusTools]]
+
+  - [[http://giellatekno.uit.no/doc/ling/CorpusTools.html][CorpusTools]]
   - the sme/nob/sma/smj analysers from $GTHOME/langs
-  - all sme/nob/sma/smj-related folders from $GTHOME/words/dicts 
+  - all sme/nob/sma/smj-related folders from $GTHOME/words/dicts
 
   See [[http://giellatekno.uit.no/doc/infra/GettingStarted.html]] for how
   to set things up – there's no need to mess up your ~/.bashrc, but
