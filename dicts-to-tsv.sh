@@ -25,6 +25,17 @@ test -d words || mkdir words
         )
         mv "${tsv}" "${norm}"
     done
+
+    # We only use files named $dir/$pos_$dir.tsv, e.g.
+    # smenob/V_smenob.tsv; append some entries from the more funnily
+    # named files:
+    for f in */[VNA]_{Pl,G3,mwe,NomAg}_* ; do
+        [[ -f $f ]] || continue
+        b=$(basename "$f")
+        pos=${b%%_*};dir=$(dirname "$f")
+        cat "$f" >> "${dir}"/"${pos}_${dir}.tsv"
+    done
+    
 )
 
 test -d words-src-fad || mkdir words-src-fad
