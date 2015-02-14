@@ -5,14 +5,14 @@ lookup_good () {
     lookup -q "${fst}" | grep -v '+?$' |grep .
 }
 
-preprocess () {
+preproc () {
     lang=$1
     $GTHOME/gt/script/preprocess --abbr=$GTHOME/langs/${lang}/tools/preprocess/abbr.txt
 }
 
 ana () {
     lang=$1
-    preprocess $lang | lookup -q $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
+    preproc $lang | lookup -q $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
 }
 
 lemma_per_line () {

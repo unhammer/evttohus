@@ -36,15 +36,10 @@ corp_fad () {
         <(ccat -a -l $lang $GTBOUND/converted/$lang/{admin,facta,laws,news,science})
 }
 
-preprocess () {
-    lang=$1
-    $GTHOME/gt/script/preprocess --abbr=$GTHOME/langs/$lang/tools/preprocess/abbr.txt
-}
-
 hitparade_fad () {
     unset LC_ALL
     lang=$1
-    corp_fad $lang | preprocess $lang |\
+    corp_fad $lang | preproc $lang |\
       sort | uniq -c | sed $'s/^ *//;s/ /\t/' |\
       tee >(awk -F'\t' '{sum+=$1} END{print sum}' > "${SUM_NOB}")|\
       LC_ALL=C sort -k2 -t$'\t'
@@ -58,4 +53,4 @@ echo -n $'sum\t'; cat "${SUM_NOB}"
 # we only print those with src=fad-matches
 
 
-# bzcat corpora/*.nb.txt.bz2 ~/corpora/Copyright/bokmål.txt.bz2 | $GTHOME/gt/script/preprocess --abbr=$GTHOME/langs/nob/tools/preprocess/abbr.txt |sort |uniq -c|sed $'s/^ *//;s/ /\t/'|tee >(awk -F'\t' '{sum+=$1} END{print sum}' > SUM_NOB) |LC_ALL=C sort -k2 -t$'\t'  >hitparade_nonfad.tsv   
+# bzcat corpora/*.nb.txt.bz2 ~/corpora/Copyright/bokmål.txt.bz2 | preproc nob |sort |uniq -c|sed $'s/^ *//;s/ /\t/'|tee >(awk -F'\t' '{sum+=$1} END{print sum}' > SUM_NOB) |LC_ALL=C sort -k2 -t$'\t'  >hitparade_nonfad.tsv   
