@@ -12,18 +12,17 @@ XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
 
 all: out/nobsmasme out/nobsmjsme
-
-out/nobsmasme out/nobsmjsme: $(DECOMPSMA) $(DECOMPSMJ) $(XIFIEDSMJ)
 	./pretty.sh
 
-$(DECOMPSMA): words words-src-fad out/.d
-	./decompound.sh nob sma
+out/nobsmasme: $(DECOMPSMA)
+out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ)
 
-$(DECOMPSMJ): words words-src-fad out/.d
-	./decompound.sh sme smj
+out/%/V_decomp out/%/N_decomp out/%/A_decomp: words words-src-fad out/.d
+	./decompound.sh $*
 
-$(XIFIEDSMJ): words words-src-fad out/.d
+out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst: words words-src-fad out/.d
 	./sme2smjify.sh
+
 
 words words-src-fad: words/.d words-src-fad/.d
 	./dicts-to-tsv.sh

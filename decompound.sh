@@ -8,9 +8,9 @@ words=words-src-fad
 #words=words
 
 source functions.sh
-lang1=$1
-lang2=$2
-dir=${lang1}${lang2}
+dir=$1
+lang1=${dir%???}
+lang2=${dir#???}
 
 
 test -d out || mkdir out
