@@ -1,17 +1,29 @@
-all: out/nobsmasme out/nobsmjsme $(LMS) $(FREQ)
+# TODO: make -j2 doesn't seem to work with multiple targets?
 
-FREQ=freq/forms.sma freq/forms.nob freq/forms.sme freq/forms.smj  
-LMS=words/sma.V words/sma.N words/sma.A words/smj.V words/smj.N words/smj.A
+DPOS=V N A
+XPOS=V N A nonVNA
+DECOMPBASES=$(patsubst %,%_decomp,$(DPOS))
+LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
+XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 
-out/nobsmasme out/nobsmjsme: out/smesmj out/nobsma
+DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES))
+DECOMPSMJ=$(patsubst %,out/smesmj/%,$(DECOMPBASES))
+XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
+          $(patsubst %,out/smesmj/%,$(XFSTBASES))
+
+all: out/nobsmasme out/nobsmjsme
+
+out/nobsmasme out/nobsmjsme: $(DECOMPSMA) $(DECOMPSMJ) $(XIFIEDSMJ)
 	./pretty.sh
 
-out/smesmj: words words-src-fad out/.d
-	./sme2smjify.sh
+$(DECOMPSMA): words words-src-fad out/.d
+	./decompound.sh nob sma
+
+$(DECOMPSMJ): words words-src-fad out/.d
 	./decompound.sh sme smj
 
-out/nobsma: words words-src-fad out/.d
-	./decompound.sh nob sma
+$(XIFIEDSMJ): words words-src-fad out/.d
+	./sme2smjify.sh
 
 words words-src-fad: words/.d words-src-fad/.d
 	./dicts-to-tsv.sh
