@@ -59,15 +59,15 @@ done
 
 
 # Normalise frequency sums (to the smallest corpora, ie. smj/sma):
-sumnob=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/lms.nob)
-sumsma=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/lms.sma)
-sumsme=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/lms.sme)
-sumsmj=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/lms.smj)
+sumnob=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
+sumsma=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.sma)
+sumsme=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
+sumsmj=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.smj)
 for f in tmp/nobsmasme/*; do
     b=$(basename "$f")
-    <"$f" freq_annotate 1 freq/lms.nob ${sumnob} ${sumsma} \
-        | freq_annotate 2 freq/lms.sma ${sumsma} ${sumsma} \
-        | freq_annotate 3 freq/lms.sme ${sumsme} ${sumsma} \
+    <"$f" freq_annotate 1 freq/combined.nob ${sumnob} ${sumsma} \
+        | freq_annotate 2 freq/combined.sma ${sumsma} ${sumsma} \
+        | freq_annotate 3 freq/combined.sme ${sumsme} ${sumsma} \
         | awk 'BEGIN{OFS=FS="\t"} {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0,$5/diff}' \
         | sort -k7,7nr -k5,5nr -k2,2 -t$'\t' \
         | awk 'BEGIN{OFS=FS="\t"} {print $1,$2,$3,$4,$5,$6}' \
@@ -75,9 +75,9 @@ for f in tmp/nobsmasme/*; do
 done
 for f in tmp/nobsmjsme/*; do
     b=$(basename "$f")
-    <"$f" freq_annotate 1 freq/lms.nob ${sumnob} ${sumsmj} \
-        | freq_annotate 2 freq/lms.smj ${sumsmj} ${sumsmj} \
-        | freq_annotate 3 freq/lms.sme ${sumsme} ${sumsmj} \
+    <"$f" freq_annotate 1 freq/combined.nob ${sumnob} ${sumsmj} \
+        | freq_annotate 2 freq/combined.smj ${sumsmj} ${sumsmj} \
+        | freq_annotate 3 freq/combined.sme ${sumsme} ${sumsmj} \
         | awk 'BEGIN{OFS=FS="\t"} {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0,$5/diff}' \
         | sort -k7,7nr -k5,5nr -k2,2 -t$'\t' \
         | awk 'BEGIN{OFS=FS="\t"} {print $1,$2,$3,$4,$5,$6}' \
