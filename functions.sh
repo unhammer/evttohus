@@ -1,8 +1,13 @@
 #!/bin/bash
 
+if [[ -n $LOOKUP && $LOOKUP != "lookup -q -flags mbTT" ]]; then
+        echo "Warning: overriding strange value of LOOKUP: $LOOKUP"
+fi
+export LOOKUP="lookup -q -flags mbTT"
+
 lookup_good () {
     fst=$1
-    lookup -q "${fst}" | grep -v '+?$' |grep .
+    $LOOKUP "${fst}" | grep -v '+?$' |grep .
 }
 
 preproc () {
@@ -14,7 +19,7 @@ preproc () {
 ana () {
     lang=$1
     shift
-    preproc ${lang} "$@" | lookup -q $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
+    preproc ${lang} "$@" | $LOOKUP $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
 }
 
 lemma_per_line () {
@@ -62,6 +67,34 @@ function ceil(xs) {
 {
   print $0,ceil(freq[$column]*norm/sum)
 }'
+}
+
+
+clean_cmp_ana () {
+    # Grep for compound analyses of a certain part of speech, and turn
+    # output of lookup into tab-separated form followed by compound
+    # lemmas
+    lang=$1
+    pos=$2
+    if [[ ${lang} = nob ]]; then
+        # nob for some reason has completely different analysis format :(
+        grep "#+Cmp.*+${pos}[^#]*$" \
+            | sed 's/+X+N/+N/g;s/+Nynorsk+N/+N/g' \
+            | sed 's/+[^#+]*#+CmpS*+/	/g;
+                   s/+[^#+]*#+CmpS*-/-	/g;
+                   s/+[^#]*$//' \
+            | sed 's/		*/	/g'
+        # samarbeidsspørsmål	samarbeid	+N#+CmpS+spørs+X+N#+Cmp+mål+N+Neu+Pl+Indef
+        # forsøksråd	for	+N#+Cmp+søk+N#+CmpS+råd+N+Neu+Sg+Indef
+        # primærprodukt	primær+A#+Cmp+produkt+N+Neu+Sg+Indef
+        # kjerneområde	kjerne	+N#+Cmp+område+N+Neu+Sg+Indef
+        # kystfiskerlag	kystfisker	+N#+Cmp+lag+N+Neu+Pl+Indef
+    else
+        grep "+Cmp#.*+${pos}[^#]*$" \
+            | sed 's/+[^#]*#*/	/g' \
+            | sed 's/		*/	/g' \
+            | sed 's/	$//'
+    fi
 }
 
 
