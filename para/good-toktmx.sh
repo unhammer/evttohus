@@ -1,27 +1,35 @@
 #!/bin/bash
 
-find toktmx/sma2nob -type f -name '*.toktmx' \
-    | xargs -n1 rogganreaiddut/toktmx-readable.sh \
-    | awk '
+set -e -u
+
+lang1=$1
+lang2=$2
+
+dir=${lang1}2${lang2}
+
+find $GTFREE/toktmx/"${dir}" -type f -name '*.toktmx' -print0 \
+    | xargs -0 -I{} "$(dirname $0)"/toktmx2tsv-lines.sh "${lang1}" "${lang2}" '{}' \
+    | awk -v src="${lang1}" -v trg="${lang2}" '
 BEGIN{
   OFS=FS="\t"
 }
-// {
-  # Make sure there is only one tab in the line:
-  line=$1"\t"
-  for(i=2;i<=NF;i++)line=line $i
-  $0=line
-  sub(/^ *| *$/,"",$2)
+$1==src {
+  srcseg=$2
 }
-$1=="sma" {
-  sl=length($2);sma=$2;
-}
-$1=="nob" {
-  nl=length($2);nob=$2;
-  ld=nl-sl; if(ld<0){ ld=-ld }
-}
+$1==trg {
+  trgseg=$2
 
-/^nob/ && ld<30 && nl>5 && sl>5 && sma!=nob {
-  print "sma",sma; print "nob",nob; print ""
+  sl=length(srcseg)
+  tl=length(trgseg)
+  ld=nl-tl
+  if(ld<0){ ld=-ld }            # abs
+
+  # Heuristics: only include sentences of a certain length, that are
+  # different, and that have less than a certain difference in length:
+  if(ld<30 && tl>5 && sl>5 && srcseg!=trgseg) {
+    print src, srcseg
+    print trg, trgseg
+    print ""
+  }
 }
 '
