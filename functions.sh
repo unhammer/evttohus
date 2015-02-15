@@ -23,6 +23,7 @@ ana () {
 }
 
 lemma_per_line () {
+    # Used by make-freq.sh
     # Note: if a form is ambiguous, it gets an unnaturally high lemma
     # "corpus count", but there's not really any simple way around
     # this, and we're not really after absolute corpus counts either
@@ -95,6 +96,18 @@ clean_cmp_ana () {
             | sed 's/		*/	/g' \
             | sed 's/	$//'
     fi
+}
+
+ana_to_lemmas () {
+    perl -wnpe '# nob analyser:
+                s/\+(X|Nynorsk)\+N/+N/g;
+                s/\+[^#+\n]*#\+CmpS*\+/\t/g;
+                s/\+[^#+\n]*#\+CmpS*-/-\t/g;
+                s/\+[^#\n]*$//;
+                # all other analysers:
+                s/\+[^#\n]*#*/\t/g;
+                s/\t+/\t/g; 
+                s/\t$//'
 }
 
 
