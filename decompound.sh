@@ -20,10 +20,7 @@ for pos in N V A; do
     dict=words/${dir}/${pos}_${dir}.tsv
     if [[ ! -f ${dict} ]]; then echo "${dict} doesn't exist"; continue; fi
     echo -n "${pos} compound analyses found: " >&2
-    cat <(cut -f1  ${words}/${lang1}???/${pos}_*.tsv) \
-        <(cut -f2- ${words}/???${lang1}/${pos}_*.tsv | tr '\t' '\n') \
-        | sort -u \
-        | ana ${lang1} \
+    < ${words}/${pos}.${lang1} ana ${lang1} \
         | clean_cmp_ana ${lang1} ${pos} \
         | gawk -f uniq_ana.awk \
         | tee >(wc -l >&2) \
