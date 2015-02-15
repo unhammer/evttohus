@@ -25,6 +25,7 @@ for pos in N V A; do
         | gawk -f uniq_ana.awk \
         | tee >(wc -l >&2) \
         | gawk -v dict=${dict} -f compound_translate.awk \
+        | awk -F'\t' '$2' \
         > out/${dir}/${pos}_decomp
     echo -n "${pos} compounds translated:    " >&2
     grep -v '^#' out/${dir}/${pos}_decomp|cut -f1|sort -u| wc -l >&2

@@ -3,13 +3,15 @@
 
 ## Run like:
 
-# gawk -v dict=words/smesmj/N_smesmj.tsv compound-translate.awk < N_decompounded.sme
+# gawk -v dict=words/smesmj/N_smesmj.tsv -f compound_translate.awk < N_decompounded.sme
 
 ## where words/smesmj/N_smesmj.tsv has sme in the first column and smj
 ## in the following columns (there may be more than one
 ## smj-translation per sme-word), and N_decompounded.sme has one
 ## compound analysis per line, with the sme form in the first column,
 ## followed by compound parts.
+
+## Will also translate non-compounds :)
 
 BEGIN {
   FS=OFS="\t"
@@ -95,5 +97,8 @@ $1 in trans {
     for(t in translated) {
       print $1, t
     }
+  }
+  else {
+    print $1
   }
 }
