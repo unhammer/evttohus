@@ -21,7 +21,7 @@ $1==trg {
 
   sl=length(srcseg)
   tl=length(trgseg)
-  ld=nl-tl
+  ld=sl-tl
   if(ld<0){ ld=-ld }            # abs
 
   # Heuristics: only include sentences of a certain length, that are
