@@ -4,24 +4,6 @@ cd "$(dirname "$0")"
 set -e -u
 source functions.sh
 
-if [[ $# -ge 1 ]]; then
-    shift
-    for lang in smj sme; do
-        ./make-freq.sh $lang "$@"
-    done
-fi
-
-# Split words into verbs and nonverbs:
-for pos in V N A; do
-    cat <(cut -f1  words-src-fad/smenob/${pos}*.tsv) \
-        <(cut -f2- words-src-fad/nobsme/${pos}*.tsv | tr '\t' '\n') \
-        | sort -u > words-src-fad/${pos}.sme
-done
-cat <(cut -f1  words-src-fad/smenob/[^VNA]*.tsv) \
-    <(cut -f2- words-src-fad/nobsme/[^VNA]*.tsv | tr '\t' '\n') \
-    | sort -u > words-src-fad/nonVNA.sme
-
-
 # TODO: any point in lemmatising sme before smjifying? (should all be
 # lemmatised already but who knows)
 dir=smesmj

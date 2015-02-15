@@ -43,4 +43,12 @@ test -d words-src-fad || mkdir words-src-fad
     cd words-src-fad
     dicts2tsv "[@src=\"fad\"]" nob sme
     touch nobsme/Pron_nobsme.tsv # just to stop pretty.sh from complaining
+
+    # Split words into verbs and nonverbs:
+    for lang in sme nob; do
+        for pos in V N A; do
+            mono_from_bi ${lang} ${pos} > ${pos}.${lang}
+        done
+        mono_from_bi ${lang} "[^VNA]" > nonVNA.${lang}
+    done
 )

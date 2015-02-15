@@ -155,7 +155,18 @@ dir2tsv () {
     done
 }
 
+mono_from_bi () {
+    # Use translations
+    lang=$1
+    pos=$2
+    cat <(cut -f1  ${lang}???/${pos}*.tsv) \
+        <(cut -f2- ???${lang}/${pos}*.tsv | tr '\t' '\n') \
+        | sort -u
+}
+
 dicts2tsv () {
+    # Makes all pairings of the langs args.
+    # Outputs to cwd (e.g. words or words-src-fad).
     restriction=$1
     shift
     for lang1 in "$@"; do
@@ -173,9 +184,7 @@ dicts2tsv () {
     done
 
     for lang in "$@"; do
-        cat <(cut -f1  ${lang}???/*.tsv) \
-            <(cut -f2- ???${lang}/*.tsv | tr '\t' '\n') \
-            | sort -u > ${lang}
+        mono_from_bi ${lang} "" > ${lang}
     done
 }
 
