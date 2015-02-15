@@ -3,7 +3,10 @@
 set -e -u
 
 
-echo "How many words from the src=fad dictionaries do we have candidates for?"
+cat <<EOF
+How many words from the src=fad dictionaries do we have candidates
+for? (All numbers restricted to part-of-speech.)
+EOF
 
 cov () {
     lang=$1
@@ -15,8 +18,8 @@ cov () {
 }
 
 for lang in sma smj; do
+    echo
     cat <(echo -e "${lang}-candidates\t% sme\tsum sme\t% nob\tsum nob") \
         <(cov ${lang}) \
         | column -ts$'\t'
-    echo
 done
