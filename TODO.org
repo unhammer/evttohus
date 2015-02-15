@@ -37,6 +37,6 @@
 * TODO kwic-annotate out-files
 
 * TODO run through usmjNorm and take lemmas for words marked Err/Sub ?
-* TODO stats on how many words-src-fad we've got candidates for
+
 
   
