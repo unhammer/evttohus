@@ -14,10 +14,13 @@ $1 in nob{
 $3 in sme{
   seensme[$3]++
 }
-
+$7 {
+  seenana++
+}
 END {
-  printf("%s\t%1.1f\t%6d\t%1.1f\t%6d\n",
+  printf("%s\t%1.1f\t%6d\t%1.1f\t%6d\t%1.1f\n",
          FILENAME,
          length(seensme)/length(sme)*100, length(sme),
-         length(seennob)/length(nob)*100, length(nob))
+         length(seennob)/length(nob)*100, length(nob),
+         seenana/(NR+0.000001)*100 )
 }

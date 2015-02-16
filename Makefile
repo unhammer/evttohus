@@ -50,6 +50,9 @@ apertium-sme-smj.sme-smj.dix:
 apertium-sme-nob.sme-nob.dix:
 	svn export https://svn.code.sf.net/p/apertium/svn/trunk/apertium-sme-nob/$@
 
+stats: all tmp/.d
+	./coverage.sh
+
 # The above goals depend on the corpus, but that takes forever … use
 # this to re-make the full corpus:
 corpus:

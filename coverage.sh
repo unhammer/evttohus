@@ -10,16 +10,18 @@ EOF
 
 cov () {
     lang=$1
-    for pos in V N A nonVNA;do
+    for pos in V N A nonVNA; do
         for f in out/nob${lang}sme/${pos}_*; do
             test -f "$f" && awk -v pos=${pos} -f coverage.awk "$f"
         done
-    done | sort -t$'\t' -k2,2nr
+        cat out/nob${lang}sme/${pos}_* >tmp/${pos}_all 2>/dev/null
+        awk -v pos=${pos} -f coverage.awk tmp/${pos}_all
+    done | sort -t$'\t' -k2,2nr -k4,4nr -k3,3nr -k5,5nr
 }
 
 for lang in sma smj; do
     echo
-    cat <(echo -e "${lang}-candidates\t% sme\tsum sme\t% nob\tsum nob") \
+    cat <(echo -e "${lang}-candidates\t% sme\tsum sme\t% nob\tsum nob\t% in FST") \
         <(cov ${lang}) \
         | column -ts$'\t'
 done
