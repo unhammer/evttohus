@@ -1,36 +1,12 @@
 #!/bin/bash
 
-cd "$(dirname "$0")"
 set -e -u
+cd "$(dirname "$0")"
 source functions.sh
 
-for d in out out/nobsmjsme out/nobsmasme tmp tmp/nobsmjsme tmp/nobsmasme; do
-    test -d $d || mkdir $d
-done
-
-trans_annotate () {
-    # Ensure we have lines in the format
-    #nob	candidate	sme
-    # where candidate is in sma or smj
-    gawk -v srctrg="$1" -v trgsrc="$2" -v col="$3" '
-BEGIN{OFS=FS="\t";
-  while(getline<srctrg){trans[$1][$2]++}
-  while(getline<trgsrc){trans[$2][$1]++}
-}
-!($1 in trans) {
-  trans[$1]["?????"]++
-}
-{
-  for(trg in trans[$1]) {
-    if(col==1) {
-      print trg, $2, $1
-    }
-    else {
-      print $1, $2, trg
-    }
-  }
-}'
-}
+dir=$1
+fromlang=${dir%???}
+candlang=${dir#???}
 
 pos_glob () {
     case $1 in
@@ -41,45 +17,31 @@ pos_glob () {
     esac
 }
 
-for f in out/smesmj/* spell/out/smesmj/*; do
+for f in out/${dir}/* spell/out/${dir}/*; do
+    test -f "$f" || continue
     b=$(basename "$f")
     pos=$(pos_glob "$b")
-    cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/srctrg 2>/dev/null
-    cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/trgsrc 2>/dev/null
-    < "$f" trans_annotate tmp/srctrg tmp/trgsrc 1 > tmp/nobsmjsme/"$b"
-done
-
-for f in out/nobsma/* spell/out/nobsma/*; do
-    b=$(basename "$f")
-    pos=$(pos_glob "$b")
-    cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/srctrg 2>/dev/null
-    cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/trgsrc 2>/dev/null
-    < "$f" trans_annotate tmp/srctrg tmp/trgsrc 3 > tmp/nobsmasme/"$b"
+    cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/smenob 2>/dev/null
+    cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/nobsme 2>/dev/null
+    <"$f" gawk \
+        -v fromlang=${fromlang} \
+        -v smenob=tmp/smenob -v nobsme=tmp/nobsme \
+        -f trans_annotate.awk \
+        >tmp/nob${candlang}sme/"$b"
 done
 
 
 # Normalise frequency sums (to the smallest corpora, ie. smj/sma):
-sumnob=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
-sumsma=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.sma)
-sumsme=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
-sumsmj=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.smj)
-for f in tmp/nobsmasme/*; do
+sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
+sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
+sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
+for f in tmp/nob${candlang}sme/*; do
     b=$(basename "$f")
-    <"$f" freq_annotate 1 freq/combined.nob ${sumnob} ${sumsma} \
-        | freq_annotate 2 freq/combined.sma ${sumsma} ${sumsma} \
-        | freq_annotate 3 freq/combined.sme ${sumsme} ${sumsma} \
+    <"$f" freq_annotate 1 freq/combined.nob ${sumnob}  ${sumcand} \
+        | freq_annotate 2 freq/combined.sma ${sumcand} ${sumcand} \
+        | freq_annotate 3 freq/combined.sme ${sumsme}  ${sumcand} \
         | awk 'BEGIN{OFS=FS="\t"} {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0,$5/diff}' \
         | sort -k7,7nr -k5,5nr -k2,2 -t$'\t' \
         | awk 'BEGIN{OFS=FS="\t"} {print $1,$2,$3,$4,$5,$6}' \
-        >out/nobsmasme/"$b"
-done
-for f in tmp/nobsmjsme/*; do
-    b=$(basename "$f")
-    <"$f" freq_annotate 1 freq/combined.nob ${sumnob} ${sumsmj} \
-        | freq_annotate 2 freq/combined.smj ${sumsmj} ${sumsmj} \
-        | freq_annotate 3 freq/combined.sme ${sumsme} ${sumsmj} \
-        | awk 'BEGIN{OFS=FS="\t"} {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0,$5/diff}' \
-        | sort -k7,7nr -k5,5nr -k2,2 -t$'\t' \
-        | awk 'BEGIN{OFS=FS="\t"} {print $1,$2,$3,$4,$5,$6}' \
-        >out/nobsmjsme/"$b"
+        >out/nob${candlang}sme/"$b"
 done

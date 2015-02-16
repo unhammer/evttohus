@@ -12,10 +12,11 @@ XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
 
 all: out/nobsmasme out/nobsmjsme
-	./pretty.sh
 
-out/nobsmasme: $(DECOMPSMA)
-out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ)
+out/nobsmasme: $(DECOMPSMA) out/nobsmasme/.d tmp/nobsmasme/.d
+	./pretty.sh nobsma
+out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d
+	./pretty.sh smesmj
 
 out/%/V_decomp out/%/N_decomp out/%/A_decomp: words words-src-fad out/.d
 	./decompound.sh $*
@@ -58,9 +59,9 @@ corpus:
 	bash -c "source functions.sh; convert_all sme"
 
 %/.d:
-	test -d $* || mkdir $*
-	touch $@
-.PRECIOUS: freq/.d words/.d out/.d tmp/.d words/.d words-src-fad/.d
+	@test -d $* || mkdir $*
+	@touch $@
+.PRECIOUS: freq/.d words/.d out/.d tmp/.d words/.d words-src-fad/.d out/nobsmasme/.d out/nobsmjsme/.d tmp/nobsmasme/.d tmp/nobsmjsme/.d
 
 clean:
 	rm -rf out tmp words words-src-fad

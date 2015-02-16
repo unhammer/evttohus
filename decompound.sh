@@ -1,13 +1,14 @@
 #!/bin/bash
 
-set -e -u
-
 # Restrict to words with src=fad:
 words=words-src-fad
 # Uncomment to try on all words:
 #words=words
 
+set -e -u
+cd "$(dirname "$0")"
 source functions.sh
+
 dir=$1
 lang1=${dir%???}
 lang2=${dir#???}
