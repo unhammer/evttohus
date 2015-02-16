@@ -27,8 +27,13 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
   and sme translations for the candidates, annotated with normalised
   frequencies for all the three words. The format is, tab-separated:
 
-  : nob 	candidate	sme	fr_nob	fr_candidate	fr_sme
+  : nob 	candidate	sme	fr_nob	fr_candidate	fr_sme	in_FST
 
+  All file names start with a part of speech (V, N, A or nonVNA for
+  "the rest"). The in_FST field is 1 iff the candidate had an analysis
+  from =$GTHOME/langs/${lang}/src/analyser-gt-desc.xfst= with the
+  right part of speech.
+  
 ** Running the candidate-respelling
   … currently uses some ocaml stuff, TODO
 
