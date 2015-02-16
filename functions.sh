@@ -5,6 +5,11 @@ if [[ -n $LOOKUP && $LOOKUP != "lookup -q -flags mbTT" ]]; then
 fi
 export LOOKUP="lookup -q -flags mbTT"
 
+rev () {
+    # /usr/bin/rev doesn't handle unicode. wonderful.
+    perl -wlnpe '$_=reverse($_)'
+}
+
 lookup_good () {
     fst=$1
     $LOOKUP "${fst}" | grep -v '+?$' |grep .
