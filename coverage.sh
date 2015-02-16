@@ -5,7 +5,9 @@ set -e -u
 
 cat <<EOF
 How many words from the src=fad dictionaries do we have candidates
-for? (All numbers restricted to part-of-speech.)
+for? (All numbers restricted to part-of-speech, so SUM is how many
+src=fad words there are for smenob for that PoS; % in FST is how many
+candidates had a same-PoS FST analysis.)
 EOF
 
 cov () {
@@ -16,12 +18,14 @@ cov () {
         done
         cat out/nob${lang}sme/${pos}_* >tmp/${pos}_all 2>/dev/null
         awk -v pos=${pos} -f coverage.awk tmp/${pos}_all
-    done | sort -t$'\t' -k2,2nr -k4,4nr -k3,3nr -k5,5nr
+    done \
+        | perl -wnpe 's%[^\t\n]*/%%' \
+        | sort -t$'\t' -k2,2nr -k4,4nr -k3,3nr -k5,5nr
 }
 
 for lang in sma smj; do
     echo
-    cat <(echo -e "${lang}-candidates\t% sme\tsum sme\t% nob\tsum nob\t% in FST") \
+    cat <(echo -e "${lang}-candidates\t% sme\tsum sme\t% nob\tsum nob\t% in FST"|tr [:lower:] [:upper:]) \
         <(cov ${lang}) \
         | column -ts$'\t'
 done
