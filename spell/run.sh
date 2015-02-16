@@ -18,6 +18,7 @@ cleanwords () {
 echo "Compiling dictionaries ..."
 for lang in sma smj; do
     for pos in V N A; do
+        # "make words/sme.N" and so on for this:
         sed "s/$/${tab}F/" ../words/${lang}.${pos} \
             | cat - ../words/${lang}.[^${pos}] \
             | cleanwords > tmp/${lang}.${pos}.sorted
