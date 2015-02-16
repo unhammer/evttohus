@@ -6,8 +6,9 @@ set -e -u
 cat <<EOF
 How many words from the src=fad dictionaries do we have candidates
 for? (All numbers restricted to part-of-speech, so SUM is how many
-src=fad words there are for smenob for that PoS; % in FST is how many
-candidates had a same-PoS FST analysis.)
+src=fad words there are from words/dicts/{smenob,nobsme} for that PoS;
+% in FST is how many candidates had a same-PoS FST analysis; all
+counts are without duplicates.)
 EOF
 
 cov () {
@@ -25,7 +26,7 @@ cov () {
 
 for lang in sma smj; do
     echo
-    cat <(echo -e "${lang}-candidates\t% sme\tsum sme\t% nob\tsum nob\t% in FST"|tr [:lower:] [:upper:]) \
+    cat <(echo -e "${lang}-candidates\t% sme\tsum sme\t% nob\tsum nob\t% in FST\tsum sma"|tr [:lower:] [:upper:]) \
         <(cov ${lang}) \
         | column -ts$'\t'
 done
