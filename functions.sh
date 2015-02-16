@@ -5,9 +5,18 @@ if [[ -n $LOOKUP && $LOOKUP != "lookup -q -flags mbTT" ]]; then
 fi
 export LOOKUP="lookup -q -flags mbTT"
 
+psed () {
+    perl -CSAD -wnpe "$@"
+}
+
 rev () {
-    # /usr/bin/rev doesn't handle unicode. wonderful.
-    perl -wlnpe '$_=reverse($_)'
+    # /usr/bin/rev on OS X doesn't handle unicode. Just wonderful.
+    perl -CSAD -wlnpe '$_=reverse($_)'
+}
+
+suffix_chargrams () {
+    # hitparade of most popular suffixes up to fourgrams:
+    psed 's/.*(.(.(.(.))))$/$1\n$2\n$3\n$4/' | sort | uniq -c | sort -n
 }
 
 lookup_good () {
@@ -104,15 +113,15 @@ clean_cmp_ana () {
 }
 
 ana_to_lemmas () {
-    perl -wnpe '# nob analyser:
-                s/\+(X|Nynorsk)\+N/+N/g;
-                s/\+[^#+\n]*#\+CmpS*\+/\t/g;
-                s/\+[^#+\n]*#\+CmpS*-/-\t/g;
-                s/\+[^#\n]*$//;
-                # all other analysers:
-                s/\+[^#\n]*#*/\t/g;
-                s/\t+/\t/g; 
-                s/\t$//'
+    psed '# nob analyser:
+          s/\+(X|Nynorsk)\+N/+N/g;
+          s/\+[^#+\n]*#\+CmpS*\+/\t/g;
+          s/\+[^#+\n]*#\+CmpS*-/-\t/g;
+          s/\+[^#\n]*$//;
+          # all other analysers:
+          s/\+[^#\n]*#*/\t/g;
+          s/\t+/\t/g; 
+          s/\t$//'
 }
 
 

@@ -19,7 +19,7 @@ test -d words || mkdir words
 
     for tsv in {smesmj,smanob,smasme}/*.tsv; do
         # normalise PoS names a bit:
-        norm=$(echo "$tsv" | perl -wnpe '
+        norm=$(echo "$tsv" | psed '
           s/(\w+)_/\u\L$1_/;
           s/Cc_/CC_/; s/Cs_/CS_/; s/(Pp|Prep)_/Pr_/; s/P_/Po_/; s/I_/Ij_/;'
         )
