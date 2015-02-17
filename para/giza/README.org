@@ -1,0 +1,21 @@
+
+
+* Prerequisites
+=make= in the root, then
+#+BEGIN_SRC sh
+  cd ~/src
+  git clone https://github.com/moses-smt/mgiza.git
+  cd mgiza/mgizapp
+  cmake .
+  make
+  make install
+  cd -
+  git clone git@github.com:moses-smt/mosesdecoder.git
+  cd mosesdecoder
+  ./bjam
+#+END_SRC
+
+* Run
+#+BEGIN_SRC sh
+  make -f forms.make
+#+END_SRC
