@@ -20,6 +20,7 @@ words.$(LANG2): words.$(LANG1)$(LANG2)
 
 corp.%: words.%
 	../good-toktmx.sh $(LANG1) $(LANG2) | grep "^$*" |cut -f2 >$@
+	../good-toktmx.sh $(LANG2) $(LANG1) | grep "^$*" |cut -f2 >$@
 	cat words.$* >>$@
 
 # such sparse data, just lowercase it all:
@@ -45,9 +46,9 @@ alignments.merged: cleaned.$(LANG1) cleaned.$(LANG2) anymalign/anymalign.py
 .PRECIOUS: tmp/.d
 
 clean:
-	rm tmp.alignments.*
+	rm -f words.$(LANG1)$(LANG2) words.$(LANG1) words.$(LANG2) corp.$(LANG1) corp.$(LANG2) lower.$(LANG1) lower.$(LANG2) cleaned.$(LANG1) cleaned.$(LANG2) cleaned.$(LANG1)_$(LANG2) tmp.alignments.*
 
 reallyclean:
-	rm alignments.merged
+	rm -f alignments.merged alignments.merged.tmp
 
 .PHONY: all clean reallyclean
