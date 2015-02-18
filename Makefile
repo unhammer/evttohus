@@ -37,7 +37,7 @@ words/%.A: words/% freq/forms.%
 	./grab-lms-of-pos.sh $* A
 
 
-freq/forms.% freq/lms.% freq/combined.%: freq/prepcorp.% freq/plaincorp.%
+freq/forms.% freq/lms.% freq/combined.%: freq/prepcorp.%.xz freq/plaincorp.%.xz
 	./corp-to-freqlist.sh $*
 
 freq/prepcorp.%.xz freq/plaincorp.%.xz: freq/.d # corpus
