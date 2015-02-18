@@ -26,7 +26,7 @@ fi
 declare -a procs
 declare -i i=0
 
-echo "Starting ${cpus} anymalign processes ..."
+echo "Starting ${cpus} anymalign processes ..." >&2
 while (( i++ < cpus )); do
     python2 anymalign/anymalign.py "$@" > tmp.alignments.$i &
     procs[$i]=$!
@@ -37,7 +37,7 @@ exit_and_merge () {
     while (( i++ < cpus )); do
         # Important: send INT (Ctrl+C), so the script gets a chance to
         # clean up
-        echo "Interrupting ${procs[$i]}"
+        echo "Interrupting ${procs[$i]}" >&2
         kill -s INT ${procs[$i]}
     done
     wait
