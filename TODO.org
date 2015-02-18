@@ -1,3 +1,9 @@
+* TODO lemmatise corpus for anymalign?
+  Too many semi-dupes.
+
+  Alternatively, we lemmatise the results, then if we see a _pair_
+  twice, that's a better pair than one we see only once.
+
 * TODO compound correspondences
   decompound our existing translations from words/ and use the
   corresponding parts for the dict in compound_translate.awk
