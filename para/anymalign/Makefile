@@ -9,13 +9,18 @@ anymalign/anymalign.py:
 # Don't delete intermediates:
 .SECONDARY:
 
-words:
-	cat ../../words/nobsma/*.tsv | awk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++){print "nob",$$1"\nsma",$$i"\n"}}' >$@
-	cat ../../words/smanob/*.tsv | awk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)if($$i!~/_SWE/){print "nob",$$i"\nsma",$$1"\n"}}' >>$@
+words.$(LANG1)$(LANG2):
+	cat ../../words/$(LANG1)$(LANG2)/*.tsv | awk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $$1,$$i}' >$@
+	cat ../../words/$(LANG2)$(LANG1)/*.tsv | awk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)if($$i!~/_SWE/)print $$i,$$1}' >>$@
 
-corp.%: words
+words.$(LANG1): words.$(LANG1)$(LANG2)
+	cut -f1 <$< >$@
+words.$(LANG2): words.$(LANG1)$(LANG2)
+	cut -f2 <$< >$@
+
+corp.%: words.%
 	../good-toktmx.sh $(LANG1) $(LANG2) | grep "^$*" |cut -f2 >$@
-	grep "^$*" words|cut -f2 >>$@
+	cat words.$* >>$@
 
 # such sparse data, just lowercase it all:
 lower.%: corp.%
