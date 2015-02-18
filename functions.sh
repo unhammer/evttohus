@@ -30,10 +30,15 @@ preproc () {
     $GTHOME/gt/script/preprocess --abbr=$GTHOME/langs/${lang}/tools/preprocess/abbr.txt "$@"
 }
 
+ana_no_prep () {
+    lang=$1
+    $LOOKUP $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
+}
+
 ana () {
     lang=$1
     shift
-    preproc ${lang} "$@" | $LOOKUP $GTHOME/langs/${lang}/src/analyser-gt-desc.xfst
+    preproc ${lang} "$@" | ana_no_prep ${lang}
 }
 
 lemma_per_line () {
