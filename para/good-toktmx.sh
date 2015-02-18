@@ -33,3 +33,11 @@ $1==trg {
   }
 }
 '
+
+if [[ $lang1$lang2 = nobsma || $lang1$lang2 = smanob ]]; then
+    xmlstarlet sel -t -m '//xg' \
+        -o "${lang1}"$'\t' -c './x/text()' -n \
+        -o "${lang2}"$'\t' -c './xt/text()' -n \
+        -n \
+        $GTHOME/words/dicts/${lang1}${lang2}/src/*.xml
+fi
