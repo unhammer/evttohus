@@ -1,3 +1,31 @@
+* TODO compound correspondences
+  decompound our existing translations from words/ and use the
+  corresponding parts for the dict in compound_translate.awk
+
+  Currently, we only use whole words from words/ in the dict in
+  compound_translate.awk. So if "læreplan" is in words, we might get a
+  candidate for "læreplanforslag". But "læreplan" can be decompounded
+  as lære+plan, which might give a candidate for "læreverk",
+  "lærested", etc.
+
+#+BEGIN_SRC sh
+  $ echo learoesoejkesje | ana sma
+  learoesoejkesje learoe+N+SgNomCmp+Cmp#soejkesje+N+Sg+Nom
+  learoesoejkesje learoesoejkesje+N+Sg+Nom
+  
+  $ echo læreplan | ana nob
+  læreplan        lære+N#+Cmp+plan+N+Msc+Sg+Indef
+  læreplan        læreplan+N+Msc+Sg+Indef
+#+END_SRC
+
+  Given two analyses, match any readings with the same number of compound parts, ie.
+  | læreplan  | learoesoejkesje  |
+  | lære+plan | learoe+soejkesje |
+  and then we expand parts, giving
+  | læreplan | learoesoejkesje |
+  | lære     | learoe          |
+  | plan     | soejkesje       |
+  
 * TODO also try non-fad words for the sources that give the best candidates
   or for high frequency candidates etc.
 
