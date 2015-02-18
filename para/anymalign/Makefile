@@ -22,8 +22,8 @@ lower.%: corp.%
 	perl -CSAD -wnpe '$$_=lc' <$< >$@
 
 
-alignments.merged: lower.$(LANG1) lower.$(LANG2)
-	./run.sh $^ > $@.tmp
+alignments.merged: lower.$(LANG1) lower.$(LANG2) anymalign/anymalign.py
+	./run.sh lower.$(LANG1) lower.$(LANG2) > $@.tmp
 	cp $@.tmp $@
 # make of course notices any signal and deletes alignments.merged,
 # thus the tmp file. Could run anymalign with a timeout, but meh
