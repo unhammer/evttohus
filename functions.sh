@@ -154,6 +154,11 @@ ccat_all () {
         echo "GTBOUND not set, only ccat-ing GTFREE"
         ccat -a -l $lang $GTFREE/converted/$lang
     fi
+    # Might as well include the few example sentences we have:
+    if [[ $lang = sma ]]; then
+        sort -u <(xmlstarlet sel -t -m '//x' -c 'text()' -n $GTHOME/words/dicts/smanob/src/*.xml) \
+             <(xmlstarlet sel -t -m '//xt' -c 'text()' -n $GTHOME/words/dicts/nobsma/src/*.xml)
+    fi
 }
 
 

@@ -40,7 +40,7 @@ words/%.A: words/% freq/forms.%
 freq/forms.% freq/lms.% freq/combined.%: freq/prepcorp.% freq/plaincorp.%
 	./corp-to-freqlist.sh $*
 
-freq/prepcorp.% freq/plaincorp.%: freq/.d # corpus
+freq/prepcorp.%.xz freq/plaincorp.%.xz: freq/.d # corpus
 	./prep-corp.sh $*
 
 apertium-sme-sma.sme-sma.dix:
