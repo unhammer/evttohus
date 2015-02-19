@@ -100,7 +100,7 @@ clean:
 	rm -f words.$(LANG1)$(LANG2) words.$(LANG1) words.$(LANG2) corp.$(LANG1) corp.$(LANG2) lower.$(LANG1) lower.$(LANG2) cleaned.$(LANG1) cleaned.$(LANG2) cleaned.$(LANG1)_$(LANG2) tmp.alignments.*
 	rm -rf tmp eval
 
-reallyclean:
+reallyclean: clean
 	rm -f alignments.merged alignments.merged.tmp
 
 .PHONY: all eval clean reallyclean
