@@ -7,14 +7,17 @@
 
 set -e -u
 
+tmp=$(mktemp -d -t evttohus.XXXXXXXXXX)
+mkfifo "${tmp}"/stop_aligning
+
 cat >&2 <<EOF
 
-When you think you've got good enough alignments, do:
+When you think you've got good enough alignments, open another
+terminal and do:
 
-    kill -s INT $$
+    echo > "${tmp}/stop_aligning"
 
 EOF
-
 
 declare -i cpus=1
 if type nproc &>/dev/null; then
@@ -42,7 +45,10 @@ exit_and_merge () {
     done
     wait
     python2 anymalign/anymalign.py -m tmp.alignments.*
+    rm -rf "${tmp}"
 }
 
-trap exit_and_merge EXIT
-wait
+trap exit_and_merge INT TERM
+
+read < "${tmp}"/stop_aligning
+exit_and_merge

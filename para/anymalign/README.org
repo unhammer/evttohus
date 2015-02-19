@@ -1,0 +1,11 @@
+* Usage
+  You need the tsv's in ../../words and ../../words-src-fad, so do
+  : cd ../..
+  : make words
+
+  Then a =make= here will check out anymalign, and if Python2 is
+  installed will prepare the corpus and start aligning.
+
+  Once you feel you've let it run long enough, end it by doing =echo >
+  /path/to/stop_aligning= as instructed by the script, and make will
+  merge the alignments and create the evaluation files in eval/.
