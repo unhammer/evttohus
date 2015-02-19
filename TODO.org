@@ -1,3 +1,4 @@
+* TODO include anymalign results where src=fad in pretty.sh out/
 * TODO compound correspondences
   decompound our existing translations from words/ and use the
   corresponding parts for the dict in compound_translate.awk
@@ -70,3 +71,5 @@
   becomes
   : a d n i - a d d n e
   
+  (though finding [[*compound%20correspondences][compound correspondences]] is probably going to give
+  better results)
