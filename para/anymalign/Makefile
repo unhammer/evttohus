@@ -40,10 +40,33 @@ alignments.merged: cleaned.$(LANG1) cleaned.$(LANG2) anymalign/anymalign.py
 # make of course notices any signal and deletes alignments.merged,
 # thus the tmp file. Could run anymalign with a timeout, but meh
 
+
+eval/alignments.ana.$(LANG1): alignments.merged eval/.d
+	cut -f1 $< | bash -c "source ../../functions.sh; ana $(LANG1)" >$@
+eval/alignments.ana.$(LANG2): alignments.merged eval/.d
+	cut -f2 $< | bash -c "source ../../functions.sh; ana $(LANG2)" >$@
+
+
+eval/alignments.lms.%.$(LANG1): eval/alignments.ana.%.$(LANG1)
+	bash -c "source ../../functions.sh; ana_to_forms_lms_of_pos $*" <$< >$@
+eval/alignments.lms.%.$(LANG2): eval/alignments.ana.%.$(LANG2)
+	bash -c "source ../../functions.sh; ana_to_forms_lms_of_pos $*" <$< >$@
+
+# These files are already named things like V.nob, but we do analysis
+# and posgrep to make sure everything is comparable:
+eval/fad.ana.%: ../../words-src-fad/% eval/.d
+	bash -c "source ../../functions.sh; ana $*" <$< >$@
+eval/fad.lms.%.$(LANG1): eval/fad.lms.%.$(LANG1)
+	bash -c "source ../../functions.sh; ana_to_forms_lms_of_pos $*" <$< >$@
+
+eval-%: eval/alignments.lms.%.$(LANG1)  eval/alignments.lms.%.$(LANG2) eval/fad.lms.%.$(LANG1) eval/fad.lms.%.$(LANG2)
+	head -10000 alignments.merged \
+	  gawk -v pos=$* -v src=$(LANG1) -v trg=$(LANG2) -f eval.awk
+
 %/.d:
 	@test -d $* || mkdir $*
 	@touch $@
-.PRECIOUS: tmp/.d
+.PRECIOUS: tmp/.d eval/.d
 
 clean:
 	rm -f words.$(LANG1)$(LANG2) words.$(LANG1) words.$(LANG2) corp.$(LANG1) corp.$(LANG2) lower.$(LANG1) lower.$(LANG2) cleaned.$(LANG1) cleaned.$(LANG2) cleaned.$(LANG1)_$(LANG2) tmp.alignments.*

@@ -235,6 +235,24 @@ lexc2lms () {
         | sed 's/^ *//'
 }
 
+posgrep () {
+    pos=$1
+    if [[ pos = nonVNA ]]; then
+        grep -v "+[VNA]+[^#]*$"
+    else
+        grep "+${pos}+[^#]*$"
+    fi
+}
+
+ana_to_forms_lms_of_pos () {
+    pos=$1
+    posgrep "${pos}" \
+        | ana_to_lemmas \
+        | awk 'BEGIN{OFS=FS="\t"} {lm=$2;for(i=3;i<=NF;i++)lm=lm $i;print $1,lm}' \
+        | sort -u
+    # We just concatenate compound lemmas here
+}
+
 all_lms_of_pos () {
     lang=$1
     pos=$2
@@ -242,7 +260,7 @@ all_lms_of_pos () {
         | cat - words/${lang} <(cut -f2 freq/forms.${lang}) \
         | sort -u \
         | ana ${lang} \
-        | grep "+${pos}+[^#]*$" \
+        | posgrep "${pos}" \
         | cut -f1 \
         | LC_ALL=C sort -u
 }
