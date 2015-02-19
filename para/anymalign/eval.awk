@@ -1,13 +1,8 @@
 #!/usr/bin/gawk -f
 # -*- indent-tabs-mode: nil; c-basic-offset: 2; -*-
 
-# Usage: gawk -v pos=N -v src=nob -v trg=sma -f eval.awk
-
 BEGIN {
   OFS=FS="\t"
-  srclmf = pos ".lemmas." src
-  trglmf = pos ".lemmas." trg
-  transf = "../../words/" src trg "/" pos "_nobsma.tsv"
   while(getline<srclmf) srclm[$1][$2]++
   while(getline<trglmf) trglm[$1][$2]++
   while(getline<transf) {
@@ -17,8 +12,7 @@ BEGIN {
   }
   # Here we're only interested in whether a lemma/form is in fad at
   # all:
-  fadf = pos ".fadlemmas." src
-  while(getline<fadf) {
+  while(getline<fadlmf) {
     fad[$1]=1
     fad[$2]=1
   }
@@ -98,7 +92,6 @@ END {
       fadmiss++
     }
   }
-  print "# "fadhit," fad hits – translation source in fad was in res"
-  print "# "fadmiss," fad misses – translation source in fad was missing from res"
-
+  print "# "fadhit," fad covered – translation source in fad had candidate in res"
+  print "# "fadmiss," fad missing – translation source in fad was missing from res"
 }
