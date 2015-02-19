@@ -18,7 +18,7 @@ TARGETS=alignments.merged \
 all: $(TARGETS)
 
 eval: all
-	tail -5 eval/*.results.*
+	tail -n-5 eval/*.results.*
 
 # TODO: cat words/nobsma/[^VNA]* > words/nobsma/nonVNA_nobsma.tsv in
 # order to eval this, though so few words there, not really important?
