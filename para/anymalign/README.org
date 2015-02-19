@@ -10,4 +10,7 @@
   /path/to/stop_aligning= as instructed by the script, and make will
   merge the alignments.
 
-  You can now type =make eval= to see the evaluation.
+  You can now type =make eval= to see the evaluation ("gold set"
+  numbers only make sense if you compiled with DOEVAL=true in the
+  =Makefile=).
+

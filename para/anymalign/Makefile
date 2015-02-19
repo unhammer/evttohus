@@ -1,6 +1,9 @@
 LANG1=nob
 LANG2=sma
 
+# If false, we include the gold set in the training material
+DOEVAL=false
+
 TARGETS=alignments.merged \
 	eval/V.results.1k \
 	eval/V.results.10k \
@@ -39,9 +42,9 @@ words.$(LANG2): words.$(LANG1)$(LANG2)
 	cut -f2 <$< >$@
 
 corp.%: words.%
-	../good-toktmx.sh $(LANG1) $(LANG2) | grep "^$*" |cut -f2 >$@
-	../good-toktmx.sh $(LANG2) $(LANG1) | grep "^$*" |cut -f2 >$@
-	cat words.$* >>$@
+	../good-toktmx.sh $(LANG1) $(LANG2) $(DOEVAL) | grep "^$*" |cut -f2 >$@
+	../good-toktmx.sh $(LANG2) $(LANG1) $(DOEVAL) | grep "^$*" |cut -f2 >$@
+	if ! $(DOEVAL); then cat words.$* >>$@; fi # only unless evaluating
 
 # such sparse data, just lowercase it all:
 lower.%: corp.%

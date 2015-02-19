@@ -4,6 +4,7 @@ set -e -u
 
 lang1=$1
 lang2=$2
+no_examples=$3
 
 dir=${lang1}2${lang2}
 
@@ -34,10 +35,12 @@ $1==trg {
 }
 '
 
-if [[ $lang1$lang2 = nobsma || $lang1$lang2 = smanob ]]; then
-    xmlstarlet sel -t -m '//xg' \
-        -o "${lang1}"$'\t' -c './x/text()' -n \
-        -o "${lang2}"$'\t' -c './xt/text()' -n \
-        -n \
-        $GTHOME/words/dicts/${lang1}${lang2}/src/*.xml
+if ! ${no_examples}; then
+    if [[ $lang1$lang2 = nobsma || $lang1$lang2 = smanob ]]; then
+        xmlstarlet sel -t -m '//xg' \
+            -o "${lang1}"$'\t' -c './x/text()' -n \
+            -o "${lang2}"$'\t' -c './xt/text()' -n \
+            -n \
+            $GTHOME/words/dicts/${lang1}${lang2}/src/*.xml
+    fi
 fi
