@@ -56,9 +56,7 @@ cleaned.$(LANG2): cleaned.$(LANG1)_$(LANG2)
 
 alignments.merged: cleaned.$(LANG1) cleaned.$(LANG2) anymalign/anymalign.py
 	./run.sh cleaned.$(LANG1) cleaned.$(LANG2) > $@.tmp
-	cp $@.tmp $@
-# make of course notices any signal and deletes alignments.merged,
-# thus the tmp file. Could run anymalign with a timeout, but meh
+	mv $@.tmp $@
 
 
 eval/alignments.ana.$(LANG1): alignments.merged eval/.d
@@ -79,7 +77,7 @@ eval/fad.ana.%.$(LANG1): ../../words-src-fad/%.$(LANG1) eval/.d
 eval/fad.lms.%.$(LANG1): eval/fad.ana.%.$(LANG1)
 	bash -c "source ../../functions.sh; ana_to_forms_lms_of_pos $*" <$< >$@
 
-eval/%.results.1k eval/%.results.10k eval/%.results.100k: eval/alignments.lms.%.$(LANG1) eval/alignments.lms.%.$(LANG2) eval/fad.lms.%.$(LANG1) ../../words/$(LANG1)$(LANG2)/%_$(LANG1)$(LANG2).tsv alignments.merged
+eval/%.results.1k eval/%.results.10k eval/%.results.100k: eval/alignments.lms.%.$(LANG1) eval/alignments.lms.%.$(LANG2) eval/fad.lms.%.$(LANG1) ../../words/$(LANG1)$(LANG2)/%_$(LANG1)$(LANG2).tsv
 	for h in 1000 10000 100000; do \
 	  k=`echo $$h|sed 's/000$$/k/'`; \
 	  head -$$h alignments.merged \

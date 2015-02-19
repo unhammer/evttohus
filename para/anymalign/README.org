@@ -8,4 +8,6 @@
 
   Once you feel you've let it run long enough, end it by doing =echo >
   /path/to/stop_aligning= as instructed by the script, and make will
-  merge the alignments and create the evaluation files in eval/.
+  merge the alignments.
+
+  You can now type =make eval= to see the evaluation.
