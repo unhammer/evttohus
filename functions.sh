@@ -225,6 +225,26 @@ dicts2tsv () {
     done
 }
 
+kintel2tsv () {
+    for dir in nob2smj smj2nob; do
+        for xml in $GTHOME/words/dicts/smjnob-kintel/src/$dir/*.xml; do
+            tsv=$dir/$(basename "$xml")
+            tsv=${tsv%%.xml}.tsv
+            # Extract the finished translations:
+            dict_xml2tsv "${restriction}" "${xml}" > "${tsv}"
+            # but also include the unfinished ones (no .//t):
+            xmlstarlet sel -t \
+                -m "//e${restriction}" -c './lg/l/text()' \
+                -m './mg[count(.//t)=0]/trans_in' -o $'\t' -c './/span/text()' \
+                -b -n \
+                "${xml}" >> "${tsv}"
+            # No hits for that file? Delete it:
+            test -s "${tsv}" || rm -f "${tsv}"
+        done
+    done
+}
+
+
 lexc2lms () {
     # ugly hack to grep some lemmas out of lexc's
     sed 's/!.*//' \
