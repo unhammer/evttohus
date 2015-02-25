@@ -167,12 +167,12 @@ dict_xml2tsv () {
     shift
     # forall e where $restriction
     #   print lg/l/text
-    #   forall mg/tg/t:
+    #   forall mg//tg/t:
     #     print text()
     #   print "\n"
     xmlstarlet sel -t \
         -m "//e${restriction}" -c './lg/l/text()' \
-        -m './mg/tg/t' -o $'\t' -c './text()' \
+        -m './mg//tg/t' -o $'\t' -c './text()' \
         -b -n \
         "$@"
 }
