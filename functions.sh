@@ -228,17 +228,22 @@ kintel2tsv () {
     for dir2 in nob2smj smj2nob; do
         dir=${dir2/2/}
         test -d ${dir} || mkdir ${dir}
-        for xml in $GTHOME/words/dicts/smjnob-kintel/src/${dir2}/*.xml; do
-            tsv=${dir}/$(basename "${xml}")
-            tsv=${tsv%%.xml}.tsv
+        for pos in V N A nonVNA; do
+            if [[ $pos = nonVNA ]]; then
+                restriction="[.//l[not(@pos='V' or @pos='N' or @pos='A' or @obt='V' or @obt='N' or @obt='A')]]"
+            else
+                restriction="[.//l[(@pos='${pos}' or @obt='${pos}')]]"
+            fi
+            xml=$GTHOME/words/dicts/smjnob-kintel/src/${dir2}/*.xml
+            tsv=${dir}/${pos}_${dir}.tsv
             # Extract the finished translations:
-            dict_xml2tsv "" "${xml}" > "${tsv}"
+            dict_xml2tsv "${restriction}" ${xml} > "${tsv}"
             # but also include the unfinished ones (no .//t):
             xmlstarlet sel -t \
                 -m "//e${restriction}" -c './lg/l/text()' \
                 -m './mg[count(.//t)=0]/trans_in' -o $'\t' -c './/span[not(contains(@STYLE,"font-style:italic"))]/text()' \
                 -b -n \
-                "${xml}" \
+                ${xml} \
                 | psed 's/ el[.] /\t/g' \
                 | psed 's/\([^)]*\)/\t/g' \
                 | psed "s/( [bDdfGgjlmnŋprsVvbd][bDdfGgjlmnŋprsVvbdthkRVSJN']*| -\p{L}+-)*(\$|[ ,.;])/\t/g" \
@@ -263,7 +268,7 @@ lexc2lms () {
 
 posgrep () {
     pos=$1
-    if [[ pos = nonVNA ]]; then
+    if [[ $pos = nonVNA ]]; then
         grep -v "+[VNA]+[^#]*$"
     else
         grep "+${pos}+[^#]*$"
