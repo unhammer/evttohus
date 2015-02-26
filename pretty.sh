@@ -36,7 +36,7 @@ for f in out/${dir}/* spell/out/${dir}/*; do
         -v fromlang=${fromlang} \
         -v smenob=tmp/smenob -v nobsme=tmp/nobsme \
         -f trans_annotate.awk \
-        >tmp/nob${candlang}sme/"$b"
+        >tmp/nob${candlang}sme/"$b"_${fromlang}
 done
 
 echo "Get main PoS of all candidates ..."

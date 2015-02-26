@@ -7,7 +7,8 @@ LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 
 DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES))
-DECOMPSMJ=$(patsubst %,out/smesmj/%,$(DECOMPBASES))
+DECOMPSMJ=$(patsubst %,out/smesmj/%,$(DECOMPBASES)) \
+          $(patsubst %,out/nobsmj/%,$(DECOMPBASES))
 XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
 
@@ -17,6 +18,7 @@ out/nobsmasme: $(DECOMPSMA) out/nobsmasme/.d tmp/nobsmasme/.d
 	./pretty.sh nobsma
 out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d
 	./pretty.sh smesmj
+	./pretty.sh nobsmj
 
 out/%/V_decomp out/%/N_decomp out/%/A_decomp: words words-src-fad out/.d
 	./decompound.sh $*

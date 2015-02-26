@@ -33,9 +33,6 @@
 * TODO Kintel, for nobsmj
   http://gtweb.uit.no/webdict/ak/smj2nob/index.html
   
-* TODO pretty.sh should include a "source" field or something
-  when we get kintel in there, we need to differentiate if something
-  came from nobsmj or smesmj
 
 * TODO shorten corpora to size of the smallest for comparable frequencies?
   Currently, =pretty.sh= will simply divide the sum of the larger by
