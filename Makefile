@@ -14,9 +14,9 @@ XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
 
 all: out/nobsmasme out/nobsmjsme
 
-out/nobsmasme: $(DECOMPSMA) out/nobsmasme/.d tmp/nobsmasme/.d
+out/nobsmasme: $(DECOMPSMA) out/nobsmasme/.d tmp/.d tmp/nobsmasme/.d
 	./pretty.sh nobsma
-out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d
+out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/.d tmp/nobsmjsme/.d
 	./pretty.sh smesmj
 	./pretty.sh nobsmj
 
