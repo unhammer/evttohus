@@ -1,0 +1,9 @@
+* translate.sh
+Experimental:
+1. translate the lemmatised corpus using seed dictionaries
+2. match up the translated words
+3. find candidates by looking at pairs of words that *weren't* translated;
+   if many sentences have the same pairs, we have possible candidates?
+
+* anymalign
+  see anymalign/README.org
