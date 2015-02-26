@@ -181,9 +181,9 @@ dir2tsv () {
     # Will output into "$dir" under cwd
     restriction=$1
     dir=$2
-    test -d $dir || mkdir $dir
-    for xml in $GTHOME/words/dicts/$dir/src/*.xml; do
-        tsv=$dir/$(basename "$xml")
+    test -d ${dir} || mkdir ${dir}
+    for xml in $GTHOME/words/dicts/${dir}/src/*.xml; do
+        tsv=${dir}/$(basename "${xml}")
         tsv=${tsv%%.xml}.tsv
         if ! dict_xml2tsv "${restriction}" "${xml}" > "${tsv}"; then
             # No hits for that file:
@@ -193,7 +193,6 @@ dir2tsv () {
 }
 
 mono_from_bi () {
-    # Use translations
     lang=$1
     pos=$2
     cat <(cut -f1  ${lang}???/${pos}*.tsv) \
@@ -211,8 +210,8 @@ dicts2tsv () {
             dir=${lang1}${lang2}
             if [[ $lang1 = $lang2 ]]; then
                 continue
-            elif [[ ! -d $GTHOME/words/dicts/$dir/src ]]; then
-                echo "\$GTHOME/words/dicts/$dir doesn't exist (yet)" >&2
+            elif [[ ! -d $GTHOME/words/dicts/${dir}/src ]]; then
+                echo "\$GTHOME/words/dicts/${dir} doesn't exist (yet)" >&2
                 continue
             else
                 dir2tsv "${restriction}" "${dir}"
@@ -226,18 +225,25 @@ dicts2tsv () {
 }
 
 kintel2tsv () {
-    for dir in nob2smj smj2nob; do
-        for xml in $GTHOME/words/dicts/smjnob-kintel/src/$dir/*.xml; do
-            tsv=$dir/$(basename "$xml")
+    for dir2 in nob2smj smj2nob; do
+        dir=${dir2/2/}
+        test -d ${dir} || mkdir ${dir}
+        for xml in $GTHOME/words/dicts/smjnob-kintel/src/${dir2}/*.xml; do
+            tsv=${dir}/$(basename "${xml}")
             tsv=${tsv%%.xml}.tsv
             # Extract the finished translations:
-            dict_xml2tsv "${restriction}" "${xml}" > "${tsv}"
+            dict_xml2tsv "" "${xml}" > "${tsv}"
             # but also include the unfinished ones (no .//t):
             xmlstarlet sel -t \
                 -m "//e${restriction}" -c './lg/l/text()' \
-                -m './mg[count(.//t)=0]/trans_in' -o $'\t' -c './/span/text()' \
+                -m './mg[count(.//t)=0]/trans_in' -o $'\t' -c './/span[not(contains(@STYLE,"font-style:italic"))]/text()' \
                 -b -n \
-                "${xml}" >> "${tsv}"
+                "${xml}" \
+                | psed 's/ el[.] /\t/g' \
+                | psed 's/\([^)]*\)/\t/g' \
+                | psed "s/( [bDdfGgjlmnŋprsVvbd][bDdfGgjlmnŋprsVvbdthkRVSJN']*| -\p{L}+-)*(\$|[ ,.;])/\t/g" \
+                | psed 's/\t[0-9]+/\t/g' \
+                | psed 's/\t\t/\t/g;s/^\t//' > "${tsv}".unchecked
             # No hits for that file? Delete it:
             test -s "${tsv}" || rm -f "${tsv}"
         done
