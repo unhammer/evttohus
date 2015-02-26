@@ -30,10 +30,6 @@
 * TODO also try non-fad words for the sources that give the best candidates
   or for high frequency candidates etc.
 
-* TODO Kintel, for nobsmj
-  http://gtweb.uit.no/webdict/ak/smj2nob/index.html
-  
-
 * TODO shorten corpora to size of the smallest for comparable frequencies?
   Currently, =pretty.sh= will simply divide the sum of the larger by
   the sum of the smallest corpus.
