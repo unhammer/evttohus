@@ -66,3 +66,4 @@
   
   (though finding [[*compound%20correspondences][compound correspondences]] is probably going to give
   better results)
+* TODO moses? berkelyaligner? fastalign?
