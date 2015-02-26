@@ -220,6 +220,10 @@ dicts2tsv () {
     done
 
     for lang in "$@"; do
+        for pos in V N A; do
+            mono_from_bi ${lang} ${pos} > ${pos}.${lang}
+        done
+        mono_from_bi ${lang} "[^VNA]" > nonVNA.${lang}
         mono_from_bi ${lang} "" > ${lang}
     done
 }
