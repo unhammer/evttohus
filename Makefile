@@ -1,14 +1,18 @@
-# TODO: make -j2 doesn't seem to work with multiple targets?
+# Note: make -j2 doesn't really work here
 
 DPOS=V N A
 XPOS=V N A nonVNA
 DECOMPBASES=$(patsubst %,%_decomp,$(DPOS))
+PRECOMPBASES=$(patsubst %,%_precomp,$(DPOS))
 LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 
-DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES))
+DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
+          $(patsubst %,out/nobsma/%,$(PRECOMPBASES)) \
 DECOMPSMJ=$(patsubst %,out/smesmj/%,$(DECOMPBASES)) \
           $(patsubst %,out/nobsmj/%,$(DECOMPBASES))
+          $(patsubst %,out/smesmj/%,$(PRECOMPBASES)) \
+          $(patsubst %,out/nobsmj/%,$(PRECOMPBASES)) \
 XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
 
@@ -20,16 +24,27 @@ out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/.d tmp/nobsmjsme/.
 	./pretty.sh smesmj
 	./pretty.sh nobsmj
 
-out/%/V_decomp out/%/N_decomp out/%/A_decomp: words words-src-fad out/.d
+out/%/V_decomp out/%/N_decomp out/%/A_decomp: words-src-fad out/.d words
 	./decompound.sh $*
 
-out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst: words words-src-fad out/.d
+out/%/V_precomp out/%/N_precomp out/%/A_precomp: words-src-fad out/.d words/%/V_precomp.tsv words/%/N_precomp.tsv words/%/A_precomp.tsv
+	./decompound.sh $* precomp
+
+out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst: words-src-fad out/.d
 	./sme2smjify.sh
 
 
+# TODO: dir/pos arg to dicts-to-tsv.sh; this goal makes so many files,
+# impossible to make decompound.sh depend properly on it
 words words-src-fad: words/.d words-src-fad/.d
 	./dicts-to-tsv.sh
 
+words/%/V_precomp.tsv: words
+	./precomp.sh $* V > $@
+words/%/N_precomp.tsv: words
+	./precomp.sh $* N > $@
+words/%/A_precomp.tsv: words
+	./precomp.sh $* A > $@
 
 words/%.V: words/% freq/forms.%
 	./grab-lms-of-pos.sh $* V
@@ -75,4 +90,3 @@ reallyclean: clean
 	rm -rf freq
 
 .PHONY: corpus allfreq all clean reallyclean
-
