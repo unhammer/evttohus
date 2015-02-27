@@ -8,11 +8,11 @@ LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 
 DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
-          $(patsubst %,out/nobsma/%,$(PRECOMPBASES)) \
+          $(patsubst %,out/nobsma/%,$(PRECOMPBASES))
 DECOMPSMJ=$(patsubst %,out/smesmj/%,$(DECOMPBASES)) \
-          $(patsubst %,out/nobsmj/%,$(DECOMPBASES))
+          $(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
           $(patsubst %,out/smesmj/%,$(PRECOMPBASES)) \
-          $(patsubst %,out/nobsmj/%,$(PRECOMPBASES)) \
+          $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
 XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
 
