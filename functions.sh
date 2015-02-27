@@ -185,7 +185,8 @@ dir2tsv () {
     for xml in $GTHOME/words/dicts/${dir}/src/*_${dir}.xml; do
         tsv=${dir}/$(basename "${xml}")
         tsv=${tsv%%.xml}.tsv
-        dict_xml2tsv "${restriction}" "${xml}" > "${tsv}" || echo "${tsv} failed"
+        # Why does this sometimes return non-zero even though good output?
+        dict_xml2tsv "${restriction}" "${xml}" > "${tsv}" || true
     done
 }
 
@@ -238,7 +239,7 @@ kintel2tsv () {
             xml=$GTHOME/words/dicts/smjnob-kintel/src/${dir2}/*.xml
             tsv=${dir}/${pos}_${dir}.tsv
             # Extract the finished translations:
-            dict_xml2tsv "${restriction}" ${xml} > "${tsv}"
+            dict_xml2tsv "${restriction}" ${xml} > "${tsv}" || true
             # but also include the unfinished ones (no .//t):
             xmlstarlet sel -t \
                 -m "//e${restriction}" -c './lg/l/text()' \
