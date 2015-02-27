@@ -9,10 +9,12 @@ XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 
 DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
           $(patsubst %,out/nobsma/%,$(PRECOMPBASES))
+
 DECOMPSMJ=$(patsubst %,out/smesmj/%,$(DECOMPBASES)) \
           $(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
           $(patsubst %,out/smesmj/%,$(PRECOMPBASES)) \
           $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
+
 XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
 
@@ -30,7 +32,7 @@ out/%/V_decomp out/%/N_decomp out/%/A_decomp: words-src-fad out/.d words
 out/%/V_precomp out/%/N_precomp out/%/A_precomp: words-src-fad out/.d words/%/V_precomp.tsv words/%/N_precomp.tsv words/%/A_precomp.tsv
 	./decompound.sh $* precomp
 
-out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst: words-src-fad out/.d
+out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: words-src-fad out/.d
 	./sme2smjify.sh
 
 
