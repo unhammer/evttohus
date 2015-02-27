@@ -14,8 +14,10 @@ lang1=${dir%???}
 lang2=${dir#???}
 if [[ $# -eq 2 ]]; then
     precomp=true
+    suff=precomp
 else
     precomp=false
+    suff=decomp
 fi
 
 test -d out || mkdir out
@@ -38,7 +40,7 @@ for pos in N V A; do
         | tee >(wc -l >&2) \
         | gawk -v dict=<(cat_dict) -f compound_translate.awk \
         | awk -F'\t' '$2' \
-        > out/${dir}/${pos}_decomp
+        > out/${dir}/${pos}_${suff}
     echo -n "${pos} compounds translated:    " >&2
-    grep -v '^#' out/${dir}/${pos}_decomp|cut -f1|sort -u| wc -l >&2
+    grep -v '^#' out/${dir}/${pos}_${suff}|cut -f1|sort -u| wc -l >&2
 done
