@@ -30,7 +30,7 @@ function del_ar(ar) {
 
 function asplit(string, assoc_ar, sep) {
   # Like split, but results go in an associative array, order-uniqueness gone
-  split(string, asplit_tmp, "\t");
+  split(string, asplit_tmp, "\t")
   del_ar(assoc_ar)
   for(i in asplit_tmp) {
     assoc_ar[asplit_tmp[i]]++
