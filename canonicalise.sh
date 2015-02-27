@@ -58,10 +58,14 @@ for f in tmp/nob${candlang}sme/*; do
     <"$f" freq_annotate 1 freq/combined.nob ${sumnob}  ${sumcand} \
         | freq_annotate 2 freq/combined.sma ${sumcand} ${sumcand} \
         | freq_annotate 3 freq/combined.sme ${sumsme}  ${sumcand} \
-        | awk 'BEGIN{OFS=FS="\t"} {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0,$5/diff}' \
+        | sort -u \
+        | awk '
+            # Let field 7 be the candidate frequency normalised by difference of this frequency and input frequency:
+            BEGIN{OFS=FS="\t"}
+            {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0,$5/diff}' \
         | sort -k7,7nr -k5,5nr -k2,2 -t$'\t' \
         | gawk -vpos=${pos} -vposf=tmp/${candlang}.pos '
-            # Field 7 is true iff the FST gave a same-pos analysis:
+            # Let field 7 be true iff the FST gave a same-pos analysis:
             BEGIN{ OFS=FS="\t"; while(getline<posf)ana[$2][$1]++ }
             { print $1,$2,$3,$4,$5,$6,$2 in ana[pos] }
         ' >out/nob${candlang}sme/"$b"
