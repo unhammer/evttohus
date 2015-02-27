@@ -1,4 +1,4 @@
-* TODO include anymalign results where src=fad in pretty.sh out/
+* TODO include anymalign results where src=fad in canonicalise.sh out/
 * TODO compound correspondences
   decompound our existing translations from words/ and use the
   corresponding parts for the dict in compound_translate.awk
@@ -31,7 +31,7 @@
   or for high frequency candidates etc.
 
 * TODO shorten corpora to size of the smallest for comparable frequencies?
-  Currently, =pretty.sh= will simply divide the sum of the larger by
+  Currently, =canonicalise.sh= will simply divide the sum of the larger by
   the sum of the smallest corpus.
 
 * TODO kwic-annotate out-files

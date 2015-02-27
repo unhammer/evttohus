@@ -182,13 +182,10 @@ dir2tsv () {
     restriction=$1
     dir=$2
     test -d ${dir} || mkdir ${dir}
-    for xml in $GTHOME/words/dicts/${dir}/src/*.xml; do
+    for xml in $GTHOME/words/dicts/${dir}/src/*_${dir}.xml; do
         tsv=${dir}/$(basename "${xml}")
         tsv=${tsv%%.xml}.tsv
-        if ! dict_xml2tsv "${restriction}" "${xml}" > "${tsv}"; then
-            # No hits for that file:
-            test -s "${tsv}" || rm -f "${tsv}"
-        fi
+        dict_xml2tsv "${restriction}" "${xml}" > "${tsv}" || echo "${tsv} failed"
     done
 }
 
@@ -253,8 +250,6 @@ kintel2tsv () {
                 | psed "s/( [bDdfGgjlmnŋprsVvbd][bDdfGgjlmnŋprsVvbdthkRVSJN']*| -\p{L}+-)*(\$|[ ,.;])/\t/g" \
                 | psed 's/\t[0-9]+/\t/g' \
                 | psed 's/\t\t/\t/g;s/^\t//' > "${tsv}".unchecked
-            # No hits for that file? Delete it:
-            test -s "${tsv}" || rm -f "${tsv}"
         done
     done
 }

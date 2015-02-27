@@ -42,5 +42,5 @@ test -d words-src-fad || mkdir words-src-fad
 (
     cd words-src-fad
     dicts2tsv "[@src=\"fad\"]" nob sme
-    touch nobsme/Pron_nobsme.tsv # just to stop pretty.sh from complaining
+    touch nobsme/Pron_nobsme.tsv # just to stop canonicalise.sh from complaining
 )

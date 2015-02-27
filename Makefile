@@ -21,10 +21,10 @@ XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
 all: out/nobsmasme out/nobsmjsme
 
 out/nobsmasme: $(DECOMPSMA) out/nobsmasme/.d tmp/.d tmp/nobsmasme/.d
-	./pretty.sh nobsma
+	./canonicalise.sh nobsma
 out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/.d tmp/nobsmjsme/.d
-	./pretty.sh smesmj
-	./pretty.sh nobsmj
+	./canonicalise.sh smesmj
+	./canonicalise.sh nobsmj
 
 out/%/V_decomp out/%/N_decomp out/%/A_decomp: words-src-fad out/.d words
 	./decompound.sh $*
