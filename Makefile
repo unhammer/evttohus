@@ -83,6 +83,9 @@ corpus:
 	@touch $@
 .PRECIOUS: freq/.d words/.d out/.d tmp/.d words/.d words-src-fad/.d out/nobsmasme/.d out/nobsmjsme/.d tmp/nobsmasme/.d tmp/nobsmjsme/.d
 
+# Actually, don't delete any intermediates:
+.SECONDARY:
+
 clean:
 	rm -rf out tmp words words-src-fad
 
