@@ -19,13 +19,13 @@ echo "Compiling dictionaries ..."
 for lang in sma smj; do
     for pos in V N A; do
         # "make words/sme.N" and so on for this:
-        sed "s/$/${tab}F/" ../words/${lang}.${pos} \
-            | cat - ../words/${lang}.[^${pos}] \
+        sed "s/$/${tab}F/" ../words/${pos}.${lang} \
+            | cat - ../words/[^${pos}].${lang} \
             | cleanwords > tmp/${lang}.${pos}.sorted
         ./comp.native tmp/${lang}.${pos}.sorted tmp/${lang}.${pos}.dawg
     done
     for pos in nonVNA; do
-        sed "s/$/${tab}F/" ../words/${lang}.* \
+        sed "s/$/${tab}F/" ../words/*.${lang} \
             | cleanwords > tmp/${lang}.${pos}.sorted
         ./comp.native tmp/${lang}.${pos}.sorted tmp/${lang}.${pos}.dawg
     done
@@ -55,19 +55,14 @@ spell () {
 }
 
 echo "Spelling ..."
-test -d out/smesmj || mkdir out/smesmj
-for f in ../out/smesmj/*; do
-    if [[ -f "$f" ]]; then
-        spell smj "$f" smesmj
-    else
-        echo "couldn't find $f"; exit 1
-    fi
-done
-test -d out/nobsma || mkdir out/nobsma
-for f in ../out/nobsma/*; do
-    if [[ -f "$f" ]]; then
-        spell sma "$f" nobsma
-    else
-        echo "couldn't find $f"; exit 1
-    fi
+for dir in smesmj nobsmj nobsma; do
+    trg=${dir#???}
+    test -d out/${dir} || mkdir out/${dir}
+    for f in ../out/${dir}/*; do
+        if [[ -f "$f" ]]; then
+            spell smj "$f" ${dir}
+        else
+            echo "couldn't find $f"; exit 1
+        fi
+    done
 done
