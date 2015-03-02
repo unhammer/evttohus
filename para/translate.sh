@@ -8,8 +8,8 @@ source functions.sh
 lang1=nob
 lang2=sma
 
-cat words/${lang1}${lang2}/*_${lang1}${lang2}.tsv \
-    <(awk -F'\t' '{for(i=2;i<=NF;i++)print $i,$1}' words/${lang2}${lang1}/*_${lang2}${lang1}.tsv ) \
+cat words/${lang1}${lang2}/*.tsv \
+    <(awk -F'\t' '{for(i=2;i<=NF;i++)print $i,$1}' words/${lang2}${lang1}/*.tsv ) \
     | sed 's/_SWE//g' \
     | sort -u > tmp/all_${lang1}${lang2}.tsv
 # treat SWE as norwegianwhynot
