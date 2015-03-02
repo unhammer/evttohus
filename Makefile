@@ -1,5 +1,3 @@
-# Note: make -j2 doesn't really work here
-
 DPOS=V N A
 XPOS=V N A nonVNA
 DECOMPBASES=$(patsubst %,%_decomp,$(DPOS))
