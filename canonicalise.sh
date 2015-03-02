@@ -25,8 +25,23 @@ pos_name () {
     esac
 }
 
-echo "Add translations from ${fromlang} so we get nob${candlang}sme ..."
+echo "Skip translations that were already in \$GTHOME/words/dicts (excepting Kintel) ..."
 for f in out/${dir}/* spell/out/${dir}/*; do
+    test -f "$f" || continue
+    b=$(basename "$f")
+    pos=$(pos_glob "$b")
+    if [[ ${dir} = nobsmj ]]; then
+        sort -u "$f" > tmp/${dir}/"$b"
+    else
+        join -t$'\t' -v1 \
+            <(sort -u "$f") \
+            <(cat words/${dir}/${pos}.tsv | sort -u) \
+            >tmp/${dir}/"$b"
+    fi
+done
+    
+echo "Add translations from ${fromlang} so we get nob${candlang}sme ..."
+for f in tmp/${dir}/*; do
     test -f "$f" || continue
     b=$(basename "$f")
     pos=$(pos_glob "$b")
