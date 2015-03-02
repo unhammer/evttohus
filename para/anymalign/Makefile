@@ -20,7 +20,7 @@ all: $(TARGETS)
 eval: all
 	tail -n-5 eval/*.results.*
 
-# TODO: cat words/nobsma/[^VNA]* > words/nobsma/nonVNA_nobsma.tsv in
+# TODO: cat words/nobsma/[^VNA]* > words/nobsma/nonVNA.tsv in
 # order to eval this, though so few words there, not really important?
  # eval/nonVNA.results.1k \
  # eval/nonVNA.results.10k \
@@ -75,19 +75,19 @@ eval/alignments.lms.%.$(LANG2): eval/alignments.ana.$(LANG2)
 
 # These files are already named things like V.nob, but we still do
 # analysis and posgrep to make sure everything is comparable:
-eval/fad.ana.%.$(LANG1): ../../words-src-fad/%.$(LANG1) eval/.d
+eval/fad.ana.%.$(LANG1): ../../fadwords/%.$(LANG1) eval/.d
 	bash -c "source ../../functions.sh; ana $(LANG1)" <$< >$@
 eval/fad.lms.%.$(LANG1): eval/fad.ana.%.$(LANG1)
 	bash -c "source ../../functions.sh; ana_to_forms_lms_of_pos $*" <$< >$@
 
-eval/%.results.1k eval/%.results.10k eval/%.results.100k: eval/alignments.lms.%.$(LANG1) eval/alignments.lms.%.$(LANG2) eval/fad.lms.%.$(LANG1) ../../words/$(LANG1)$(LANG2)/%_$(LANG1)$(LANG2).tsv
+eval/%.results.1k eval/%.results.10k eval/%.results.100k: eval/alignments.lms.%.$(LANG1) eval/alignments.lms.%.$(LANG2) eval/fad.lms.%.$(LANG1) ../../words/$(LANG1)$(LANG2)/%.tsv
 	for h in 1000 10000 100000; do \
 	  k=`echo $$h|sed 's/000$$/k/'`; \
 	  head -$$h alignments.merged \
 	  | gawk -v srclmf=eval/alignments.lms.$*.$(LANG1) \
 	         -v trglmf=eval/alignments.lms.$*.$(LANG2) \
 	         -v fadlmf=eval/fad.lms.$*.$(LANG1) \
-	         -v transf=../../words/$(LANG1)$(LANG2)/$*_$(LANG1)$(LANG2).tsv \
+	         -v transf=../../words/$(LANG1)$(LANG2)/$*.tsv \
 	         -f eval.awk >eval/$*.results.$$k; \
 	done
 

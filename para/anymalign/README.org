@@ -1,5 +1,5 @@
 * Usage
-  You need the tsv's in ../../words and ../../words-src-fad, so do
+  You need the tsv's in ../../words and ../../fadwords, so do
   : cd ../..
   : make words
 

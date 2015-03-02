@@ -20,40 +20,89 @@ XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
 
 all: out/nobsmasme out/nobsmjsme
 
+spellms: $(patsubst %,freq/slms.%.smj,$(DPOS)) \
+         $(patsubst %,freq/slms.%.sma,$(DPOS)) 
+
 out/nobsmasme: $(DECOMPSMA) out/nobsmasme/.d tmp/.d tmp/nobsmasme/.d
 	./canonicalise.sh nobsma
 out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/.d tmp/nobsmjsme/.d
 	./canonicalise.sh smesmj
 	./canonicalise.sh nobsmj
 
-out/%/V_decomp out/%/N_decomp out/%/A_decomp: words-src-fad out/.d words
-	./decompound.sh $*
+out/%/V_decomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/V.tsv
+	./decompound.sh $* V
+out/%/N_decomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/N.tsv
+	./decompound.sh $* N
+out/%/A_decomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/A.tsv
+	./decompound.sh $* A
 
-out/%/V_precomp out/%/N_precomp out/%/A_precomp: words-src-fad out/.d words/%/V_precomp.tsv words/%/N_precomp.tsv words/%/A_precomp.tsv
-	./decompound.sh $* precomp
+out/%/V_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/V_precomp.tsv
+	./decompound.sh $* V precomp
+out/%/N_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/N_precomp.tsv
+	./decompound.sh $* N precomp
+out/%/A_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/A_precomp.tsv
+	./decompound.sh $* A precomp
 
-out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: words-src-fad out/.d
+out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d
 	./sme2smjify.sh
 
 
-# TODO: dir/pos arg to dicts-to-tsv.sh; this goal makes so many files,
-# impossible to make decompound.sh depend properly on it
-words words-src-fad: words/.d words-src-fad/.d
-	./dicts-to-tsv.sh
+words/%/V.tsv words/%/N.tsv words/%/A.tsv: words/%/.d
+	bash -c "source functions.sh; cd words; dir2tsv '' '$*'"
 
-words/%/V_precomp.tsv: words
+
+words/%.sme: words/smenob/%.tsv words/nobsme/%.tsv \
+           words/smesmj/%.tsv words/smjsme/%.tsv \
+           words/smasme/%.tsv # no smesma/src
+	bash -c "source functions.sh; cd words; mono_from_bi sme $*" > $@
+words/%.nob: words/nobsmj/%.tsv words/smjnob/%.tsv \
+           words/nobsma/%.tsv words/smanob/%.tsv \
+           words/nobsme/%.tsv words/smenob/%.tsv
+	bash -c "source functions.sh; cd words; mono_from_bi nob $*" > $@
+words/%.sma: words/smanob/%.tsv words/nobsma/%.tsv \
+           words/smasme/%.tsv # no smesma/src
+	bash -c "source functions.sh; cd words; mono_from_bi sma $*" > $@
+words/%.smj: words/smjnob/%.tsv words/nobsmj/%.tsv \
+             words/smjsme/%.tsv words/smesmj/%.tsv
+	bash -c "source functions.sh; cd words; mono_from_bi smj $*" > $@
+
+words/nonVNA.%: words/V.% words/N.% words/A.%
+	bash -c "source functions.sh; cd words; mono_from_bi $* nonVNA" > $@
+words/all.%: words/nonVNA.%
+	bash -c "source functions.sh; cd words; mono_from_bi $* ''" > $@
+
+
+
+fadwords/%/V.tsv fadwords/%/N.tsv fadwords/%/A.tsv: fadwords/%/.d
+	bash -c "source functions.sh; cd fadwords; dir2tsv '[@src=\"fad\"]' '$*'"
+	@touch fadwords/$*/Pron_$*.tsv # just to stop canonicalise.sh from complaining
+
+fadwords/%.sme: fadwords/smenob/%.tsv fadwords/nobsme/%.tsv
+	bash -c "source functions.sh; cd fadwords; mono_from_bi sme $*" > $@
+fadwords/%.nob: fadwords/smenob/%.tsv fadwords/nobsme/%.tsv
+	bash -c "source functions.sh; cd fadwords; mono_from_bi nob $*" > $@
+
+fadwords/nonVNA.%: fadwords/V.% fadwords/N.% fadwords/A.%
+	bash -c "source functions.sh; cd fadwords; mono_from_bi $* nonVNA" > $@
+fadwords/all.%: fadwords/nonVNA.%
+	bash -c "source functions.sh; cd fadwords; mono_from_bi $* ''" > $@
+
+
+words/%/V_precomp.tsv: words/%/V.tsv
 	./precomp.sh $* V > $@
-words/%/N_precomp.tsv: words
+words/%/N_precomp.tsv: words/%/N.tsv
 	./precomp.sh $* N > $@
-words/%/A_precomp.tsv: words
+words/%/A_precomp.tsv: words/%/A.tsv
 	./precomp.sh $* A > $@
 
-words/%.V: words/% freq/forms.%
-	./grab-lms-of-pos.sh $* V
-words/%.N: words/% freq/forms.%
-	./grab-lms-of-pos.sh $* N
-words/%.A: words/% freq/forms.%
-	./grab-lms-of-pos.sh $* A
+
+# For speller:
+freq/slms.V.%: words/all.% freq/forms.%
+	bash -c "source functions.sh; all_lms_of_pos $* V" >$@
+freq/slms.N.%: words/all.% freq/forms.%
+	bash -c "source functions.sh; all_lms_of_pos $* N" >$@
+freq/slms.A.%: words/all.% freq/forms.%
+	bash -c "source functions.sh; all_lms_of_pos $* A" >$@
 
 
 freq/forms.% freq/lms.% freq/combined.%: freq/prepcorp.%.xz freq/plaincorp.%.xz
@@ -80,18 +129,27 @@ corpus:
 	bash -c "source functions.sh; convert_all nob"
 	bash -c "source functions.sh; convert_all sme"
 
-%/.d:
-	@test -d $* || mkdir $*
+words/%/.d: words/.d
+	@test -d $(@D) || mkdir $(@D)
 	@touch $@
-.PRECIOUS: freq/.d words/.d out/.d tmp/.d words/.d words-src-fad/.d out/nobsmasme/.d out/nobsmjsme/.d tmp/nobsmasme/.d tmp/nobsmjsme/.d
+fadwords/%/.d: fadwords/.d
+	@test -d $(@D) || mkdir $(@D)
+	@touch $@
+out/%/.d: out/.d
+	@test -d $(@D) || mkdir $(@D)
+	@touch $@
+%/.d:
+	@test -d $(@D) || mkdir $(@D)
+	@touch $@
+.PRECIOUS: freq/.d words/.d out/.d tmp/.d words/.d fadwords/.d out/nobsmasme/.d out/nobsmjsme/.d tmp/nobsmasme/.d tmp/nobsmjsme/.d
 
 # Actually, don't delete any intermediates:
 .SECONDARY:
 
 clean:
-	rm -rf out tmp words words-src-fad
+	rm -rf out tmp words fadwords
 
 reallyclean: clean
 	rm -rf freq
 
-.PHONY: corpus allfreq all clean reallyclean
+.PHONY: corpus all spellms clean reallyclean

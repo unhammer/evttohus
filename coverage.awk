@@ -3,9 +3,9 @@
 
 BEGIN {
   OFS=FS="\t"
-  f1="words-src-fad/"pos".sme"
+  f1="fadwords/"pos".sme"
   while(getline<f1) sme[$0]++;
-  f2="words-src-fad/"pos".nob"
+  f2="fadwords/"pos".nob"
   while(getline<f2) nob[$0]++
 }
 $1 in nob{

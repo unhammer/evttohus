@@ -30,8 +30,8 @@ for f in out/${dir}/* spell/out/${dir}/*; do
     test -f "$f" || continue
     b=$(basename "$f")
     pos=$(pos_glob "$b")
-    cat words-src-fad/smenob/${pos}_smenob.tsv > tmp/smenob 2>/dev/null
-    cat words-src-fad/nobsme/${pos}_nobsme.tsv > tmp/nobsme 2>/dev/null
+    cat fadwords/smenob/${pos}.tsv > tmp/smenob 2>/dev/null
+    cat fadwords/nobsme/${pos}.tsv > tmp/nobsme 2>/dev/null
     <"$f" gawk \
         -v fromlang=${fromlang} \
         -v smenob=tmp/smenob -v nobsme=tmp/nobsme \

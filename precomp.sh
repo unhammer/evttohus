@@ -10,7 +10,7 @@ pos=$2
 lang1=${dir%???}
 lang2=${dir#???}
 
-dict=words/${dir}/${pos}_${dir}.tsv
+dict=words/${dir}/${pos}.tsv
 
 words_to_cmp () {
     lang=$1

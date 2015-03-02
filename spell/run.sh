@@ -18,14 +18,14 @@ cleanwords () {
 echo "Compiling dictionaries ..."
 for lang in sma smj; do
     for pos in V N A; do
-        # "make words/sme.N" and so on for this:
-        sed "s/$/${tab}F/" ../words/${pos}.${lang} \
-            | cat - ../words/[^${pos}].${lang} \
+        # "make freq/slms.N.sme" and so on for this:
+        sed "s/$/${tab}F/" ../freq/slms.${pos}.${lang} \
+            | cat - ../freq/slms.[^${pos}].${lang} \
             | cleanwords > tmp/${lang}.${pos}.sorted
         ./comp.native tmp/${lang}.${pos}.sorted tmp/${lang}.${pos}.dawg
     done
     for pos in nonVNA; do
-        sed "s/$/${tab}F/" ../words/*.${lang} \
+        sed "s/$/${tab}F/" ../freq/slms.*.${lang} \
             | cleanwords > tmp/${lang}.${pos}.sorted
         ./comp.native tmp/${lang}.${pos}.sorted tmp/${lang}.${pos}.dawg
     done

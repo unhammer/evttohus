@@ -22,8 +22,8 @@ for pos in V N A nonVNA; do
     else
         fstpos=sme2smj-${pos}.bin
     fi
-    < words-src-fad/${pos}.sme lookup_good ${fsts}/scripts/${fstpos} > out/${dir}/${pos}_xfst
-    < words-src-fad/${pos}.sme lookup_good ${fsts}/bin/${dir}.fst    > out/${dir}/${pos}_lexc
+    < fadwords/${pos}.sme lookup_good ${fsts}/scripts/${fstpos} > out/${dir}/${pos}_xfst
+    < fadwords/${pos}.sme lookup_good ${fsts}/bin/${dir}.fst    > out/${dir}/${pos}_lexc
 done
 
 

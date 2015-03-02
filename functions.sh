@@ -177,81 +177,86 @@ dict_xml2tsv () {
         "$@"
 }
 
+normalisePoS () {
+    psed 's/(\w+)_/\u\L$1_/;
+          s/Cc_/CC_/; s/Cs_/CS_/; s/(Pp|Prep)_/Pr_/; s/P_/Po_/; s/I_/Ij_/;
+          s/_[a-z]{6,6}[.]/./;'
+}
+
 dir2tsv () {
     # Will output into "$dir" under cwd
     restriction=$1
     dir=$2
     test -d ${dir} || mkdir ${dir}
-    for xml in $GTHOME/words/dicts/${dir}/src/*_${dir}.xml; do
-        tsv=${dir}/$(basename "${xml}")
-        tsv=${tsv%%.xml}.tsv
-        # Why does this sometimes return non-zero even though good output?
-        dict_xml2tsv "${restriction}" "${xml}" > "${tsv}" || true
+    if [[ ${dir} = smesmj ]]; then
+        for csv in $GTHOME/words/dicts/${dir}/src/*.csv; do
+            tsv=${dir}/$(basename "$csv")
+            tsv=${tsv%%.csv}.tsv
+            tsv=$(echo "$tsv" | normalisePoS)
+            cut -f1-2 <"${csv}" > "${tsv}"
+        done
+    elif [[ ${dir} = nobsmj || ${dir} = smjnob ]]; then
+        kintel2tsv ${dir}
+    else
+        for xml in $GTHOME/words/dicts/${dir}/src/*_${dir}.xml; do
+            tsv=${dir}/$(basename "${xml}")
+            tsv=${tsv%%.xml}.tsv
+            tsv=$(echo "$tsv" | normalisePoS)
+            # Why does this sometimes return non-zero even though good output?
+            dict_xml2tsv "${restriction}" "${xml}" > "${tsv}" || true
+        done
+    fi
+    # We only use files named $dir/$pos_$dir.tsv, e.g.
+    # smenob/V_smenob.tsv; append some entries from the more funnily
+    # named files to the ordinary-named files:
+    for f in ${dir}/[VNA]_{Pl,G3,mwe,NomAg}* ; do
+        [[ -f $f ]] || continue
+        b=$(basename "$f")
+        pos=${b%%_*};dir=$(dirname "$f")
+        cat "$f" >> "${dir}"/"${pos}.tsv"
     done
 }
 
 mono_from_bi () {
     lang=$1
     pos=$2
+    if [[ ${pos} = nonVNA ]]; then
+        pos=[^VNA]
+    fi
     cat <(cut -f1  ${lang}???/${pos}*.tsv) \
         <(cut -f2- ???${lang}/${pos}*.tsv | tr '\t' '\n') \
         | sort -u
 }
 
-dicts2tsv () {
-    # Makes all pairings of the langs args.
-    # Outputs to cwd (e.g. words or words-src-fad).
-    restriction=$1
-    shift
-    for lang1 in "$@"; do
-        for lang2 in "$@"; do
-            dir=${lang1}${lang2}
-            if [[ $lang1 = $lang2 ]]; then
-                continue
-            elif [[ ! -d $GTHOME/words/dicts/${dir}/src ]]; then
-                echo "\$GTHOME/words/dicts/${dir} doesn't exist (yet)" >&2
-                continue
-            else
-                dir2tsv "${restriction}" "${dir}"
-            fi
-        done
-    done
-
-    for lang in "$@"; do
-        for pos in V N A; do
-            mono_from_bi ${lang} ${pos} > ${pos}.${lang}
-        done
-        mono_from_bi ${lang} "[^VNA]" > nonVNA.${lang}
-        mono_from_bi ${lang} "" > ${lang}
-    done
-}
 
 kintel2tsv () {
-    for dir2 in nob2smj smj2nob; do
-        dir=${dir2/2/}
-        test -d ${dir} || mkdir ${dir}
-        for pos in V N A nonVNA; do
-            if [[ $pos = nonVNA ]]; then
-                restriction="[.//l[not(@pos='V' or @pos='N' or @pos='A' or @obt='V' or @obt='N' or @obt='A')]]"
-            else
-                restriction="[.//l[(@pos='${pos}' or @obt='${pos}')]]"
-            fi
-            xml=$GTHOME/words/dicts/smjnob-kintel/src/${dir2}/*.xml
-            tsv=${dir}/${pos}_${dir}.tsv
-            # Extract the finished translations:
-            dict_xml2tsv "${restriction}" ${xml} > "${tsv}" || true
-            # but also include the unfinished ones (no .//t):
-            xmlstarlet sel -t \
-                -m "//e${restriction}" -c './lg/l/text()' \
-                -m './mg[count(.//t)=0]/trans_in' -o $'\t' -c './/span[not(contains(@STYLE,"font-style:italic"))]/text()' \
-                -b -n \
-                ${xml} \
-                | psed 's/ el[.] /\t/g' \
-                | psed 's/\([^)]*\)/\t/g' \
-                | psed "s/( [bDdfGgjlmnŋprsVvbd][bDdfGgjlmnŋprsVvbdthkRVSJN']*| -\p{L}+-)*(\$|[ ,.;])/\t/g" \
-                | psed 's/\t[0-9]+/\t/g' \
-                | psed 's/\t\t/\t/g;s/^\t//' > "${tsv}".unchecked
-        done
+    dir=$1
+    lang1=${dir%???}
+    lang2=${dir#???}
+    dir2=${lang1}2${lang2}
+    test -d ${dir} || mkdir ${dir}
+    for pos in V N A nonVNA; do
+        if [[ $pos = nonVNA ]]; then
+            restriction="[.//l[not(@pos='V' or @pos='N' or @pos='A' or @obt='V' or @obt='N' or @obt='A')]]"
+        else
+            restriction="[.//l[(@pos='${pos}' or @obt='${pos}')]]"
+        fi
+        xml=$GTHOME/words/dicts/smjnob-kintel/src/${dir2}/*.xml
+        tsv=${dir}/${pos}.tsv
+        tsv=$(echo "$tsv" | normalisePoS)
+        # Extract the finished translations:
+        dict_xml2tsv "${restriction}" ${xml} > "${tsv}" || true
+        # but also include the unfinished ones (no .//t):
+        xmlstarlet sel -t \
+            -m "//e${restriction}" -c './lg/l/text()' \
+            -m './mg[count(.//t)=0]/trans_in' -o $'\t' -c './/span[not(contains(@STYLE,"font-style:italic"))]/text()' \
+            -b -n \
+            ${xml} \
+            | psed 's/ el[.] /\t/g' \
+            | psed 's/\([^)]*\)/\t/g' \
+            | psed "s/( [bDdfGgjlmnŋprsVvbd][bDdfGgjlmnŋprsVvbdthkRVSJN']*| -\p{L}+-)*(\$|[ ,.;])/\t/g" \
+            | psed 's/\t[0-9]+/\t/g' \
+            | psed 's/\t\t/\t/g;s/^\t//' > "${tsv}".unchecked
     done
 }
 
@@ -288,7 +293,7 @@ all_lms_of_pos () {
     lang=$1
     pos=$2
     lexc2lms < $GTHOME/langs/${lang}/src/morphology/lexicon.lexc \
-        | cat - words/${lang} <(cut -f2 freq/forms.${lang}) \
+        | cat - words/all.${lang} <(cut -f2 freq/forms.${lang}) \
         | sort -u \
         | ana ${lang} \
         | posgrep "${pos}" \
