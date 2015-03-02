@@ -1,7 +1,7 @@
 * Usage
   You need the tsv's in ../../words and ../../fadwords, so do
   : cd ../..
-  : make words
+  : make words/all.sma words/all.smj fadwords/all.sma fadwords/all.smj
 
   Then a =make= here will check out anymalign, and if Python2 is
   installed will prepare the corpus and start aligning.
