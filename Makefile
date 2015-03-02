@@ -34,11 +34,11 @@ out/%/N_decomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/N.tsv
 out/%/A_decomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/A.tsv
 	./decompound.sh $* A
 
-out/%/V_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/V_precomp.tsv
+out/%/V_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_V.tsv
 	./decompound.sh $* V precomp
-out/%/N_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/N_precomp.tsv
+out/%/N_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_N.tsv
 	./decompound.sh $* N precomp
-out/%/A_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/A_precomp.tsv
+out/%/A_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_A.tsv
 	./decompound.sh $* A precomp
 
 out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d
@@ -86,11 +86,11 @@ fadwords/all.%: fadwords/nonVNA.%
 	bash -c "source functions.sh; cd fadwords; mono_from_bi $* ''" > $@
 
 
-words/%/V_precomp.tsv: words/%/V.tsv
+words/%/precomp_V.tsv: words/%/V.tsv
 	./precomp.sh $* V > $@
-words/%/N_precomp.tsv: words/%/N.tsv
+words/%/precomp_N.tsv: words/%/N.tsv
 	./precomp.sh $* N > $@
-words/%/A_precomp.tsv: words/%/A.tsv
+words/%/precomp_A.tsv: words/%/A.tsv
 	./precomp.sh $* A > $@
 
 

@@ -25,7 +25,7 @@ dict=words/${dir}/${pos}.tsv
 if [[ ! -f ${dict} ]]; then echo "${dict} doesn't exist"; continue; fi
 cat_dict () {
     if $precomp; then
-        cat "${dict}" words/${dir}/${pos}_precomp.tsv
+        cat "${dict}" words/${dir}/precomp_${pos}.tsv
     else
         cat "${dict}"
     fi
