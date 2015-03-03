@@ -1,3 +1,6 @@
+* TODO intersections of the various out/-methods?
+  if a pair is in both anymalign and decomp, it's likelier
+  (worth it?)
 * TODO derivations mess up pos-filtering
   e.g. anymalign gives satsing→joekedimmie; seems good, but then the
   lemmatising gives "joekedidh":
@@ -18,7 +21,7 @@
   the sum of the smallest corpus.
 
 * TODO kwic-annotate out-files
-
+  use id's etc. from freq/nobsma.* ?
 * TODO run through usmjNorm and take lemmas for words marked Err/Sub ?
 * TODO sub-word correspondences
   A level between the current xfst (spelling/phon) and decomp.
