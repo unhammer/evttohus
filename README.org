@@ -34,6 +34,13 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
   from =$GTHOME/langs/${lang}/src/analyser-gt-desc.xfst= with the
   right part of speech.
   
+** Running the parallel word alignment
+   Follow [[file:para/anymalign/README.org][para/anymalign/README.org]] to run the alignment. To get them
+   into the same format as the other files, in this directory do
+   : make anymalign
+   : make
+   You should now have some files in =out/nob*sme/*anymalign*=
+
 ** Running the candidate-respelling
   … currently uses some ocaml stuff, TODO
 
