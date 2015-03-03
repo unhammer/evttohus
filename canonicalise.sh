@@ -90,17 +90,17 @@ for f in tmp/${outdir}/*; do
         | awk '
             # Let field 7 be the candidate frequency normalised by difference of this frequency and input frequency:
             BEGIN{OFS=FS="\t"}
-            {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0,$5/diff}' \
-        | sort -k7,7nr -k5,5nr -k2,2 -t$'\t' \
-        | gawk -v pos=${pos} -v posf=tmp/${candlang}.pos '
-            # Let field 7 be true iff the FST gave a same-pos analysis:
-            BEGIN{ OFS=FS="\t"; while(getline<posf)ana[$2][$1]++ }
-            { print $1,$2,$3,$4,$5,$6,$2 in ana[pos] }' \
+            {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0, $5/diff}' \
         | gawk -v from=${fromfield} -v hitsf=tmp/${dir}.para-hits '
             # Let field 8 be count of hits in parallel sentences:
             BEGIN{ OFS=FS="\t"; while(getline<hitsf) hits[$2][$3]=$1 }
             !($from in hits) || !($2 in hits[$from]) { hits[$from][$2]=0 }
-            { print $1,$2,$3,$4,$5,$6,$7,hits[$1][$2] } ' \
+            { print $0, hits[$1][$2] } ' \
+        | sort -k7,7nr -k8,8nr -k5,5nr -k2,2 -t$'\t' \
+        | gawk -v pos=${pos} -v posf=tmp/${candlang}.pos '
+            # Overwrite field 7 with true iff the FST gave a same-pos analysis:
+            BEGIN{ OFS=FS="\t"; while(getline<posf)ana[$2][$1]++ }
+            { $7=$2 in ana[pos]; print }' \
         >out/${outdir}/"$b"
 done
 echo
