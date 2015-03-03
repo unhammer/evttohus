@@ -1,7 +1,8 @@
 * Usage
   You need the tsv's in ../../words and ../../fadwords, so do
   : cd ../..
-  : make words/all.sma words/all.smj fadwords/all.sma fadwords/all.smj
+  : make anymalign-pre
+  first.
 
   Then a =make= here will check out anymalign, and if Python2 is
   installed will prepare the corpus and start aligning.
@@ -14,3 +15,11 @@
   numbers only make sense if you compiled with DOEVAL=true in the
   =Makefile=).
 
+  You can get the results into the toplevel out/ folder by doing
+  : cd ../..
+  : make anymalign-post
+  : make
+
+* Limitations
+  For now, only nob2sma set up.
+  

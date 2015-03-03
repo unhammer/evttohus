@@ -48,12 +48,16 @@ out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xf
 	./sme2smjify.sh
 
 
+# Run anymalign-pre, then cd para/anymalign and make:
+anymalign-pre: fadwords/all.nob words/all.nob words/all.sma
+# Afterwards, go back here and make anymalign-post && make:
+anymalign-post: out/nobsma/V_anymalign out/nobsma/N_anymalign out/nobsma/A_anymalign
+
 # Just use eval results from anymalign for now since these already
 # have the "fad" field on stuff that's in fad:
 out/nobsma/%_anymalign: para/anymalign/eval/%.results.100k
 	awk -F'\t' '$$4=="fad"' $< | sort -nr | cut -f5-6 | grep -v '\*' > $@
-# TODO: make the main goal depend on this?
-anymalign: out/nobsma/V_anymalign out/nobsma/N_anymalign out/nobsma/A_anymalign
+
 
 # "Normalised" TSV versions of dictionaries from $GTHOME/words/dicts:
 words/%/V.tsv words/%/N.tsv words/%/A.tsv: words/%/.d
