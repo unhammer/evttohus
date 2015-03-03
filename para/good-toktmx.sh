@@ -2,13 +2,14 @@
 
 set -e -u
 
-lang1=$1
-lang2=$2
-no_examples=$3
+dir=$1
+lang1=${dir%???}
+lang2=${dir#???}
+no_examples=$2
 
-dir=${lang1}2${lang2}
+dir2=${lang1}2${lang2}
 
-find $GTFREE/toktmx/"${dir}" -type f -name '*.toktmx' -print0 \
+find $GTFREE/toktmx/"${dir2}" -type f -name '*.toktmx' -print0 \
     | xargs -0 -I{} "$(dirname $0)"/toktmx2tsv-lines.sh "${lang1}" "${lang2}" '{}' \
     | awk -v src="${lang1}" -v trg="${lang2}" '
 BEGIN{
