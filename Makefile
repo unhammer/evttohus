@@ -50,8 +50,8 @@ out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xf
 
 # Just use eval results from anymalign for now since these already
 # have the "fad" field on stuff that's in fad:
-out/nobsma/%_anymalign: para/anymalign/eval/%.results.10k
-	awk -F'\t' '$$4=="fad"' $< | sort -nr | cut -f5-6 > $@
+out/nobsma/%_anymalign: para/anymalign/eval/%.results.100k
+	awk -F'\t' '$$4=="fad"' $< | sort -nr | cut -f5-6 | grep -v '\*' > $@
 # TODO: make the main goal depend on this?
 anymalign: out/nobsma/V_anymalign out/nobsma/N_anymalign out/nobsma/A_anymalign
 
