@@ -42,10 +42,10 @@ for f in out/${dir}/* spell/out/${dir}/*; do
     if [[ ${dir} = nobsmj ]]; then
         sort -u "$f" > tmp/${dir}/"$b"
     else
-        join -t$'\t' -v1 \
-            <(sort -u "$f") \
-            <(cat words/${dir}/${pos}*.tsv | sort -u) \
-            >tmp/${dir}/"$b"
+        <"$f" gawk -v dict=<(cat words/${dir}/${pos}*.tsv) '
+          BEGIN{OFS=FS="\t";while(getline<dict){src[$1]++; for(i=2;i<=NF;i++)trg[$i]++}}
+          $1 in src || $2 in trg {next} {print}' \
+          >tmp/${dir}/"$b"
     fi
 done
 
