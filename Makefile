@@ -24,9 +24,9 @@ all: out/nobsmasme out/nobsmjsme
 spellms: $(patsubst %,freq/slms.%.smj,$(DPOS)) \
          $(patsubst %,freq/slms.%.sma,$(DPOS)) 
 
-out/nobsmasme: $(DECOMPSMA) out/nobsmasme/.d tmp/.d tmp/nobsmasme/.d tmp/nobsma/.d words/all.sma $(PARASMA)
+out/nobsmasme: $(DECOMPSMA) out/nobsmasme/.d tmp/nobsmasme/.d tmp/nobsma/.d words/all.sma $(PARASMA)
 	./canonicalise.sh nobsma
-out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/nobsmj/.d words/all.smj $(PARASMJ)
+out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/nobsmj/.d words/all.smj $(PARASMJ)
 	./canonicalise.sh smesmj
 	./canonicalise.sh nobsmj
 
@@ -184,6 +184,9 @@ fadwords/%/.d: fadwords/.d
 	@test -d $(@D) || mkdir $(@D)
 	@touch $@
 out/%/.d: out/.d
+	@test -d $(@D) || mkdir $(@D)
+	@touch $@
+tmp/%/.d: tmp/.d
 	@test -d $(@D) || mkdir $(@D)
 	@touch $@
 %/.d:
