@@ -7,6 +7,14 @@ source functions.sh
 dir=$1
 fromlang=${dir%???}
 candlang=${dir#???}
+if [[ ${fromlang} = nob ]]; then
+    fromfield=1
+elif [[ ${fromlang} = sme ]]; then
+    fromfield=3
+else
+    echo "Unknown fromlang ${fromlang}" >&2
+    exit 1
+fi
 
 pos_glob () {
     case $1 in
@@ -35,7 +43,7 @@ for f in out/${dir}/* spell/out/${dir}/*; do
     else
         join -t$'\t' -v1 \
             <(sort -u "$f") \
-            <(cat words/${dir}/${pos}.tsv | sort -u) \
+            <(cat words/${dir}/${pos}*.tsv | sort -u) \
             >tmp/${dir}/"$b"
     fi
 done
@@ -70,6 +78,7 @@ echo "Annotate with frequency and whether FST had same-pos analysis ..."
 for f in tmp/nob${candlang}sme/*; do
     b=$(basename "$f")
     pos=$(pos_name "$b")
+    echo -n "$b "
     <"$f" freq_annotate 1 freq/combined.nob ${sumnob}  ${sumcand} \
         | freq_annotate 2 freq/combined.sma ${sumcand} ${sumcand} \
         | freq_annotate 3 freq/combined.sme ${sumsme}  ${sumcand} \
@@ -79,9 +88,15 @@ for f in tmp/nob${candlang}sme/*; do
             BEGIN{OFS=FS="\t"}
             {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0,$5/diff}' \
         | sort -k7,7nr -k5,5nr -k2,2 -t$'\t' \
-        | gawk -vpos=${pos} -vposf=tmp/${candlang}.pos '
+        | gawk -v pos=${pos} -v posf=tmp/${candlang}.pos '
             # Let field 7 be true iff the FST gave a same-pos analysis:
             BEGIN{ OFS=FS="\t"; while(getline<posf)ana[$2][$1]++ }
-            { print $1,$2,$3,$4,$5,$6,$2 in ana[pos] }
-        ' >out/nob${candlang}sme/"$b"
+            { print $1,$2,$3,$4,$5,$6,$2 in ana[pos] }' \
+        | gawk -v from=${fromfield} -v hitsf=<(para/count-para-hits.sh "$f" freq/${dir}.lemmas.ids) '
+            # Let field 8 be count of hits in parallel sentences:
+            BEGIN{ OFS=FS="\t"; while(getline<hitsf) hits[$1][$2]++ }
+            !($from in hits) || !($2 in hits[$from]) { hits[$from][$2]=0 }
+            { print $1,$2,$3,$4,$5,$6,$7,hits[$1][$2] } ' \
+        >out/nob${candlang}sme/"$b"
 done
+echo
