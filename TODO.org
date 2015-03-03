@@ -1,4 +1,3 @@
-* TODO include anymalign results where src=fad in canonicalise.sh out/
 * TODO also try non-fad words for the sources that give the best candidates
   or for high frequency candidates etc.
 
