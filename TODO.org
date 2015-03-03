@@ -1,3 +1,15 @@
+* TODO derivations mess up pos-filtering
+  e.g. anymalign gives satsing→joekedimmie; seems good, but then the
+  lemmatising gives "joekedidh":
+  
+  joekedimmie     joekedidh+V+TV+Der/NomAct+N+Sg+Nom
+
+  "joekedidh" is the wrong PoS when doing noun candidates, should we
+  output "joekedidh+Der/NomAct" (more work for linguist) or even just
+  ignore it? Using forms for all anymalign output is even more work.
+  Could perhaps use forms only when there is a Der-tag right before
+  the main PoS tag …
+  
 * TODO also try non-fad words for the sources that give the best candidates
   or for high frequency candidates etc.
 
