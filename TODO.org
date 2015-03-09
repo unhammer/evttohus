@@ -1,3 +1,23 @@
+
+* TODO kwic-annotate out-files
+  use id's etc. from freq/nobsma.* ?
+* TODO linebreaks to separate lemma-groups
+  from
+  
+:   eierforhold æjgátdille eaiggátdilli 10 0 0 0 1
+:   næringsinteresse æládusberustibme ealáhusberoštupmi 8 0 4 0 1
+:   næringsliv æládusielle ealáhuseallin 286 0 36 0 1
+:   næringsliv æládusiellet ealáhuseallin 286 0 36 0 1
+
+  to
+
+:   eierforhold æjgátdille eaiggátdilli 10 0 0 0 1
+: 
+:   næringsinteresse æládusberustibme ealáhusberoštupmi 8 0 4 0 1
+: 
+:   næringsliv æládusielle ealáhuseallin 286 0 36 0 1
+:   næringsliv æládusiellet ealáhuseallin 286 0 36 0 1
+  
 * TODO intersections of the various out/-methods?
   if a pair is in both anymalign and decomp, it's likelier
   (worth it?)
@@ -19,9 +39,6 @@
 * TODO shorten corpora to size of the smallest for comparable frequencies?
   Currently, =canonicalise.sh= will simply divide the sum of the larger by
   the sum of the smallest corpus.
-
-* TODO kwic-annotate out-files
-  use id's etc. from freq/nobsma.* ?
 * TODO run through usmjNorm and take lemmas for words marked Err/Sub ?
 * TODO sub-word correspondences
   A level between the current xfst (spelling/phon) and decomp.
