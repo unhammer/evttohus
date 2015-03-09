@@ -280,7 +280,23 @@ posgrep () {
     fi
 }
 
+ana_to_forms_pos () {
+    # given ana input, output tab-separated
+    #FORM	MAINPOS
+    gawk -F'\t|[+]' '
+      $1 { 
+        sub(/[^\t]*#/,"")
+        pos="nonVNA"
+        for(i=NF;i>=0;i--) if($i~/^[VNA]$/){ 
+          pos=$i
+          break
+        }
+        print $1"\t"pos
+      }
+'
+}
 ana_to_forms_lms_of_pos () {
+    # Used in anymalign
     pos=$1
     posgrep "${pos}" \
         | ana_to_lemmas \

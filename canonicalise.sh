@@ -100,10 +100,8 @@ echo
 echo "Get main PoS of all candidates ..."
 cut -f2 tmp/${outdir}/*.sorted \
     | ana ${candlang} \
-    | gawk -F'\t|[+]' '
-       $1{ sub(/.*#/,""); pos="nonVNA"; for(i=NF;i>=0;i--)if($i~/^[VNA]$/){pos=$i;break}; ana[$1][pos]++ }
-       END{ for(form in ana)for(pos in ana[form])print form"\t"pos }
-'   | sort -u > tmp/${candlang}.pos
+    | ana_to_forms_pos \
+    | sort -u > tmp/${candlang}.pos
 
 echo "$dir: Split out those that didn't have same-pos analysis in FST ..."
 for f in tmp/${outdir}/*.sorted; do
