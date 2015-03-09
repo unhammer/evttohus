@@ -63,7 +63,7 @@ for f in tmp/${dir}/*; do
         -v fromlang=${fromlang} \
         -v smenob=tmp/smenob -v nobsme=tmp/nobsme \
         -f trans_annotate.awk \
-        >tmp/${outdir}/"$b"_${fromlang}
+        >tmp/${outdir}/"$b"_${fromlang}.unsorted
 done
 
 # Normalise frequency sums (to the smallest corpora, ie. smj/sma):
@@ -71,8 +71,9 @@ sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
 sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
 sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
 echo "$dir: Annotate with frequency and parallel sentence hits ..."
-for f in tmp/${outdir}/*; do
+for f in tmp/${outdir}/*.unsorted; do
     b=$(basename "$f")
+    b=${b%%.unsorted}
     pos=$(pos_name "$b")
     echo -n "$b "
     <"$f" freq_annotate 1 freq/combined.nob ${sumnob}  ${sumcand} \
@@ -90,14 +91,14 @@ for f in tmp/${outdir}/*; do
             # (only for sorting, we remove this field afterwards):
             BEGIN{OFS=FS="\t"}
             {diff=$5-$4-$6; if(diff<0) diff=-diff; if(diff==0) diff=1; print $0, $5/diff}' \
-        | sort -k8,8nr -k7,7nr -k5,5nr -k2,2 -t$'\t' \
+        | sort -k7,7nr -k8,8nr -k5,5nr -k2,2 -t$'\t' \
         | cut -f1-7 \
         >tmp/${outdir}/"$b".sorted
 done
 echo
 
 echo "Get main PoS of all candidates ..."
-cut -f2 tmp/${outdir}/* \
+cut -f2 tmp/${outdir}/*.sorted \
     | ana ${candlang} \
     | gawk -F'\t|[+]' '
        $1{ sub(/.*#/,""); pos="nonVNA"; for(i=NF;i>=0;i--)if($i~/^[VNA]$/){pos=$i;break}; ana[$1][pos]++ }
