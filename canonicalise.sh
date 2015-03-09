@@ -34,7 +34,7 @@ pos_name () {
     esac
 }
 
-echo "Skip translations that were already in \$GTHOME/words/dicts (excepting Kintel) ..."
+echo "$dir: Skip translations that were already in \$GTHOME/words/dicts (excepting Kintel) ..."
 for f in out/${dir}/* spell/out/${dir}/*; do
     test -f "$f" || continue
     b=$(basename "$f")
@@ -49,10 +49,10 @@ for f in out/${dir}/* spell/out/${dir}/*; do
     fi
 done
 
-echo "Get para hits of all candidates ..."
+echo "$dir: Get para hits of all candidates ..."
 para/count-para-hits.sh <(sort -u tmp/${dir}/*) freq/${dir}.lemmas.ids > tmp/${dir}.para-hits
 
-echo "Add translations from ${fromlang} so we get ${outdir} ..."
+echo "$dir: Add translations from ${fromlang} so we get ${outdir} ..."
 for f in tmp/${dir}/*; do
     test -f "$f" || continue
     b=$(basename "$f")
@@ -66,19 +66,11 @@ for f in tmp/${dir}/*; do
         >tmp/${outdir}/"$b"_${fromlang}
 done
 
-echo "Get main PoS of all candidates ..."
-cut -f2 tmp/${outdir}/* \
-    | ana ${candlang} \
-    | gawk -F'\t|[+]' '
-       $1{ sub(/.*#/,""); pos="nonVNA"; for(i=NF;i>=0;i--)if($i~/^[VNA]$/){pos=$i;break}; ana[$1][pos]++ }
-       END{ for(form in ana)for(pos in ana[form])print form"\t"pos }
-'   | sort -u > tmp/${candlang}.pos
-
 # Normalise frequency sums (to the smallest corpora, ie. smj/sma):
 sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
 sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
 sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
-echo "Annotate with frequency and whether FST had same-pos analysis ..."
+echo "$dir: Annotate with frequency and parallel sentence hits ..."
 for f in tmp/${outdir}/*; do
     b=$(basename "$f")
     pos=$(pos_name "$b")
@@ -87,20 +79,45 @@ for f in tmp/${outdir}/*; do
         | freq_annotate 2 freq/combined.sma ${sumcand} ${sumcand} \
         | freq_annotate 3 freq/combined.sme ${sumsme}  ${sumcand} \
         | sort -u \
-        | awk '
-            # Let field 7 be the candidate frequency normalised by difference of this frequency and input frequency:
-            BEGIN{OFS=FS="\t"}
-            {diff=$5-$4-$6;if(diff<0)diff=-diff;if(diff==0)diff=1; print $0, $5/diff}' \
         | gawk -v from=${fromfield} -v hitsf=tmp/${dir}.para-hits '
-            # Let field 8 be count of hits in parallel sentences:
+            # Let field 7 be count of hits in parallel sentences:
             BEGIN{ OFS=FS="\t"; while(getline<hitsf) hits[$2][$3]=$1 }
             !($from in hits) || !($2 in hits[$from]) { hits[$from][$2]=0 }
             { print $0, hits[$1][$2] } ' \
-        | sort -k7,7nr -k8,8nr -k5,5nr -k2,2 -t$'\t' \
-        | gawk -v pos=${pos} -v posf=tmp/${candlang}.pos '
-            # Overwrite field 7 with true iff the FST gave a same-pos analysis:
-            BEGIN{ OFS=FS="\t"; while(getline<posf)ana[$2][$1]++ }
-            { $7=$2 in ana[pos]; print }' \
-        >out/${outdir}/"$b"
+        | awk '
+            # Let field 8 be the candidate frequency normalised by 
+            # the difference of this frequency and input frequency
+            # (only for sorting, we remove this field afterwards):
+            BEGIN{OFS=FS="\t"}
+            {diff=$5-$4-$6; if(diff<0) diff=-diff; if(diff==0) diff=1; print $0, $5/diff}' \
+        | sort -k8,8nr -k7,7nr -k5,5nr -k2,2 -t$'\t' \
+        | cut -f1-7 \
+        >tmp/${outdir}/"$b".sorted
 done
 echo
+
+echo "Get main PoS of all candidates ..."
+cut -f2 tmp/${outdir}/* \
+    | ana ${candlang} \
+    | gawk -F'\t|[+]' '
+       $1{ sub(/.*#/,""); pos="nonVNA"; for(i=NF;i>=0;i--)if($i~/^[VNA]$/){pos=$i;break}; ana[$1][pos]++ }
+       END{ for(form in ana)for(pos in ana[form])print form"\t"pos }
+'   | sort -u > tmp/${candlang}.pos
+
+echo "$dir: Split out those that didn't have same-pos analysis in FST ..."
+for f in tmp/${outdir}/*.sorted; do
+    b=$(basename "$f")
+    pos=$(pos_name "$b")
+    goodfile=out/${outdir}/"$b"_ana
+    badfile=out/${outdir}/"$b"_noana
+    <"$f" gawk \
+        -v pos=${pos} -v posf=tmp/${candlang}.pos \
+        -v badf="${badfile}" -v goodf="${goodfile}" '
+      # Overwrite field 7 with true iff the FST gave a same-pos analysis:
+      BEGIN{ OFS=FS="\t"; while(getline<posf)ana[$2][$1]++ }
+      {
+        if($2 in ana[pos]){ print > goodf}
+        else { print > badf }
+      }'
+done
+echo "$dir: done."
