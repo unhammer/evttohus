@@ -5,6 +5,7 @@ PRECOMPBASES=$(patsubst %,%_precomp,$(DPOS))
 ALIGNBASES=$(patsubst %,%_precomp,$(DPOS))
 LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
+KINTELBASES=$(patsubst %,%_kintel,$(DPOS))
 
 DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
           $(patsubst %,out/nobsma/%,$(PRECOMPBASES))
@@ -19,6 +20,8 @@ DECOMPSMJ=$(DECOMPNOBSMJ) $(DECOMPSMESMJ)
 
 XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
+
+KINTELSMJ=$(patsubst %,out/nobsmj/%,$(KINTELBASES))
 
 ALIGNSMJ=$(patsubst %,out/nobsmj/%,$(ALIGNBASES)) # TODO
 
@@ -50,6 +53,11 @@ out/%/A_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_A.ts
 out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d
 	./sme2smjify.sh
 
+out/nobsmj/%_kintel: fadwords/%.nob words/nobsmj/%.tsv out/nobsmj/.d
+	@sort -u fadwords/$*.nob >$@.tmp
+	awk -F'\t' '{for(i=2;i<=NF;i++)if($$i)print $$1"\t"$$i}' words/nobsmj/$*.tsv \
+          | sort -u | join -j 1 -t'	' $@.tmp - >$@
+	@rm -f $@.tmp
 
 # Run anymalign-pre, then cd para/anymalign and make:
 anymalign-pre: fadwords/all.nob words/all.nob words/all.sma
@@ -158,8 +166,8 @@ freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA)
 	@cat $(DECOMPSMA) $(ALIGNSMA) >$@.tmp
 	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
-freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ)
-	@cat $(DECOMPNOBSMJ) >$@.tmp
+freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(KINTELSMJ)
+	@cat $(DECOMPNOBSMJ) $(KINTELSMJ) >$@.tmp
 	para/kwic.sh freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
 freq/smesmj.para-kwic: freq/smesmj.sents.ids freq/smesmj.lemmas.ids $(DECOMPSMESMJ) $(XIFIEDSMJ)
