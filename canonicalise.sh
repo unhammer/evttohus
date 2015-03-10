@@ -82,7 +82,7 @@ for f in tmp/${outdir}/*.unsorted; do
             !($from in hits) || !($2 in hits[$from]) { hits[$from][$2]=0 }
             { print $0, hits[$1][$2] } ' \
         | awk '
-            # Let field 8 be the candidate frequency normalised by 
+            # Let field 8 be the candidate frequency normalised by
             # the difference of this frequency and input frequency
             # (only for sorting, we remove this field afterwards):
             BEGIN{OFS=FS="\t"}
@@ -102,6 +102,7 @@ cut -f2 tmp/${outdir}/*.sorted \
 echo "$dir: Split out those that didn't have same-pos analysis in FST ..."
 for f in tmp/${outdir}/*.sorted; do
     b=$(basename "$f")
+    b=${b%%.sorted}
     pos=$(pos_name "$b")
     goodfile=out/${outdir}/"$b"_ana
     badfile=out/${outdir}/"$b"_noana
