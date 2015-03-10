@@ -106,14 +106,26 @@ for f in tmp/${outdir}/*.sorted; do
     pos=$(pos_name "$b")
     goodfile=out/${outdir}/"$b"_ana
     badfile=out/${outdir}/"$b"_noana
+    if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
     <"$f" gawk \
+        -v g=${groupfield} \
         -v pos=${pos} -v posf=tmp/${candlang}.pos \
         -v badf="${badfile}" -v goodf="${goodfile}" '
       # Overwrite field 7 with true iff the FST gave a same-pos analysis:
       BEGIN{ OFS=FS="\t"; while(getline<posf)ana[$2][$1]++ }
       {
-        if($2 in ana[pos]){ print > goodf}
-        else { print > badf }
-      }'
+        if($2 in ana[pos]){
+          curf = goodf
+        }
+        else {
+          curf = badf
+        }
+        if(curf in prev && prev[curf] != $g) {
+          print "" > curf
+        }
+        print > curf
+        prev[curf]=$g
+      }
+      '
 done
 echo "$dir: done."

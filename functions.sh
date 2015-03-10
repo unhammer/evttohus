@@ -82,7 +82,7 @@ BEGIN{
 }
 function ceil(xs) {
   x = sprintf("%d", xs)
-  return (x == int(x)) ? x : int(x)+1 
+  return (x == int(x)) ? x : int(x)+1
 }
 {
   print $0,ceil(freq[$column]*norm/sum)
@@ -125,7 +125,7 @@ ana_to_lemmas () {
           s/\+[^#\n]*$//;
           # all other analysers:
           s/\+[^#\n]*#*/\t/g;
-          s/\t+/\t/g; 
+          s/\t+/\t/g;
           s/\t$//'
 }
 
@@ -284,10 +284,10 @@ ana_to_forms_pos () {
     # given ana input, output tab-separated
     #FORM	MAINPOS
     gawk -F'\t|[+]' '
-      $1 { 
+      $1 {
         sub(/[^\t]*#/,"")
         pos="nonVNA"
-        for(i=NF;i>=0;i--) if($i~/^[VNA]$/){ 
+        for(i=NF;i>=0;i--) if($i~/^[VNA]$/){
           pos=$i
           break
         }
