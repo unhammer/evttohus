@@ -1,4 +1,4 @@
-
+* TODO include nob[src=fad] in Kintel in a file of its own
 * TODO kwic-annotate out-files?
   sentences with hits in freq/*para-kwic now, but 1) not actually
   kwic, and 2) maybe more useful with just monolingual hits since then
