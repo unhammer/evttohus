@@ -2,31 +2,34 @@ DPOS=V N A
 XPOS=V N A nonVNA
 DECOMPBASES=$(patsubst %,%_decomp,$(DPOS))
 PRECOMPBASES=$(patsubst %,%_precomp,$(DPOS))
+ALIGNBASES=$(patsubst %,%_precomp,$(DPOS))
 LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 
 DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
           $(patsubst %,out/nobsma/%,$(PRECOMPBASES))
 
-DECOMPSMJ=$(patsubst %,out/smesmj/%,$(DECOMPBASES)) \
-          $(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
-          $(patsubst %,out/smesmj/%,$(PRECOMPBASES)) \
-          $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
+ALIGNSMA=$(patsubst %,out/nobsma/%,$(ALIGNBASES))
+
+DECOMPNOBSMJ=$(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
+             $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
+DECOMPSMESMJ=$(patsubst %,out/smesmj/%,$(DECOMPBASES)) \
+             $(patsubst %,out/smesmj/%,$(PRECOMPBASES))
+DECOMPSMJ=$(DECOMPNOBSMJ) $(DECOMPSMESMJ)
 
 XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
 
-PARASMA=freq/nobsma.lemmas.ids freq/smesma.lemmas.ids
-PARASMJ=freq/nobsmj.lemmas.ids freq/smesmj.lemmas.ids
+ALIGNSMJ=$(patsubst %,out/nobsmj/%,$(ALIGNBASES)) # TODO
 
-all: out/nobsmasme out/nobsmjsme
+all: out/nobsmasme out/nobsmjsme freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
 
 spellms: $(patsubst %,freq/slms.%.smj,$(DPOS)) \
          $(patsubst %,freq/slms.%.sma,$(DPOS)) 
 
-out/nobsmasme: $(DECOMPSMA) out/nobsmasme/.d tmp/nobsmasme/.d tmp/nobsma/.d words/all.sma $(PARASMA)
+out/nobsmasme: freq/nobsma.para-kwic out/nobsmasme/.d tmp/nobsmasme/.d tmp/nobsma/.d words/all.sma
 	./canonicalise.sh nobsma
-out/nobsmjsme: $(DECOMPSMJ) $(XIFIEDSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/nobsmj/.d words/all.smj $(PARASMJ)
+out/nobsmjsme: freq/smesmj.para-kwic freq/nobsmj.para-kwic out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/nobsmj/.d words/all.smj
 	./canonicalise.sh smesmj
 	./canonicalise.sh nobsmj
 
@@ -150,6 +153,19 @@ freq/nobsmj.lemmas.ids: freq/nobsmj_nob.ana freq/nobsmj_smj.ana
 freq/smesmj.lemmas.ids: freq/smesmj_sme.ana freq/smesmj_smj.ana
 	para/join-lemmas-on-ids.sh $^ >$@
 
+
+freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA)
+	@cat $(DECOMPSMA) $(ALIGNSMA) >$@.tmp
+	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
+	@rm -f $@.tmp
+freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ)
+	@cat $(DECOMPNOBSMJ) >$@.tmp
+	para/kwic.sh freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $@.tmp >$@
+	@rm -f $@.tmp
+freq/smesmj.para-kwic: freq/smesmj.sents.ids freq/smesmj.lemmas.ids $(DECOMPSMESMJ) $(XIFIEDSMJ)
+	@cat $(DECOMPSMESMJ) $(XIFIEDSMJ) >$@.tmp
+	para/kwic.sh freq/smesmj.sents.ids freq/smesmj.lemmas.ids $@.tmp >$@
+	@rm -f $@.tmp
 
 # Corpora/frequency lists:
 freq/forms.% freq/lms.% freq/combined.%: freq/prepcorp.%.xz freq/plaincorp.%.xz
