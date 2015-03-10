@@ -111,7 +111,7 @@ for f in tmp/${outdir}/*.sorted; do
         -v g=${groupfield} \
         -v pos=${pos} -v posf=tmp/${candlang}.pos \
         -v badf="${badfile}" -v goodf="${goodfile}" '
-      # Overwrite field 7 with true iff the FST gave a same-pos analysis:
+      # Split into ana/noana files depending on whether FST gave a same-pos analysis:
       BEGIN{ OFS=FS="\t"; while(getline<posf)ana[$2][$1]++ }
       {
         if($2 in ana[pos]){
