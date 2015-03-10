@@ -34,19 +34,15 @@ pos_name () {
     esac
 }
 
-echo "$dir: Skip translations that were already in \$GTHOME/words/dicts (excepting Kintel) ..."
+echo "$dir: Skip translations that were already in \$GTHOME/words/dicts or Kintel ..."
 for f in out/${dir}/* spell/out/${dir}/*; do
     test -f "$f" || continue
     b=$(basename "$f")
     pos=$(pos_glob "$b")
-    if [[ ${dir} = nobsmj ]]; then
-        sort -u "$f" > tmp/${dir}/"$b"
-    else
-        <"$f" gawk -v dict=<(cat words/${dir}/${pos}*.tsv) '
+    <"$f" gawk -v dict=<(cat words/${dir}/${pos}*.tsv) '
           BEGIN{OFS=FS="\t";while(getline<dict){src[$1]++; for(i=2;i<=NF;i++)trg[$i]++}}
           $1 in src || $2 in trg {next} {print}' \
           >tmp/${dir}/"$b"
-    fi
 done
 
 echo "$dir: Get para hits of all candidates ..."
