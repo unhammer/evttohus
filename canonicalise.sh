@@ -34,13 +34,16 @@ pos_name () {
     esac
 }
 
-echo "$dir: Skip translations that were already in \$GTHOME/words/dicts ..."
+echo "$dir: Skip nob→sm? translations that were already in \$GTHOME/words/dicts ..."
 for f in out/${dir}/* spell/out/${dir}/*; do
     test -f "$f" || continue
     b=$(basename "$f")
     pos=$(pos_glob "$b")
     if [[ $b = *_kintel ]]; then
         # For Kintel, include without changes:
+        sort -u "$f" > tmp/${dir}/"$b"
+    elif [[ ${dir} = sme* ]]; then
+        # If we're generating from sme, we can't filter out:
         sort -u "$f" > tmp/${dir}/"$b"
     else
         <"$f" gawk -v dict=<(cat words/${dir}/${pos}*.tsv) '
