@@ -3,6 +3,8 @@
 ### Usage:
 #para/kwic.sh freq/smesmj.sents.ids freq/smesmj.lemmas.ids <(cat out/nobsmjsme/*_sme_*)
 
+### TODO: not actually kwic yet, just full sentences …
+
 set -e -u
 
 sents_ids=$1

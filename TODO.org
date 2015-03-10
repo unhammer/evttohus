@@ -1,6 +1,8 @@
 
-* TODO kwic-annotate out-files
-  use id's etc. from freq/nobsma.* ?
+* TODO kwic-annotate out-files?
+  sentences with hits in freq/*para-kwic now, but 1) not actually
+  kwic, and 2) maybe more useful with just monolingual hits since then
+  we at least get them for more of the words …
 * TODO intersections of the various out/-methods?
   if a pair is in both anymalign and decomp, it's likelier
   (worth it?)
