@@ -50,7 +50,7 @@ for f in out/${dir}/* spell/out/${dir}/*; do
     fi
 done
 
-    
+
 echo "$dir: Get para hits of all candidates ..."
 para/count-para-hits.sh <(sort -u tmp/${dir}/*) freq/${dir}.lemmas.ids > tmp/${dir}.para-hits
 
@@ -85,8 +85,10 @@ for f in tmp/${outdir}/*_${fromlang}.unsorted; do
         | gawk -v from=${fromfield} -v hitsf=tmp/${dir}.para-hits '
             # Let field 7 be count of hits in parallel sentences:
             BEGIN{ OFS=FS="\t"; while(getline<hitsf) hits[$2][$3]=$1 }
-            !($from in hits) || !($2 in hits[$from]) { hits[$from][$2]=0 }
-            { print $0, hits[$1][$2] } ' \
+            {
+              hits[$from][$2] += 0       # default 0 if empty
+              print $0, hits[$from][$2]
+            } ' \
         | awk '
             # Let field 8 be the candidate frequency normalised by
             # the difference of this frequency and input frequency
@@ -112,9 +114,9 @@ if [[ ${candlang} = smj ]]; then
         kintelfile=out/${dir}_${pos}_kintel
         echo "${kintelfile}"
         <"$f" gawk -v dict=<(cat words/nobsmj/${pos}*.tsv) -v kintelf=${kintelfile} '
-        BEGIN{ 
+        BEGIN{
           OFS=FS="\t"
-          while(getline<dict) if($2) kintel[$1]++ 
+          while(getline<dict) if($2) kintel[$1]++
         }
         $1 in kintel {
           print > kintelf
@@ -149,9 +151,9 @@ for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
         -v pos=${pos} -v posf=tmp/${candlang}.pos \
         -v badf="${badfile}" -v goodf="${goodfile}" '
       # Split into ana/noana files depending on whether FST gave a same-pos analysis:
-      BEGIN{ 
+      BEGIN{
         OFS=FS="\t"
-        while(getline<posf)ana[$2][$1]++ 
+        while(getline<posf)ana[$2][$1]++
       }
       {
         if($2 in ana[pos]){
