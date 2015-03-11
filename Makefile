@@ -35,6 +35,7 @@ out/nobsmasme: freq/nobsma.para-kwic out/nobsmasme/.d tmp/nobsmasme/.d tmp/nobsm
 out/nobsmjsme: freq/smesmj.para-kwic freq/nobsmj.para-kwic out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/nobsmj/.d words/all.smj
 	./canonicalise.sh smesmj
 	./canonicalise.sh nobsmj
+	./merge-kintel.sh
 
 out/%/V_decomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/V.tsv
 	./decompound.sh $* V

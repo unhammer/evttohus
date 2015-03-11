@@ -73,7 +73,7 @@ sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
 sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
 sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
 echo "$dir: Annotate with frequency and parallel sentence hits ..."
-for f in tmp/${outdir}/*.unsorted; do
+for f in tmp/${outdir}/*_${fromlang}.unsorted; do
     b=$(basename "$f")
     b=${b%%.unsorted}
     pos=$(pos_name "$b")
@@ -99,25 +99,19 @@ for f in tmp/${outdir}/*.unsorted; do
 done
 echo
 
-echo "Get main PoS of all candidates ..."
-cut -f2 tmp/${outdir}/*.sorted \
-    | ana ${candlang} \
-    | ana_to_forms_pos \
-    | sort -u > tmp/${candlang}.pos
-
-
-if [[ ${dir} = nobsmj ]]; then
-    echo "Splitting into Kintel vs non-Kintel ..."
+if [[ ${candlang} = smj ]]; then
+    echo "$dir: Split into Kintel vs non-Kintel ..."
     # We create one sanskintel file, which is further split into
     # ana/noana below, while the _kintel file goes into outdir, merged
-    # with the actual kintel suggestions.
-    rm -f out/${dir}/*_kintel # since the below gawk *appends*
-    for f in tmp/${outdir}/*.sorted; do
+    # with the actual kintel suggestions by merge-kintel.sh.
+    rm -f out/${dir}_*_kintel # since the below gawk *appends*
+    for f in tmp/${outdir}/*_${fromlang}.sorted; do
         b=$(basename "$f")
         b=${b%%.sorted}
         pos=$(pos_name "$b")
-        kintelfile=out/${dir}/${pos}_kintel
-        <"$f" gawk -v dict=<(cat words/${dir}/${pos}*.tsv) -v kintelf=${kintelfile} '
+        kintelfile=out/${dir}_${pos}_kintel
+        echo "${kintelfile}"
+        <"$f" gawk -v dict=<(cat words/nobsmj/${pos}*.tsv) -v kintelf=${kintelfile} '
         BEGIN{ 
           OFS=FS="\t"
           while(getline<dict) if($2) kintel[$1]++ 
@@ -130,49 +124,20 @@ if [[ ${dir} = nobsmj ]]; then
           print
         }' >"$f".sanskintel
     done
-    for f in out/${dir}/*_kintel; do
-        b=$(basename "$f")
-        pos=$(pos_name "$b")
-        kintelfile=out/${dir}/${pos}_kintel
-        test -f ${kintelfile} || continue
-        sort -u ${kintelfile} \
-            | gawk -v dict=<(cat words/${dir}/${pos}*.tsv) '
-        BEGIN{
-          OFS=FS="\t"
-          while(getline<dict) for(i=2;i<=NF;i++) kintel[$1][$i]++
-        }
-        function endblock() { 
-          if(prev in kintel) {
-            for(trg in kintel[prev]) {
-              if(!(prev in seen && trg in seen[prev])) {
-                print "+"prev,trg 
-              }
-            }
-          }
-        }
-        $1 != prev { endblock() }
-        END { endblock() }
-        prev && $1 != prev { print "" }
-        { 
-          if($1 in kintel && $2 in kintel[$1]) { 
-            print "+"$0 
-          }
-          else { 
-            print 
-          }
-          prev=$1
-          seen[prev][$2]++
-        }
-        ' > out/${outdir}/${pos}_kintel
-    done
 else
-    for f in tmp/${outdir}/*.sorted; do
+    for f in tmp/${outdir}/*_${fromlang}.sorted; do
         cp "$f" "$f".sanskintel
     done
 fi
 
+echo "$dir: Get main PoS of all candidates ..."
+cut -f2 tmp/${outdir}/*_${fromlang}.sorted.sanskintel \
+    | ana ${candlang} \
+    | ana_to_forms_pos \
+    | sort -u > tmp/${candlang}.pos
+
 echo "$dir: Split out those that didn't have same-pos analysis in FST ..."
-for f in tmp/${outdir}/*.sorted.sanskintel; do
+for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
     b=$(basename "$f")
     b=${b%%.sorted.sanskintel}
     pos=$(pos_name "$b")
