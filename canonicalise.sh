@@ -78,9 +78,9 @@ for f in tmp/${outdir}/*_${fromlang}.unsorted; do
     b=${b%%.unsorted}
     pos=$(pos_name "$b")
     echo -n "$b "
-    <"$f" freq_annotate 1 freq/combined.nob ${sumnob}  ${sumcand} \
-        | freq_annotate 2 freq/combined.sma ${sumcand} ${sumcand} \
-        | freq_annotate 3 freq/combined.sme ${sumsme}  ${sumcand} \
+    <"$f" freq_annotate 1 freq/combined.nob         ${sumnob}  ${sumcand} \
+        | freq_annotate 2 freq/combined.${candlang} ${sumcand} ${sumcand} \
+        | freq_annotate 3 freq/combined.sme         ${sumsme}  ${sumcand} \
         | sort -u \
         | gawk -v from=${fromfield} -v hitsf=tmp/${dir}.para-hits '
             # Let field 7 be count of hits in parallel sentences:
