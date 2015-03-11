@@ -36,7 +36,10 @@ BEGIN {
   trans[$1]["?????"]++
 }
 
-{
+# We have to look up the nob when doing Kintel-grouping, which is a
+# bit more trouble if they're /-separated instead of one per line, so
+# only /-separate for sme:
+fromlang=="sme" {
   for(trg in trans[$1]) {
     if(trgcol==1) {
       print trg, $2, $1
@@ -44,5 +47,19 @@ BEGIN {
     else {
       print $1, $2, trg
     }
+  }
+}
+
+fromlang=="nob" {
+  trgjoined=""
+  for(trg in trans[$1]) {
+    trgjoined=trg"/"trgjoined
+  }
+  sub(/\/$/, "", trgjoined)
+  if(trgcol==1) {
+    print trgjoined, $2, $1
+  }
+  else {
+    print $1, $2, trgjoined
   }
 }
