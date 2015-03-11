@@ -21,7 +21,7 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
 
 ** Output file format
 
-   The results will appear in the =out/= directory, where e.g.
+  The results will appear in the =out/= directory, where e.g.
   =out/smesmj= has a two-column format where the first word is a sme
   input and the second is a smj candidate.
 
@@ -31,6 +31,18 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
 
   : nob 	candidate	sme	fr_nob	fr_candidate	fr_sme	para_hits
 
+*** Kintel files
+
+    The files named *_kintel have been merged with words from
+    nobsmj-kintel. For every candidate we generate (whether from smj
+    or nob), we also include the Kintel translation of the Bokmål
+    word. The words are grouped by the Bokmål word, and the Kintel
+    translations are marked with an initial + symbol. Some times the
+    Kintel translation was part of our generated candidates, in which
+    case it'll have frequency numbers, other times it was not, in
+    which case only the nob and smj words will be listed for that
+    line.
+  
 ** Output filename format
    
   The filenames have this format:
@@ -39,14 +51,17 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
   =method= is one of
 
   - decomp :: input is compound analysed, parts are translated with
-    existing dictionaries and glued back together
+              existing dictionaries and glued back together
   - precomp :: existing dictionaries are compound analysed to create a
-    dictionary of compound-part-translations; then input is compound
-    analysed, parts are translated using the decompounded
-    dictionaries, and glued back together
+               dictionary of compound-part-translations; then input is
+               compound analysed, parts are translated using the
+               decompounded dictionaries, and glued back together
   - anymalign :: from parallel word alignment (see para/anymalign)
   - xfst :: using =$GTHOME/words/dicts/smesmj/scripts/sme2smj-$PoS.fst=
   - lexc :: using =$GTHOME/words/dicts/smesmj/bin/smesmj.fst=
+  - kintel :: candidates here might come from other files, but there
+              is also a suggestion from Kintel for every Bokmål word,
+              pre-marked with a plus sign (+).
 
   The =sourcelang= is the input for the method (nob or sme), while
   =inFST= is "ana" or "noana" depending on whether the word had an
