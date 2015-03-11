@@ -34,15 +34,12 @@ pos_name () {
     esac
 }
 
-echo "$dir: Skip nob→sm? translations that were already in \$GTHOME/words/dicts ..."
+echo "$dir: Skip nob→${candlang} translations that were already in \$GTHOME/words/dicts ..."
 for f in out/${dir}/* spell/out/${dir}/*; do
     test -f "$f" || continue
     b=$(basename "$f")
     pos=$(pos_glob "$b")
-    if [[ $b = *_kintel ]]; then
-        # For Kintel, include without changes:
-        sort -u "$f" > tmp/${dir}/"$b"
-    elif [[ ${dir} = sme* ]]; then
+    if [[ ${dir} = sme* ]]; then
         # If we're generating from sme, we can't filter out:
         sort -u "$f" > tmp/${dir}/"$b"
     else
@@ -53,6 +50,7 @@ for f in out/${dir}/* spell/out/${dir}/*; do
     fi
 done
 
+    
 echo "$dir: Get para hits of all candidates ..."
 para/count-para-hits.sh <(sort -u tmp/${dir}/*) freq/${dir}.lemmas.ids > tmp/${dir}.para-hits
 
@@ -107,10 +105,76 @@ cut -f2 tmp/${outdir}/*.sorted \
     | ana_to_forms_pos \
     | sort -u > tmp/${candlang}.pos
 
+
+if [[ ${dir} = nobsmj ]]; then
+    echo "Splitting into Kintel vs non-Kintel ..."
+    # We create one sanskintel file, which is further split into
+    # ana/noana below, while the _kintel file goes into outdir, merged
+    # with the actual kintel suggestions.
+    rm -f out/${dir}/*_kintel # since the below gawk *appends*
+    for f in tmp/${outdir}/*.sorted; do
+        b=$(basename "$f")
+        b=${b%%.sorted}
+        pos=$(pos_name "$b")
+        kintelfile=out/${dir}/${pos}_kintel
+        <"$f" gawk -v dict=<(cat words/${dir}/${pos}*.tsv) -v kintelf=${kintelfile} '
+        BEGIN{ 
+          OFS=FS="\t"
+          while(getline<dict) if($2) kintel[$1]++ 
+        }
+        $1 in kintel {
+          print > kintelf
+          next
+        }
+        {
+          print
+        }' >"$f".sanskintel
+    done
+    for f in out/${dir}/*_kintel; do
+        b=$(basename "$f")
+        pos=$(pos_name "$b")
+        kintelfile=out/${dir}/${pos}_kintel
+        test -f ${kintelfile} || continue
+        sort -u ${kintelfile} \
+            | gawk -v dict=<(cat words/${dir}/${pos}*.tsv) '
+        BEGIN{
+          OFS=FS="\t"
+          while(getline<dict) for(i=2;i<=NF;i++) kintel[$1][$i]++
+        }
+        function endblock() { 
+          if(prev in kintel) {
+            for(trg in kintel[prev]) {
+              if(!(prev in seen && trg in seen[prev])) {
+                print "+"prev,trg 
+              }
+            }
+          }
+        }
+        $1 != prev { endblock() }
+        END { endblock() }
+        prev && $1 != prev { print "" }
+        { 
+          if($1 in kintel && $2 in kintel[$1]) { 
+            print "+"$0 
+          }
+          else { 
+            print 
+          }
+          prev=$1
+          seen[prev][$2]++
+        }
+        ' > out/${outdir}/${pos}_kintel
+    done
+else
+    for f in tmp/${outdir}/*.sorted; do
+        cp "$f" "$f".sanskintel
+    done
+fi
+
 echo "$dir: Split out those that didn't have same-pos analysis in FST ..."
-for f in tmp/${outdir}/*.sorted; do
+for f in tmp/${outdir}/*.sorted.sanskintel; do
     b=$(basename "$f")
-    b=${b%%.sorted}
+    b=${b%%.sorted.sanskintel}
     pos=$(pos_name "$b")
     goodfile=out/${outdir}/"$b"_ana
     badfile=out/${outdir}/"$b"_noana
@@ -120,7 +184,10 @@ for f in tmp/${outdir}/*.sorted; do
         -v pos=${pos} -v posf=tmp/${candlang}.pos \
         -v badf="${badfile}" -v goodf="${goodfile}" '
       # Split into ana/noana files depending on whether FST gave a same-pos analysis:
-      BEGIN{ OFS=FS="\t"; while(getline<posf)ana[$2][$1]++ }
+      BEGIN{ 
+        OFS=FS="\t"
+        while(getline<posf)ana[$2][$1]++ 
+      }
       {
         if($2 in ana[pos]){
           curf = goodf
