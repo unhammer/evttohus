@@ -1,3 +1,5 @@
+
+* TODO possible to generate loans directly from nob for sma as well?
 * TODO kwic-annotate out-files?
   sentences with hits in freq/*para-kwic now, but 1) not actually
   kwic, and 2) maybe more useful with just monolingual hits since then
