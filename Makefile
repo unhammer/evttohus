@@ -23,6 +23,8 @@ XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
 
 KINTELSMJ=$(patsubst %,out/nobsmj/%,$(KINTELBASES))
 
+LOANNOBSMJ=out/nobsmj/N_loan
+
 ALIGNSMJ=$(patsubst %,out/nobsmj/%,$(ALIGNBASES)) # TODO
 
 all: out/nobsmasme out/nobsmjsme freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
@@ -54,6 +56,8 @@ out/%/A_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_A.ts
 out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d
 	./sme2smjify.sh
 
+out/nobsmj/N_loan: fadwords/all.nob out/nobsmj/.d
+	./nob2smj-loans.sh >$@
 
 # Run anymalign-pre, then cd para/anymalign and make:
 anymalign-pre: fadwords/all.nob words/all.nob words/all.sma
@@ -162,7 +166,7 @@ freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA)
 	@cat $(DECOMPSMA) $(ALIGNSMA) >$@.tmp
 	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
-freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ)
+freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ)
 	@cat $(DECOMPNOBSMJ) >$@.tmp
 	para/kwic.sh freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
