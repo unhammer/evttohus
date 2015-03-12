@@ -54,3 +54,5 @@
   (though we already find compound-part correspondences with _precomp,
   maybe enough …)
 * TODO moses? berkelyaligner? fastalign?
+* TODO canonicalise.sh should mkdir's in tmp/ instead of all those suffixes
+  

@@ -112,7 +112,6 @@ if [[ ${candlang} = smj ]]; then
         b=${b%%.sorted}
         pos=$(pos_name "$b")
         kintelfile=out/${dir}_${pos}_kintel
-        echo "${kintelfile}"
         <"$f" gawk -v dict=<(cat words/nobsmj/${pos}*.tsv) -v kintelf=${kintelfile} '
         BEGIN{
           OFS=FS="\t"
@@ -143,8 +142,8 @@ for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
     b=$(basename "$f")
     b=${b%%.sorted.sanskintel}
     pos=$(pos_name "$b")
-    goodfile=out/${outdir}/"$b"_ana
-    badfile=out/${outdir}/"$b"_noana
+    goodfile=tmp/${outdir}/"$b"_ana
+    badfile=tmp/${outdir}/"$b"_noana
     if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
     <"$f" gawk \
         -v g=${groupfield} \
@@ -165,7 +164,7 @@ for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
           curf = badf
         }
         if(curf in prev && prev[curf] != $g) {
-          print "" > sprintf("%s_%02d", curf, suf[curf])
+          # Source word changed, maybe increase the file suffix:
           line[curf]++
           if(line[curf]>1000) {
             line[curf]=0
@@ -177,4 +176,20 @@ for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
       }
       '
 done
+
+echo "$dir: Reverse-sort and insert empty lines ..."
+for f in tmp/${outdir}/*_${fromlang}*_ana_?? tmp/${outdir}/*_${fromlang}*_noana_??; do
+    b=$(basename "$f")
+    if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
+    revfield=$(( 8 - ${groupfield} ))
+    <"$f" rev | sort -k${revfield},${revfield} -k6,6 -t$'\t' | rev \
+        | gawk -F'\t' -v g=${groupfield} '
+      # Just print an empty line whenever the source word changes:
+      prev != $g { print "" }
+      {
+        print
+        prev = $g
+      }' >out/${outdir}/"$b"
+done
+
 echo "$dir: done."
