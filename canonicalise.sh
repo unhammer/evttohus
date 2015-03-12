@@ -138,7 +138,7 @@ cut -f2 tmp/${outdir}/*_${fromlang}.sorted.sanskintel \
     | ana_to_forms_pos \
     | sort -u > tmp/${candlang}.pos
 
-echo "$dir: Split out those that didn't have same-pos analysis in FST ..."
+echo "$dir: Split based on whether same-pos analysis in FST ..."
 for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
     b=$(basename "$f")
     b=${b%%.sorted.sanskintel}
@@ -153,7 +153,9 @@ for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
       # Split into ana/noana files depending on whether FST gave a same-pos analysis:
       BEGIN{
         OFS=FS="\t"
-        while(getline<posf)ana[$2][$1]++
+        while(getline<posf) ana[$2][$1]++
+        line[goodf]=line[badf]=0
+        suf[goodf]=suf[badf]=0
       }
       {
         if($2 in ana[pos]){
@@ -163,9 +165,14 @@ for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
           curf = badf
         }
         if(curf in prev && prev[curf] != $g) {
-          print "" > curf
+          print "" > sprintf("%s_%02d", curf, suf[curf])
+          line[curf]++
+          if(line[curf]>1000) {
+            line[curf]=0
+            suf[curf]++
+          }
         }
-        print > curf
+        print > sprintf("%s_%02d", curf, suf[curf])
         prev[curf]=$g
       }
       '
