@@ -1,3 +1,4 @@
+* TODO loan-word corrections on smj decomp/xfst/lexc etc.
 
 * TODO possible to generate loans directly from nob for sma as well?
 * TODO kwic-annotate out-files?
