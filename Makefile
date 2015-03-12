@@ -57,7 +57,7 @@ out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xf
 	./sme2smjify.sh
 
 out/nobsmj/N_loan: fadwords/all.nob out/nobsmj/.d
-	./nob2smj-loans.sh >$@
+	./nob2smj-loan.sh >$@
 
 # Run anymalign-pre, then cd para/anymalign and make:
 anymalign-pre: fadwords/all.nob words/all.nob words/all.sma
@@ -167,7 +167,7 @@ freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA)
 	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
 freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ)
-	@cat $(DECOMPNOBSMJ) >$@.tmp
+	@cat $(LOANNOBSMJ) $(DECOMPNOBSMJ) >$@.tmp
 	para/kwic.sh freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
 freq/smesmj.para-kwic: freq/smesmj.sents.ids freq/smesmj.lemmas.ids $(DECOMPSMESMJ) $(XIFIEDSMJ)
