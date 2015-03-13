@@ -40,13 +40,12 @@ pos_name () {
 # Each block below here works on all files of a certain "incoming"
 # folder and outputs the processed files to an "outgoing" folder; the
 # next block uses that outgoing folder as its own incoming folder; the
-# last one outputs to out/${finaldir}. All but the last block will
-# empty out and re-create the outgoing folder before processing.
+# last one outputs to out/${finaldir}. They all empty out and
+# re-create the outgoing folder before processing.
 
-(
-    inc=out/${dir}
-    out=tmp/${dir}_skipped
-    rm -rf ${out}; mkdir ${out}
+skip_existing () {
+    inc=$1
+    out=$2
     echo "$dir: Skip nob→${candlang} translations that were already in \$GTHOME/words/dicts ..."
     for f in ${inc}/*; do           # skipping spell/out/${dir}/* for now
         test -f "$f" || continue
@@ -64,12 +63,11 @@ pos_name () {
     done
     echo "$dir: Get para hits of all candidates ..."
     para/count-para-hits.sh <(sort -u ${out}/*) freq/${dir}.lemmas.ids > ${para_hits}
-)
+}
 
-(
-    inc=tmp/${dir}_skipped
-    out=tmp/${dir}_unsorted
-    rm -rf ${out}; mkdir ${out}
+add_thirdlang () {
+    inc=$1
+    out=$2
     echo "$dir: Add translations from ${fromlang} so we get ${finaldir} ..."
     for f in ${inc}/*; do
         test -f "$f" || continue
@@ -82,17 +80,48 @@ pos_name () {
             -f trans_annotate.awk \
             >${out}/"$b"
     done
-)
+}
 
-(
-    inc=tmp/${dir}_unsorted
-    out=tmp/${dir}_sorted
-    rm -rf ${out}; mkdir ${out}
+spell_norm () {
+    inc=$1
+    out=$2
+    if [[ ${candlang} = smj ]]; then
+        echo "$dir: Add suggestions with reformed spelling for ${candlang} ..."
+        # See also nob2smj-loan.sh which creates loans directly using
+        # these rules (but with a strict lexicalised-smj-filter, no compounds).
+        for f in ${inc}/*; do
+            b=$(basename "$f")
+            <"$f" gawk '
+            BEGIN{ OFS=FS="\t" }
+            $1 ~ /i/  && $2 ~ /ija/ { print; gsub(/ija/, "iddja", $2); print }
+            $1 ~ /og/ && $2 ~ /oga/ { print; gsub(/oga/, "åvggå", $2); print }
+            $1 ~ /é$/ && $2 ~ /ea$/ { print; gsub(/ea$/, "iedja", $2); print }
+            $1 ~ /e$/ && $2 ~ /ea$/ { print; gsub(/ea$/, "iedja", $2); print }
+            $1 ~ /et/ && $2 ~ /[^i]ehtta/ { print; gsub(/[^i]ehtta/, "iehtta", $2); print }
+            $1 ~ /ek/ && $2 ~ /[^i]ehkka/ { print; gsub(/[^i]ehkka/, "iehkka", $2); print }
+            $1 ~ /ol/ && $2 ~ /ola/ { print; gsub(/ola/, "åvllå", $2); print }
+            $1 ~ /em/ && $2 ~ /[^i]ebma/ { print; gsub(/[^i]ebma/, "iebma", $2); print }
+            $1 ~ /om/ && $2 ~ /oma/ { print; gsub(/oma/, "åvmmå", $2); print }
+            $1 ~ /ør/ && $2 ~ /ørra/ { print; gsub(/ørra/, "erra", $2); print }
+            { print }
+            ' | sort -u >${out}/"$b"
+        done
+    else
+        for f in ${inc}/*; do
+            b=$(basename "$f")
+            sort -u "$f" > ${out}/"$b"
+        done
+    fi
+}
+
+add_freq () {
+    inc=$1
+    out=$2
+    echo "$dir: Annotate with frequency and parallel sentence hits ..."
     # Normalise frequency sums (to the smallest corpora, ie. smj/sma):
     sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
     sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
     sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
-    echo "$dir: Annotate with frequency and parallel sentence hits ..."
     for f in ${inc}/*; do
         b=$(basename "$f")
         pos=$(pos_name "$b")
@@ -121,12 +150,11 @@ pos_name () {
             >${out}/"$b"
     done
     echo
-)
+}
 
-(
-    inc=tmp/${dir}_sorted
-    out=tmp/${dir}_sanskintel
-    rm -rf ${out}; mkdir ${out}
+split_kintel () {
+    inc=$1
+    out=$2
     if [[ ${candlang} = smj ]]; then
         echo "$dir: Split into Kintel vs non-Kintel ..."
         # This is a bit messy: We create one "regular" file in ${out},
@@ -158,12 +186,11 @@ pos_name () {
             cat "$f" > ${out}/"$b"
         done
     fi
-)
+}
 
-(
-    inc=tmp/${dir}_sanskintel
-    out=tmp/${dir}_fst
-    rm -rf ${out}; mkdir ${out}
+split_fst () {
+    inc=$1
+    out=$2
 
     posfile=${out}/${candlang}.pos
     echo "$dir: Get main PoS of all candidates ..."
@@ -210,14 +237,11 @@ pos_name () {
       }
       '
     done
-)
+}
 
-(
-    inc=tmp/${dir}_fst
-    out=out/${finaldir}
-    # NB: don't rm ${out} here, since runs of smesmj and nobsmj share
-    # the same final out-dir!
-
+rev_blocks () {
+    inc=$1
+    out=$2
     echo "$dir: Reverse-sort and insert empty lines ..."
     for f in ${inc}/*; do
         b=$(basename "$f")
@@ -232,6 +256,22 @@ pos_name () {
         prev = $g
       }' >${out}/"$b"
     done
-)
+}
 
+
+# This is where it happens:
+
+inc=out/${dir}
+for fn in skip_existing add_thirdlang spell_norm add_freq split_kintel split_fst rev_blocks; do
+    out=tmp/${dir}_${fn}
+    rm -rf ${out}; mkdir ${out}
+    ${fn} ${inc} ${out}
+    inc=${out}
+done
+
+out=out/${finaldir}
+for f in ${inc}/*; do
+    b=$(basename "$f")
+    cat "$f" > ${out}/"$b"_${fromlang}
+done
 echo "$dir: done."
