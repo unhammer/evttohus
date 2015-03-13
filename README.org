@@ -21,19 +21,22 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
 
 ** Output file format
 
-  The results will appear in the =out/= directory, where e.g.
-  =out/smesmj= has a two-column format where the first word is a sme
-  input and the second is a smj candidate.
+   The results will appear in the =out/= directory.
 
-  The files in =out/nobsmjsme= and =out/nobsmasme= include both nob
-  and sme translations for the candidates, annotated with normalised
-  frequencies for all the three words. The format is, tab-separated:
+   Folders with two language codes are intermediate outputs, where
+   e.g. =out/smesmj= has a two-column format where the first word is a
+   sme input and the second is a smj candidate.
 
-  : nob 	candidate	sme	fr_nob	fr_candidate	fr_sme	para_hits
+   The final files appera in =out/nobsmjsme= and =out/nobsmasme=, they
+   include both nob and sme translations for the candidates, annotated
+   with normalised frequencies for all the three words as well as
+   number of hits in parallel sentences. The format is, tab-separated:
+
+   : nob 	candidate	sme	fr_nob	fr_candidate	fr_sme	para_hits
 
 *** Kintel files
 
-    The files named *_kintel have been merged with words from
+    The files named =*_kintel_*= have been merged with words from
     nobsmj-kintel. For every candidate we generate (whether from smj
     or nob), we also include the Kintel translation of the Bokmål
     word. The words are grouped by the Bokmål word, and the Kintel
@@ -46,7 +49,7 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
 ** Output filename format
    
   The filenames have this format:
-  : PoS_method_sourcelang_inFST
+  : PoS_method_inFST_NN_sourcelang
   where =PoS= is part of speech (V, N, A or nonVNA for "the rest") and
   =method= is one of
 
@@ -62,11 +65,20 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
   - kintel :: candidates here might come from other files, but there
               is also a suggestion from Kintel for every Bokmål word,
               pre-marked with a plus sign (+).
+  - loan :: input is translated using very simple loan-word regex
+            replacement rules
 
   The =sourcelang= is the input for the method (nob or sme), while
   =inFST= is "ana" or "noana" depending on whether the word had an
   analysis _with the right PoS_ in
   =$GTHOME/langs/${lang}/src/analyser-gt-desc.xfst=.
+
+  The numbers (=NN= above) indicate the frequency rank; the =00= file
+  contains the 1000 highest-frequency candidates, the =01= the 1000
+  next-highest-frequency candidates, and so on. Within each file,
+  candidates are sorted alphabetically by the reverse of the source
+  string (so e.g. all words ending in «-miljø» will be near each
+  other).
   
 ** Running the parallel word alignment
    Follow [[file:para/anymalign/README.org][para/anymalign/README.org]] to run the alignment. To get them
