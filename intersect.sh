@@ -51,5 +51,5 @@ END {
 
 for f in ${tmp}/*; do
     b=$(basename "$f")
-    <"$f" rev_blocks >tmp/rev_blocks/"$b"
+    <"$f" rev_blocks >"${outdir}/$b"
 done
