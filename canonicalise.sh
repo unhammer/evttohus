@@ -192,7 +192,7 @@ split_fst () {
     inc=$1
     out=$2
 
-    posfile=${out}/${candlang}.pos
+    posfile=tmp/${dir}_${candlang}.pos
     echo "$dir: Get main PoS of all candidates ..."
     cut -f2 ${inc}/* \
         | ana ${candlang} \
