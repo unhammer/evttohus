@@ -245,7 +245,7 @@ rev_blocks () {
     echo "$dir: Reverse-sort and insert empty lines ..."
     for f in ${inc}/*; do
         b=$(basename "$f")
-        if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
+        if [[ ${fromlang} = nob ]]; then groupfield=1; else groupfield=3; fi
         revfield=$(( 8 - ${groupfield} ))
         <"$f" rev | sort -k${revfield},${revfield} -k6,6 -t$'\t' | rev \
             | gawk -F'\t' -v g=${groupfield} '
