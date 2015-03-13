@@ -15,7 +15,9 @@ else
     echo "Unknown fromlang ${fromlang}" >&2
     exit 1
 fi
-outdir=nob${candlang}sme
+finaldir=nob${candlang}sme
+para_hits=tmp/${dir}_para-hits
+
 
 pos_glob () {
     case $1 in
@@ -34,121 +36,153 @@ pos_name () {
     esac
 }
 
-echo "$dir: Skip nob→${candlang} translations that were already in \$GTHOME/words/dicts ..."
-for f in out/${dir}/* spell/out/${dir}/*; do
-    test -f "$f" || continue
-    b=$(basename "$f")
-    pos=$(pos_glob "$b")
-    if [[ ${dir} = sme* ]]; then
-        # If we're generating from sme, we can't filter out:
-        sort -u "$f" > tmp/${dir}/"$b"
-    else
-        <"$f" gawk -v dict=<(cat words/${dir}/${pos}*.tsv) '
+
+# Each block below here works on all files of a certain "incoming"
+# folder and outputs the processed files to an "outgoing" folder; the
+# next block uses that outgoing folder as its own incoming folder; the
+# last one outputs to out/${finaldir}. All but the last block will
+# empty out and re-create the outgoing folder before processing.
+
+(
+    inc=out/${dir}
+    out=tmp/${dir}_skipped
+    rm -rf ${out}; mkdir ${out}
+    echo "$dir: Skip nob→${candlang} translations that were already in \$GTHOME/words/dicts ..."
+    for f in ${inc}/*; do           # skipping spell/out/${dir}/* for now
+        test -f "$f" || continue
+        b=$(basename "$f")
+        pos=$(pos_glob "$b")
+        if [[ ${dir} = sme* ]]; then
+            # If we're generating from sme, we can't filter out:
+            sort -u "$f" >${out}/"$b"
+        else
+            <"$f" gawk -v dict=<(cat words/${dir}/${pos}*.tsv) '
           BEGIN{OFS=FS="\t";while(getline<dict){src[$1]++; for(i=2;i<=NF;i++)trg[$i]++}}
           $1 in src || $2 in trg {next} {print}' \
-              >tmp/${dir}/"$b"
-    fi
-done
+              >${out}/"$b"
+        fi
+    done
+    echo "$dir: Get para hits of all candidates ..."
+    para/count-para-hits.sh <(sort -u ${out}/*) freq/${dir}.lemmas.ids > ${para_hits}
+)
 
+(
+    inc=tmp/${dir}_skipped
+    out=tmp/${dir}_unsorted
+    rm -rf ${out}; mkdir ${out}
+    echo "$dir: Add translations from ${fromlang} so we get ${finaldir} ..."
+    for f in ${inc}/*; do
+        test -f "$f" || continue
+        b=$(basename "$f")
+        pos=$(pos_glob "$b")
+        <"$f" gawk \
+            -v fromlang=${fromlang} \
+            -v smenob=<(cat fadwords/smenob/${pos}.tsv 2>/dev/null) \
+            -v nobsme=<(cat fadwords/nobsme/${pos}.tsv 2>/dev/null) \
+            -f trans_annotate.awk \
+            >${out}/"$b"
+    done
+)
 
-echo "$dir: Get para hits of all candidates ..."
-para/count-para-hits.sh <(sort -u tmp/${dir}/*) freq/${dir}.lemmas.ids > tmp/${dir}.para-hits
-
-echo "$dir: Add translations from ${fromlang} so we get ${outdir} ..."
-for f in tmp/${dir}/*; do
-    test -f "$f" || continue
-    b=$(basename "$f")
-    pos=$(pos_glob "$b")
-    cat fadwords/smenob/${pos}.tsv > tmp/smenob 2>/dev/null
-    cat fadwords/nobsme/${pos}.tsv > tmp/nobsme 2>/dev/null
-    <"$f" gawk \
-        -v fromlang=${fromlang} \
-        -v smenob=tmp/smenob -v nobsme=tmp/nobsme \
-        -f trans_annotate.awk \
-        >tmp/${outdir}/"$b"_${fromlang}.unsorted
-done
-
-# Normalise frequency sums (to the smallest corpora, ie. smj/sma):
-sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
-sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
-sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
-echo "$dir: Annotate with frequency and parallel sentence hits ..."
-for f in tmp/${outdir}/*_${fromlang}.unsorted; do
-    b=$(basename "$f")
-    b=${b%%.unsorted}
-    pos=$(pos_name "$b")
-    echo -n "$b "
-    <"$f" freq_annotate 1 freq/combined.nob         ${sumnob}  ${sumcand} \
-        | freq_annotate 2 freq/combined.${candlang} ${sumcand} ${sumcand} \
-        | freq_annotate 3 freq/combined.sme         ${sumsme}  ${sumcand} \
-        | sort -u \
-        | gawk -v from=${fromfield} -v hitsf=tmp/${dir}.para-hits '
+(
+    inc=tmp/${dir}_unsorted
+    out=tmp/${dir}_sorted
+    rm -rf ${out}; mkdir ${out}
+    # Normalise frequency sums (to the smallest corpora, ie. smj/sma):
+    sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
+    sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
+    sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
+    echo "$dir: Annotate with frequency and parallel sentence hits ..."
+    for f in ${inc}/*; do
+        b=$(basename "$f")
+        pos=$(pos_name "$b")
+        echo -n "$b "
+        <"$f" freq_annotate 1 freq/combined.nob         ${sumnob}  ${sumcand} \
+            | freq_annotate 2 freq/combined.${candlang} ${sumcand} ${sumcand} \
+            | freq_annotate 3 freq/combined.sme         ${sumsme}  ${sumcand} \
+            | sort -u \
+            | gawk -v from=${fromfield} -v hitsf=${para_hits} '
             # Let field 7 be count of hits in parallel sentences:
             BEGIN{ OFS=FS="\t"; while(getline<hitsf) hits[$2][$3]=$1 }
             {
               hits[$from][$2] += 0       # default 0 if empty
               print $0, hits[$from][$2]
-            } ' \
-        | awk '
+            } 
+        ' \
+            | awk '
             # Let field 8 be the candidate frequency normalised by
             # the difference of this frequency and input frequency
             # (only for sorting, we remove this field afterwards):
             BEGIN{OFS=FS="\t"}
-            {diff=$5-$4-$6; if(diff<0) diff=-diff; if(diff==0) diff=1; print $0, $5/diff}' \
-        | sort -k7,7nr -k8,8nr -k5,5nr -k2,2 -t$'\t' \
-        | cut -f1-7 \
-        >tmp/${outdir}/"$b".sorted
-done
-echo
+            {diff=$5-$4-$6; if(diff<0) diff=-diff; if(diff==0) diff=1; print $0, $5/diff}
+        ' \
+            | sort -k7,7nr -k8,8nr -k5,5nr -k2,2 -t$'\t' \
+            | cut -f1-7 \
+            >${out}/"$b"
+    done
+    echo
+)
 
-if [[ ${candlang} = smj ]]; then
-    echo "$dir: Split into Kintel vs non-Kintel ..."
-    # We create one sanskintel file, which is further split into
-    # ana/noana below, while the _kintel file goes into outdir, merged
-    # with the actual kintel suggestions by merge-kintel.sh.
-    rm -f out/${dir}_*_kintel # since the below gawk *appends*
-    for f in tmp/${outdir}/*_${fromlang}.sorted; do
+(
+    inc=tmp/${dir}_sorted
+    out=tmp/${dir}_sanskintel
+    rm -rf ${out}; mkdir ${out}
+    if [[ ${candlang} = smj ]]; then
+        echo "$dir: Split into Kintel vs non-Kintel ..."
+        # This is a bit messy: We create one "regular" file in ${out},
+        # which is further split into ana/noana below, while the
+        # _kintel file goes straight into out/${finaldir}, later
+        # merged with the actual kintel suggestions by
+        # merge-kintel.sh.
+        rm -f out/${dir}_*_kintel # since the below gawk *appends*
+        for f in ${inc}/*; do
+            b=$(basename "$f")
+            pos=$(pos_name "$b")
+            kintelfile=out/${dir}_${pos}_kintel
+            <"$f" gawk -v dict=<(cat words/nobsmj/${pos}*.tsv) -v kintelf=${kintelfile} '
+            BEGIN{
+              OFS=FS="\t"
+              while(getline<dict) if($2) kintel[$1]++
+            }
+            $1 in kintel {
+              print > kintelf
+              next
+            }
+            {
+              print
+            }' >${out}/"$b"
+        done
+    else
+        for f in ${inc}/*; do
+            b=$(basename "$f")
+            cat "$f" > ${out}/"$b"
+        done
+    fi
+)
+
+(
+    inc=tmp/${dir}_sanskintel
+    out=tmp/${dir}_fst
+    rm -rf ${out}; mkdir ${out}
+
+    posfile=${out}/${candlang}.pos
+    echo "$dir: Get main PoS of all candidates ..."
+    cut -f2 ${inc}/* \
+        | ana ${candlang} \
+        | ana_to_forms_pos \
+        | sort -u > ${posfile}
+
+    echo "$dir: Split based on whether same-pos analysis in FST ..."
+    for f in ${inc}/*; do
         b=$(basename "$f")
-        b=${b%%.sorted}
         pos=$(pos_name "$b")
-        kintelfile=out/${dir}_${pos}_kintel
-        <"$f" gawk -v dict=<(cat words/nobsmj/${pos}*.tsv) -v kintelf=${kintelfile} '
-        BEGIN{
-          OFS=FS="\t"
-          while(getline<dict) if($2) kintel[$1]++
-        }
-        $1 in kintel {
-          print > kintelf
-          next
-        }
-        {
-          print
-        }' >"$f".sanskintel
-    done
-else
-    for f in tmp/${outdir}/*_${fromlang}.sorted; do
-        cp "$f" "$f".sanskintel
-    done
-fi
-
-echo "$dir: Get main PoS of all candidates ..."
-cut -f2 tmp/${outdir}/*_${fromlang}.sorted.sanskintel \
-    | ana ${candlang} \
-    | ana_to_forms_pos \
-    | sort -u > tmp/${candlang}.pos
-
-echo "$dir: Split based on whether same-pos analysis in FST ..."
-for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
-    b=$(basename "$f")
-    b=${b%%.sorted.sanskintel}
-    pos=$(pos_name "$b")
-    goodfile=tmp/${outdir}/"$b"_ana
-    badfile=tmp/${outdir}/"$b"_noana
-    if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
-    <"$f" gawk \
-        -v g=${groupfield} \
-        -v pos=${pos} -v posf=tmp/${candlang}.pos \
-        -v badf="${badfile}" -v goodf="${goodfile}" '
+        goodfile=${out}/"$b"_ana
+        badfile=${out}/"$b"_noana
+        if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
+        <"$f" gawk \
+            -v g=${groupfield} \
+            -v pos=${pos} -v posf=${posfile} \
+            -v badf="${badfile}" -v goodf="${goodfile}" '
       # Split into ana/noana files depending on whether FST gave a same-pos analysis:
       BEGIN{
         OFS=FS="\t"
@@ -175,21 +209,29 @@ for f in tmp/${outdir}/*_${fromlang}.sorted.sanskintel; do
         prev[curf]=$g
       }
       '
-done
+    done
+)
 
-echo "$dir: Reverse-sort and insert empty lines ..."
-for f in tmp/${outdir}/*_${fromlang}*_ana_?? tmp/${outdir}/*_${fromlang}*_noana_??; do
-    b=$(basename "$f")
-    if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
-    revfield=$(( 8 - ${groupfield} ))
-    <"$f" rev | sort -k${revfield},${revfield} -k6,6 -t$'\t' | rev \
-        | gawk -F'\t' -v g=${groupfield} '
+(
+    inc=tmp/${dir}_fst
+    out=out/${finaldir}
+    # NB: don't rm ${out} here, since runs of smesmj and nobsmj share
+    # the same final out-dir!
+
+    echo "$dir: Reverse-sort and insert empty lines ..."
+    for f in ${inc}/*; do
+        b=$(basename "$f")
+        if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
+        revfield=$(( 8 - ${groupfield} ))
+        <"$f" rev | sort -k${revfield},${revfield} -k6,6 -t$'\t' | rev \
+            | gawk -F'\t' -v g=${groupfield} '
       # Just print an empty line whenever the source word changes:
       prev != $g { print "" }
       {
         print
         prev = $g
-      }' >out/${outdir}/"$b"
-done
+      }' >${out}/"$b"
+    done
+)
 
 echo "$dir: done."
