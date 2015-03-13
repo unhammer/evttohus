@@ -2,7 +2,7 @@ DPOS=V N A
 XPOS=V N A nonVNA
 DECOMPBASES=$(patsubst %,%_decomp,$(DPOS))
 PRECOMPBASES=$(patsubst %,%_precomp,$(DPOS))
-ALIGNBASES=$(patsubst %,%_precomp,$(DPOS))
+ALIGNBASES=$(patsubst %,%_anymalign,$(DPOS))
 LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 KINTELBASES=$(patsubst %,%_kintel,$(DPOS))
@@ -66,7 +66,7 @@ anymalign-post: out/nobsma/V_anymalign out/nobsma/N_anymalign out/nobsma/A_anyma
 
 # Just use eval results from anymalign for now since these already
 # have the "fad" field on stuff that's in fad:
-out/nobsma/%_anymalign: para/anymalign/eval/%.results.100k
+out/nobsma/%_anymalign: para/anymalign/eval/%.results.100k out/nobsma/.d
 	awk -F'\t' '$$4=="fad"' $< | sort -nr | cut -f5-6 | grep -v '\*' > $@
 
 
