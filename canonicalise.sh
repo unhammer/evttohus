@@ -103,6 +103,7 @@ spell_norm () {
             $1 ~ /em/ && $2 ~ /[^i]ebma/ { print; gsub(/[^i]ebma/, "iebma", $2); print }
             $1 ~ /om/ && $2 ~ /oma/ { print; gsub(/oma/, "åvmmå", $2); print }
             $1 ~ /ør/ && $2 ~ /ørra/ { print; gsub(/ørra/, "erra", $2); print }
+            $1 ~ /ere$/ && $2 ~ /[^i]erit$/ { print; gsub(/erit$/, "ierit", $2); print }
             { print }
             ' | sort -u >${out}/"$b"
         done
