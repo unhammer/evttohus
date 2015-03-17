@@ -27,4 +27,5 @@ trgf () {
 }
 
 grep -v '^[[:upper:]]' ${dict} \
-    | gawk -v srcf=<(srcf) -v trgf=<(trgf) -f precomp.awk
+    | gawk -v srcf=<(srcf) -v trgf=<(trgf) -f precomp.awk \
+    | sort -u
