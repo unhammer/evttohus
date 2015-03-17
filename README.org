@@ -27,7 +27,7 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
    e.g. =out/smesmj= has a two-column format where the first word is a
    sme input and the second is a smj candidate.
 
-   The final files appera in =out/nobsmjsme= and =out/nobsmasme=, they
+   The final files appear in =out/nobsmjsme= and =out/nobsmasme=, they
    include both nob and sme translations for the candidates, annotated
    with normalised frequencies for all the three words as well as
    number of hits in parallel sentences. The format is, tab-separated:

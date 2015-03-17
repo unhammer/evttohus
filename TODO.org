@@ -51,6 +51,25 @@
   
   (though we already find compound-part correspondences with _precomp,
   maybe enough …)
+* TODO find synonyms (expand <tg>) by comparing dicts
+  Say one candidate is
+  | sma          | nob         |
+  |--------------+-------------|
+  | barkoevuekie | arbeidsform |
+  but the smenob dictionary also contains
+  | sme   | nob    |
+  |-------+--------|
+  | málle | form   |
+  | málle | modell |
+  | málle | måte   |
+  then we can go from (vuekie,form) and look up nob in smenob, giving
+  (málle,form), and look up the sme side to find (málle,{form,modell,måte}),
+  which finally gives us (vuekie,{form,modell,måte}), and we end up with
+  | sma          | nob           |
+  |--------------+---------------|
+  | barkoevuekie | arbeidsform   |
+  | barkoevuekie | arbeidsmodell |
+  | barkoevuekie | arbeidsmåte   |
 * TODO moses? berkelyaligner? fastalign?
 
   
