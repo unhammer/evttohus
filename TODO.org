@@ -1,4 +1,34 @@
-* TODO src=fad is sometimes on <tg>/<t>!
+* TODO use termwiki?
+  https://victorio.uit.no/langtech/trunk/words/terms/termwiki/terms
+* TODO generate other cmp-left-sides
+
+  sme has Nom on the left of
+:   loddemoahti     loddi+N+SgNomCmp+Cmp#moahti+N+Sg+Nom
+:   loddemoahti     loddemoahti+N+Sg+Nom
+
+  but gen on
+:   lottebeassi     loddi+N+SgGenCmp+Cmp#beassi+N+Sg+Nom
+
+  smj also has gen on the left of 
+:   låttebiesse     låttebiesse+N+Sg+Nom
+:   låttebiesse     lådde+N+SgGenCmp+Cmp#biesse+N+Sg+Nom
+  and trying the non-gen version gives only a dynamic analysis, ie.
+  (probably) not a real word:
+:   låddebiesse     lådde+N+SgNomCmp+Cmp#biesse+N+Sg+Nom
+  
+  SgGenCmp seems fairly popular, might just want to generate that for
+  every SgNomCmp:
+: $ ccat -a -l smj ../converted/smj 2>/dev/null|head -1000|ana smj |tr '+#' '\n' |grep  Cmp
+: |sort|uniq -c |sort -n
+:  22 Cmpn/Sgg
+:  37 ShCmp
+:  362 RCmpnd
+:  418 Cmp-
+:  450 PlGenCmp
+:  3992 SgGenCmp
+:  6318 SgNomCmp
+  alternatively, for every 
+  
 * TODO follow synsets in order to expand existing translations
   The nobsma dict has arbeidsform→barkoevuekie already.
 
