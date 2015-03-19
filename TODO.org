@@ -1,3 +1,4 @@
+* TODO src=fad is sometimes on <tg>/<t>!
 * TODO follow synsets in order to expand existing translations
   The nobsma dict has arbeidsform→barkoevuekie already.
 
