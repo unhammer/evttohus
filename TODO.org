@@ -1,3 +1,15 @@
+* TODO follow synsets in order to expand existing translations
+  The nobsma dict has arbeidsform→barkoevuekie already.
+
+  The fadwords list has "arbeidsmåte", for which we have no candidate.
+  But arbeidsform and arbeidsmåte are ~synonymous. In fact,
+  smjnob/N.tsv contains
+  : arggovuohke arbeidsmåte     arbeidsstilling arbeidsform     prosedyre
+  so we've already got the "synset" via dictionaries
+
+  Could add NWN, but it may be a bit too fine-grained – e.g.
+  dictionaries give {opposisjon,motstand,gjenstridighet,trass}, while
+  NWN has {opposisjon} as a hyponym of {motstand}.
 * TODO possible to generate loans directly from nob for sma as well?
 * TODO kwic-annotate out-files?
   sentences with hits in freq/*para-kwic now, but 1) not actually
