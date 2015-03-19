@@ -76,8 +76,9 @@ function output() {
 END {
 	output()
   print ""
-  print "<!-- Bad suggestions, remove next time round: -->"
-  for(src in bad) for(trg in bad[src]) print "<!-- "src" ::: "trg" -->"
+  print "<!-- Bad suggestions, remove next time round: "
+  for(src in bad) for(trg in bad[src]) print src" ::: "trg
+  print " -->"
   print ""
   print "<!-- Questionable suggestions, look more at: "
   print qlines
