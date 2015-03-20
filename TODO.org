@@ -1,5 +1,3 @@
-* TODO use termwiki?
-  https://victorio.uit.no/langtech/trunk/words/terms/termwiki/terms
 * TODO generate other cmp-left-sides
 
   sme has Nom on the left of
