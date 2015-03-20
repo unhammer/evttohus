@@ -43,28 +43,6 @@ pos_name () {
 # last one outputs to out/${finaldir}. They all empty out and
 # re-create the outgoing folder before processing.
 
-skip_existing () {
-    inc=$1
-    out=$2
-    echo "$dir: Skip nob→${candlang} translations that were already in \$GTHOME/words/dicts ..."
-    for f in ${inc}/*; do           # skipping spell/out/${dir}/* for now
-        test -f "$f" || continue
-        b=$(basename "$f")
-        pos=$(pos_glob "$b")
-        if [[ ${dir} = sme* ]]; then
-            # If we're generating from sme, we can't filter out:
-            sort -u "$f" >${out}/"$b"
-        else
-            <"$f" gawk -v dict=<(cat words/${dir}/${pos}*.tsv) '
-          BEGIN{OFS=FS="\t";while(getline<dict){src[$1]++; for(i=2;i<=NF;i++)trg[$i]++}}
-          $1 in src || $2 in trg {next} {print}' \
-              >${out}/"$b"
-        fi
-    done
-    echo "$dir: Get para hits of all candidates ..."
-    para/count-para-hits.sh <(sort -u ${out}/*) freq/${dir}.lemmas.ids > ${para_hits}
-}
-
 add_thirdlang () {
     inc=$1
     out=$2
@@ -80,6 +58,23 @@ add_thirdlang () {
             -f trans_annotate.awk \
             >${out}/"$b"
     done
+}
+
+skip_existing () {
+    inc=$1
+    out=$2
+    echo "$dir: Skip ${candlang} translations where nob was already in \$GTHOME/words/dicts ..."
+    for f in ${inc}/*; do           # skipping spell/out/${dir}/* for now
+        test -f "$f" || continue
+        b=$(basename "$f")
+        pos=$(pos_glob "$b")
+        <"$f" gawk -v dict=<(cat words/nob${candlang}/${pos}*.tsv) '
+        BEGIN{OFS=FS="\t";while(getline<dict){src[$1]++; for(i=2;i<=NF;i++)trg[$i]++}}
+        $1 in src || $2 in trg {next} {print}' \
+            >${out}/"$b"
+    done
+    echo "$dir: Get para hits of all candidates ..."
+    para/count-para-hits.sh <(sort -u ${out}/*) freq/${dir}.lemmas.ids > ${para_hits}
 }
 
 spell_norm () {
@@ -263,7 +258,7 @@ rev_blocks () {
 # This is where it happens:
 
 inc=out/${dir}
-for fn in skip_existing add_thirdlang spell_norm add_freq split_kintel split_fst rev_blocks; do
+for fn in add_thirdlang skip_existing spell_norm add_freq split_kintel split_fst rev_blocks; do
     out=tmp/${dir}_${fn}
     rm -rf ${out}; mkdir ${out}
     ${fn} ${inc} ${out}
