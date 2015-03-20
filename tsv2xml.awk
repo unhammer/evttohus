@@ -3,7 +3,7 @@
 
 ## Run like:
 
-# < A_lexc_noana_01_sme gawk -v mostly=bad -v pos=A -f tsv2xml.awk | xmllint --format -
+# cat A_* | gawk -v -v pos=A -f tsv2xml.awk | xmllint --format -
 
 
 BEGIN {
@@ -39,8 +39,19 @@ function output() {
 }
 
 
-{
-  sub(/#.*/, "")
+/^ *#[+] if unmarked/{
+  mostly="good"
+}
+/^ *#[@] if unmarked/{
+  mostly="bad"
+}
+/^ *#/{
+  next
+}
+
+!(mostly) {
+  print "Please prepend the file with a comment on what the unmarked default is!"
+  exit(1)
 }
 
 /^ *$/ {
