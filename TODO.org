@@ -1,3 +1,6 @@
+* TODO include unchecked of kintel
+  with some simple heuristics to remove the worst stuff:
+   : <words/nobsmj/N.tsv.unchecked gawk 'BEGIN{OFS=FS="\t"} $2{for(i=2;i<=NF;i++)if($i~/^[( ]*[[:alpha:]]{0,3}[*) ]*$|[?-]$/)$i="";print}'
 * TODO generate other cmp-left-sides
 
   sme has Nom on the left of
