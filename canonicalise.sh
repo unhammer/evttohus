@@ -163,7 +163,7 @@ split_kintel () {
             b=$(basename "$f")
             pos=$(pos_name "$b")
             kintelfile=out/${dir}_${pos}_kintel
-            <"$f" gawk -v dict=<(cat words/nobsmj/${pos}*.tsv) -v kintelf=${kintelfile} '
+            <"$f" gawk -v dict=<(cat words/nobsmj/${pos}*_kintel.tsv) -v kintelf=${kintelfile} '
             BEGIN{
               OFS=FS="\t"
               while(getline<dict) if($2) kintel[$1]++

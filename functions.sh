@@ -188,6 +188,7 @@ dir2tsv () {
     restriction=$1
     dir=$2
     test -d ${dir} || mkdir ${dir}
+    rm -f ${dir}/[VNA].tsv      # The main files we want
     if [[ ${dir} = smesmj ]]; then
         for csv in $GTHOME/words/dicts/${dir}/src/*.csv; do
             tsv=${dir}/$(basename "$csv")
@@ -195,9 +196,7 @@ dir2tsv () {
             tsv=$(echo "$tsv" | normalisePoS)
             cut -f1-2 <"${csv}" > "${tsv}"
         done
-    elif [[ ${dir} = nobsmj || ${dir} = smjnob ]]; then
-        kintel2tsv ${dir}
-    else
+    elif [[ ${dir} != smjnob ]]; then
         for xml in $GTHOME/words/dicts/${dir}/src/*_${dir}.xml; do
             tsv=${dir}/$(basename "${xml}")
             tsv=${tsv%%.xml}.tsv
@@ -206,13 +205,21 @@ dir2tsv () {
             dict_xml2tsv "${restriction}" "${xml}" > "${tsv}" || true
         done
     fi
+    if [[ ${dir} = nobsmj || ${dir} = smjnob ]]; then
+        kintel2tsv ${dir}
+        # Kintel files will contain _kintel in the name, so we can
+        # separate them out in canonicalise.sh; but we only look at
+        # plain N.tsv etc. when generating candidates; so N_kintel.tsv
+        # is appended to plain N.tsv below.
+    fi
     # We only use files named $dir/$pos_$dir.tsv, e.g.
     # smenob/V_smenob.tsv; append some entries from the more funnily
-    # named files to the ordinary-named files:
-    for f in ${dir}/[VNA]_{Pl,G3,mwe,NomAg}* ; do
+    # named files to the ordinary-named files. 
+    for f in ${dir}/[VNA]_{Pl,G3,mwe,NomAg,kintel}*.tsv ; do
         [[ -f $f ]] || continue
         b=$(basename "$f")
-        pos=${b%%_*};dir=$(dirname "$f")
+        pos=${b%%_*}
+        dir=$(dirname "$f")
         cat "$f" >> "${dir}"/"${pos}.tsv"
     done
 }
@@ -242,8 +249,7 @@ kintel2tsv () {
             restriction="[.//l[(@pos='${pos}' or @obt='${pos}')]]"
         fi
         xml=$GTHOME/words/dicts/smjnob-kintel/src/${dir2}/*.xml
-        tsv=${dir}/${pos}.tsv
-        tsv=$(echo "$tsv" | normalisePoS)
+        tsv=${dir}/${pos}_kintel.tsv
         # Extract the finished translations:
         dict_xml2tsv "${restriction}" ${xml} > "${tsv}" || true
         # but also include the unfinished ones (no .//t):
