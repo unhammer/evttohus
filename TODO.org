@@ -1,6 +1,7 @@
 * TODO include unchecked of kintel
   with some simple heuristics to remove the worst stuff:
    : <words/nobsmj/N.tsv.unchecked gawk 'BEGIN{OFS=FS="\t"} $2{for(i=2;i<=NF;i++)if($i~/^[( ]*[[:alpha:]]{0,3}[*) ]*$|[?-]$/)$i="";print}'
+
 * TODO generate other cmp-left-sides
 
   sme has Nom on the left of
@@ -28,7 +29,8 @@
 :  450 PlGenCmp
 :  3992 SgGenCmp
 :  6318 SgNomCmp
-  alternatively, for every 
+  alternatively, only generate SgGenCmp when sme analyses as SgGenCmp
+  (but then what to do with nob2smj?)
   
 * TODO follow synsets in order to expand existing translations
   The nobsma dict has arbeidsform→barkoevuekie already.
