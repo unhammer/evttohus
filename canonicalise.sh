@@ -247,6 +247,31 @@ split_fst () {
     done
 }
 
+split_singles () {
+    inc=$1
+    out=$2
+    echo "$dir: Split into single-candidates vs multiple ..."
+    for f in ${inc}/*; do
+        b=$(basename "$f")
+        if [[ ${fromlang} = nob ]]; then groupfield=1; else groupfield=3; fi
+        <"$f" gawk -F'\t' -v g=${groupfield} \
+                          -v singles=${out}/"$b"_singles \
+                          -v multis=${out}/"$b"_multis '
+      prev != $g { 
+        if(n==1) { print lines > singles }
+        else { print lines > multis }
+        lines=""
+        n=0 
+      }
+      $2 {
+        if(lines) { lines=lines"\n"$0 }
+        else { lines=$0 }
+        n++
+        prev = $g
+      }'
+    done
+}
+
 rev_blocks () {
     inc=$1
     out=$2
@@ -270,7 +295,7 @@ rev_blocks () {
 # This is where it happens:
 
 inc=out/${dir}
-for fn in add_thirdlang skip_existing spell_norm add_freq split_kintel split_fst rev_blocks; do
+for fn in add_thirdlang skip_existing spell_norm add_freq split_kintel split_fst split_singles rev_blocks; do
     out=tmp/${dir}_${fn}
     rm -rf ${out}; mkdir ${out}
     ${fn} ${inc} ${out}
