@@ -27,14 +27,17 @@ LOANNOBSMJ=out/nobsmj/N_loan
 
 ALIGNSMJ=$(patsubst %,out/nobsmj/%,$(ALIGNBASES)) # TODO
 
+FREQSMA=freq/combined.nob freq/combined.sma freq/combined.sme freq/nobsma.para-kwic
+FREQSMJ=freq/combined.nob freq/combined.sma freq/combined.sme freq/smesmj.para-kwic freq/nobsmj.para-kwic
+
 all: out/nobsmasme out/nobsmjsme freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
 
 spellms: $(patsubst %,freq/slms.%.smj,$(DPOS)) \
          $(patsubst %,freq/slms.%.sma,$(DPOS)) 
 
-out/nobsmasme: freq/nobsma.para-kwic out/nobsmasme/.d tmp/nobsmasme/.d tmp/nobsma/.d words/all.sma
+out/nobsmasme: $(FREQSMA) out/nobsmasme/.d tmp/nobsmasme/.d tmp/nobsma/.d               words/all.sma
 	./canonicalise.sh nobsma
-out/nobsmjsme: freq/smesmj.para-kwic freq/nobsmj.para-kwic out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/nobsmj/.d words/all.smj
+out/nobsmjsme: $(FREQSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/nobsmj/.d words/all.smj
 	./canonicalise.sh smesmj
 	./canonicalise.sh nobsmj
 # Kintel-words are now in SVN, so skip making these:
@@ -54,7 +57,7 @@ out/%/N_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_N.ts
 out/%/A_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_A.tsv
 	./decompound.sh $* A precomp
 
-out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d
+out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d freq/lms.smj freq/forms.smj
 	./sme2smjify.sh
 
 out/nobsmj/N_loan: fadwords/all.nob out/nobsmj/.d
@@ -132,7 +135,7 @@ freq/slms.A.%: words/all.% freq/forms.%
 
 
 # Parallel texts:
-freq/%.sents:
+freq/%.sents: freq/.d
 	para/good-toktmx.sh $* false >$@
 
 freq/nobsma.sents.ids: freq/nobsma.sents freq/smanob.sents
