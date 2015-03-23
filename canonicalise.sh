@@ -88,17 +88,29 @@ spell_norm () {
             b=$(basename "$f")
             <"$f" gawk '
             BEGIN{ OFS=FS="\t" }
-            $1 ~ /i/  && $2 ~ /ija/ { print; gsub(/ija/, "iddja", $2); print }
-            $1 ~ /og/ && $2 ~ /oga/ { print; gsub(/oga/, "åvggå", $2); print }
-            $1 ~ /é$/ && $2 ~ /ea$/ { print; gsub(/ea$/, "iedja", $2); print }
-            $1 ~ /e$/ && $2 ~ /ea$/ { print; gsub(/ea$/, "iedja", $2); print }
-            $1 ~ /et/ && $2 ~ /[^i]ehtta/ { print; gsub(/[^i]ehtta/, "iehtta", $2); print }
-            $1 ~ /ek/ && $2 ~ /[^i]ehkka/ { print; gsub(/[^i]ehkka/, "iehkka", $2); print }
-            $1 ~ /ol/ && $2 ~ /ola/ { print; gsub(/ola/, "åvllå", $2); print }
-            $1 ~ /em/ && $2 ~ /[^i]ebma/ { print; gsub(/[^i]ebma/, "iebma", $2); print }
-            $1 ~ /om/ && $2 ~ /oma/ { print; gsub(/oma/, "åvmmå", $2); print }
-            $1 ~ /ør/ && $2 ~ /ørra/ { print; gsub(/ørra/, "erra", $2); print }
-            $1 ~ /ere$/ && $2 ~ /[^i]erit$/ { print; gsub(/erit$/, "ierit", $2); print }
+
+            # The matches for end-of-line _only_ print the changed version:
+            $1 ~ /i$/  && $2 ~ /ija$/ {       gsub(/ija$/, "iddja", $2);        print; next }
+            $1 ~ /og$/ && $2 ~ /oga$/ {       gsub(/oga$/, "åvggå", $2);        print; next }
+            $1 ~ /[ée]$/ && $2 ~ /ea$/ {      gsub(/ea$/, "iedja", $2);         print; next }
+            $1 ~ /et$/ && $2 ~ /[^i]ehtta$/ { gsub(/[^i]ehtta$/, "iehtta", $2); print; next }
+            $1 ~ /ek$/ && $2 ~ /[^i]ehkka$/ { gsub(/[^i]ehkka$/, "iehkka", $2); print; next }
+            $1 ~ /ol$/ && $2 ~ /ola$/ {       gsub(/ola$/, "åvllå", $2);        print; next }
+            $1 ~ /em$/ && $2 ~ /[^i]ebma$/ {  gsub(/[^i]ebma$/, "iebma", $2);   print; next }
+            $1 ~ /om$/ && $2 ~ /oma$/ {       gsub(/oma$/, "åvmmå", $2);        print; next }
+            $1 ~ /ør$/ && $2 ~ /ørra$/ {      gsub(/ørra$/, "erra", $2);        print; next }
+            $1 ~ /ere$/ && $2 ~ /[^i]erit$/ { gsub(/erit$/, "ierit", $2);       print; next }
+
+            # If we reached this far, try also changing in the middle of words,
+            # but be safe and print the unchanged candidate as well:
+            $1 ~ /i/  && $2 ~ /ija/ {         print; gsub(/ija/, "iddja", $2); print }
+            $1 ~ /og/ && $2 ~ /oga/ {         print; gsub(/oga/, "åvggå", $2); print }
+            $1 ~ /et/ && $2 ~ /[^i]ehtta/ {   print; gsub(/[^i]ehtta/, "iehtta", $2); print }
+            $1 ~ /ek/ && $2 ~ /[^i]ehkka/ {   print; gsub(/[^i]ehkka/, "iehkka", $2); print }
+            $1 ~ /ol/ && $2 ~ /ola/ {         print; gsub(/ola/, "åvllå", $2); print }
+            $1 ~ /em/ && $2 ~ /[^i]ebma/ {    print; gsub(/[^i]ebma/, "iebma", $2); print }
+            $1 ~ /om/ && $2 ~ /oma/ {         print; gsub(/oma/, "åvmmå", $2); print }
+            $1 ~ /ør/ && $2 ~ /ørra/ {        print; gsub(/ørra/, "erra", $2); print }
             { print }
             ' | sort -u >${out}/"$b"
         done
