@@ -134,10 +134,6 @@ ana_to_lemmas () {
 }
 
 
-xmlgrep_fad () {
-    xmlstarlet sel -t -m '//e[@src="fad"]/lg/l/text()' -c . -n "$@"
-}
-
 convert_all () {
     lang=$1
     if [[ -n $GTBOUND ]]; then
@@ -233,6 +229,10 @@ dir2tsv () {
         dir=$(dirname "$f")
         cat "$f" >> "${dir}/${pos}.tsv"
     done
+}
+
+dir2tsv_fad () {
+    dir2tsv '[contains(@src,"fad") or .//*[contains(@src,"fad")]]' "$@"
 }
 
 mono_from_bi () {

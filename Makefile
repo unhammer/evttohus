@@ -101,7 +101,7 @@ words/all.%: words/nonVNA.%
 
 
 fadwords/%/V.tsv fadwords/%/N.tsv fadwords/%/A.tsv: fadwords/%/.d
-	bash -c "source functions.sh; cd fadwords; dir2tsv '[@src=\"fad\"]' '$*'"
+	bash -c "source functions.sh; cd fadwords; dir2tsv_fad '$*'"
 	@touch fadwords/$*/Pron_$*.tsv # just to stop canonicalise.sh from complaining
 
 fadwords/%.sme: fadwords/smenob/%.tsv fadwords/nobsme/%.tsv
