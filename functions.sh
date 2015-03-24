@@ -9,6 +9,10 @@ psed () {
     perl -CSAD -wnpe "$@"
 }
 
+tabalign () {
+    column -ts$'\t'
+}
+
 rev () {
     # /usr/bin/rev on OS X doesn't handle unicode. Just wonderful.
     perl -CSAD -wlnpe '$_=reverse($_)'
@@ -212,6 +216,12 @@ dir2tsv () {
         # plain N.tsv etc. when generating candidates; so N_kintel.tsv
         # is appended to plain N.tsv below.
     fi
+    if [[ ${dir} = nob* ]]; then
+        for pos in V N A; do
+            <"$GTHOME/words/dicts/${dir}/src/${pos}_${dir}.xml" \
+                awk -F' ::: ' '$2{print $1"\t"$2}' >"${dir}/bad_${pos}.tsv"
+        done
+    fi
     # We only use files named $dir/$pos_$dir.tsv, e.g.
     # smenob/V_smenob.tsv; append some entries from the more funnily
     # named files to the ordinary-named files. 
@@ -220,7 +230,7 @@ dir2tsv () {
         b=$(basename "$f")
         pos=${b%%_*}
         dir=$(dirname "$f")
-        cat "$f" >> "${dir}"/"${pos}.tsv"
+        cat "$f" >> "${dir}/${pos}.tsv"
     done
 }
 

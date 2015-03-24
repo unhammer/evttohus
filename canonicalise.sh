@@ -63,14 +63,22 @@ add_thirdlang () {
 skip_existing () {
     inc=$1
     out=$2
-    echo "$dir: Skip ${candlang} translations where nob was already in \$GTHOME/words/dicts ..."
+    echo "$dir: Skip ${candlang} translations where nob/${candlang} was already in \$GTHOME/words/dicts (or marked bad) ..."
     for f in ${inc}/*; do           # skipping spell/out/${dir}/* for now
         test -f "$f" || continue
         b=$(basename "$f")
-        pos=$(pos_glob "$b")
-        <"$f" gawk -v dict=<(cat words/nob${candlang}/${pos}*.tsv) '
-        BEGIN{OFS=FS="\t";while(getline<dict){src[$1]++; for(i=2;i<=NF;i++)trg[$i]++}}
-        $1 in src || $2 in trg {next} {print}' \
+        pos_glob=$(pos_glob "$b")
+        pos_name=$(pos_name "$b")
+        <"$f" gawk \
+            -v dict=<(cat words/nob${candlang}/${pos_glob}.tsv) \
+            -v badf=words/nob${candlang}/bad_${pos_name}.tsv '
+        BEGIN{
+          OFS=FS="\t"
+          while(getline<dict){ src[$1]++; for(i=2;i<=NF;i++) trg[$i]++ }
+          while(getline<badf){ bad[$1][$2]++ }
+        }
+        $1 in src || $2 in trg || ($1 in bad && $2 in bad[$1]) {next}
+        {print}' \
             >${out}/"$b"
     done
     echo "$dir: Get para hits of all candidates ..."
