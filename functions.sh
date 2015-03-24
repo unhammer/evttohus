@@ -221,6 +221,7 @@ dir2tsv () {
             <"$GTHOME/words/dicts/${dir}/src/${pos}_${dir}.xml" \
                 awk -F' ::: ' '$2{print $1"\t"$2}' >"${dir}/bad_${pos}.tsv"
         done
+        touch "${dir}/bad_nonVNA.tsv" # TODO: some dirs don't even have nonVNA xml's
     fi
     # We only use files named $dir/$pos_$dir.tsv, e.g.
     # smenob/V_smenob.tsv; append some entries from the more funnily

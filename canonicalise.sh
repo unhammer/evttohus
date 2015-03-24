@@ -71,7 +71,7 @@ skip_existing () {
         pos_name=$(pos_name "$b")
         <"$f" gawk \
             -v dict=<(cat words/nob${candlang}/${pos_glob}.tsv) \
-            -v badf=words/nob${candlang}/bad_${pos_name}.tsv '
+            -v badf=<(cat words/nob${candlang}/bad_${pos_name}.tsv) '
         BEGIN{
           OFS=FS="\t"
           while(getline<dict){ src[$1]++; for(i=2;i<=NF;i++) trg[$i]++ }
@@ -265,12 +265,14 @@ split_singles () {
         <"$f" gawk -F'\t' -v g=${groupfield} \
                           -v singles=${out}/"$b"_singles \
                           -v multis=${out}/"$b"_multis '
-      prev != $g { 
+      function out() { 
         if(n==1) { print lines > singles }
         else { print lines > multis }
         lines=""
         n=0 
       }
+      prev != $g { out() }
+      END { if(lines) out() }
       $2 {
         if(lines) { lines=lines"\n"$0 }
         else { lines=$0 }
