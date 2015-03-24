@@ -9,7 +9,7 @@ words
 words-src-fad/
 freq/
 spell/.merlin
-out-prev*/
+out[0-9]*/
 para/anymalign/tmp.alignments.[123]
 para/anymalign/alignments.merged
 para/anymalign/cleaned.nob
