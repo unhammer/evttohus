@@ -1,5 +1,3 @@
-* TODO decomp/precomp should only filter on head
-  we want to allow N#A and N#V compounds
 * TODO freq_annotate doesn't work for sme/when/multiple/alternatives
 * TODO include unchecked of kintel
   with some simple heuristics to remove the worst stuff:
@@ -47,6 +45,8 @@
   Could add NWN, but it may be a bit too fine-grained – e.g.
   dictionaries give {opposisjon,motstand,gjenstridighet,trass}, while
   NWN has {opposisjon} as a hyponym of {motstand}.
+
+** TODO apertium-sme-nob seems to have some synonyms not in words/dicts  
 * TODO possible to generate loans directly from nob for sma as well?
 * TODO kwic-annotate out-files?
   sentences with hits in freq/*para-kwic now, but 1) not actually
