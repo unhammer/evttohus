@@ -51,7 +51,8 @@ function combine(cand, i) {
   withthis=""
   for(part in cand[i]) {
     for(suf in suffixes) {
-      withthis = withthis part suf "\t"
+      if(suf) withthis = withthis part "#" suf "\t"
+      else withthis = withthis part "\t"
     }
   }
   sub(/\t$/,"", withthis)

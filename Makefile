@@ -43,18 +43,18 @@ out/nobsmjsme: $(FREQSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/no
 # Kintel-words are now in SVN, so skip making these:
 # ./merge-kintel.sh
 
-out/%/V_decomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/V.tsv
+out/%/V_decomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/V.tsv
 	./decompound.sh $* V
-out/%/N_decomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/N.tsv
+out/%/N_decomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/N.tsv
 	./decompound.sh $* N
-out/%/A_decomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/A.tsv
+out/%/A_decomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/A.tsv
 	./decompound.sh $* A
 
-out/%/V_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_V.tsv
+out/%/V_precomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/precomp_V.tsv
 	./decompound.sh $* V precomp
-out/%/N_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_N.tsv
+out/%/N_precomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/precomp_N.tsv
 	./decompound.sh $* N precomp
-out/%/A_precomp: fadwords/all.sme fadwords/all.nob out/%/.d words/%/precomp_A.tsv
+out/%/A_precomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/precomp_A.tsv
 	./decompound.sh $* A precomp
 
 out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d freq/lms.smj freq/forms.smj
