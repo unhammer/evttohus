@@ -3,36 +3,6 @@
   with some simple heuristics to remove the worst stuff:
    : <words/nobsmj/N.tsv.unchecked gawk 'BEGIN{OFS=FS="\t"} $2{for(i=2;i<=NF;i++)if($i~/^[( ]*[[:alpha:]]{0,3}[*) ]*$|[?-]$/)$i="";print}'
 
-* TODO generate other cmp-left-sides
-
-  sme has Nom on the left of
-:   loddemoahti     loddi+N+SgNomCmp+Cmp#moahti+N+Sg+Nom
-:   loddemoahti     loddemoahti+N+Sg+Nom
-
-  but gen on
-:   lottebeassi     loddi+N+SgGenCmp+Cmp#beassi+N+Sg+Nom
-
-  smj also has gen on the left of 
-:   låttebiesse     låttebiesse+N+Sg+Nom
-:   låttebiesse     lådde+N+SgGenCmp+Cmp#biesse+N+Sg+Nom
-  and trying the non-gen version gives only a dynamic analysis, ie.
-  (probably) not a real word:
-:   låddebiesse     lådde+N+SgNomCmp+Cmp#biesse+N+Sg+Nom
-  
-  SgGenCmp seems fairly popular, might just want to generate that for
-  every SgNomCmp:
-: $ ccat -a -l smj ../converted/smj 2>/dev/null|head -1000|ana smj |tr '+#' '\n' |grep  Cmp
-: |sort|uniq -c |sort -n
-:  22 Cmpn/Sgg
-:  37 ShCmp
-:  362 RCmpnd
-:  418 Cmp-
-:  450 PlGenCmp
-:  3992 SgGenCmp
-:  6318 SgNomCmp
-  alternatively, only generate SgGenCmp when sme analyses as SgGenCmp
-  (but then what to do with nob2smj?)
-  
 * TODO follow synsets in order to expand existing translations
   The nobsma dict has arbeidsform→barkoevuekie already.
 
