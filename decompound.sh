@@ -21,15 +21,23 @@ else
     suff=decomp
 fi
 
-dict=words/${dir}/${pos}.tsv
-if [[ ! -f ${dict} ]]; then echo "${dict} doesn't exist"; continue; fi
-cat_dict () {
-    if $precomp; then
-        cat "${dict}" words/${dir}/precomp_${pos}.tsv
-    else
-        cat "${dict}"
-    fi
-}
+dict=tmp/${dir}/${pos}_${suff}.dict
+
+maindict=words/${dir}/${pos}.tsv
+if [[ ! -f ${maindict} ]]; then
+    echo "${maindict} doesn't exist"
+    exit 1
+else
+    cat "${maindict}" > "${dict}"
+fi
+
+revdict=words/${lang2}${lang1}/${pos}.tsv
+if [[ -f ${revdict} ]]; then
+    <"${revdict}" awk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $i,$1}' >>"${dict}"
+fi
+if $precomp; then
+    cat words/${dir}/precomp_${pos}.tsv >>"${dict}"
+fi
 
 echo -n "${pos} compound analyses found: " >&2
 < ${words}/${pos}.${lang1} ana ${lang1} \
@@ -37,7 +45,7 @@ echo -n "${pos} compound analyses found: " >&2
     | clean_cmp_ana ${lang1} ${pos} \
     | gawk -f uniq_ana.awk \
     | tee >(wc -l >&2) \
-    | gawk -v dict=<(cat_dict) -f compound_translate.awk \
+    | gawk -v dict="${dict}" -f compound_translate.awk \
     | awk -F'\t' '$2' \
     > tmp/${dir}/${pos}_${suff}
 
