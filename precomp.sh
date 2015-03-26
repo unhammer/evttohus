@@ -15,7 +15,7 @@ dict=words/${dir}/${pos}.tsv
 words_to_cmp () {
     lang=$1
     ana ${lang} \
-        | grep -v +Err/Sub \
+        | grep -v +Err/ \
         | clean_cmp_ana ${lang} ${pos} \
         | gawk -f uniq_ana.awk \
         | grep -E -v -f badparts.${lang}.grep

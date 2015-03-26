@@ -41,7 +41,7 @@ fi
 
 echo -n "${pos} compound analyses found: " >&2
 < ${words}/${pos}.${lang1} ana ${lang1} \
-    | grep -v +Err/Sub \
+    | grep -v +Err/ \
     | clean_cmp_ana ${lang1} ${pos} \
     | gawk -f uniq_ana.awk \
     | tee >(wc -l >&2) \
