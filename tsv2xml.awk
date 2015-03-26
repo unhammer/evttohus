@@ -29,7 +29,7 @@ function output() {
   }
   else {
     for(src in good) {
-      print "<e><lg><l pos=\""pos"\" src=\"fad\">"src"</l></lg><mg><tg>"
+      print "<e><lg><l pos=\""pos"\" src=\"fad\">"src"</l></lg><mg><tg xml:lang=\""trglang"\">"
       for(trg in good[src]) {
         print "<t pos=\""pos"\">"trg"</t>"
       }
