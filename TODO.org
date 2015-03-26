@@ -1,4 +1,3 @@
-* TODO words/dicts/smanob has xml:lang swe/sme as well
 * TODO freq_annotate doesn't work for sme/when/multiple/alternatives
 * TODO include unchecked of kintel
   with some simple heuristics to remove the worst stuff:
@@ -30,9 +29,9 @@
      one, we get the other synonym for free. E.g. smjnob says that
      {arbeidsmåte,arbeidsform} and both of these are in fad. Now if
      we've added "arbeidsmåte" to nobsma, we can get "arbeidsform" in
-     there for free. 
+     there for free.
+
      
-  
 ** TODO apertium-sme-nob seems to have some synonyms not in words/dicts  
 ** TODO find synonyms (expand <tg>) by comparing dicts
    Say one candidate is

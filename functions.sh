@@ -163,7 +163,11 @@ ccat_all () {
 
 
 dict_xml2tsv () {
-    restriction=$1
+    dir=$1
+    lang1=${dir%???}
+    lang2=${dir#???}
+    restriction=$2
+    shift
     shift
     # forall e where $restriction
     #   print lg/l/text
@@ -172,7 +176,7 @@ dict_xml2tsv () {
     #   print "\n"
     xmlstarlet sel -t \
         -m "//e${restriction}" -c './lg/l/text()' \
-        -m './mg//tg/t' -o $'\t' -c './text()' \
+        -m "./mg//tg[@xml:lang='${lang2}' or not(@xml:lang)]/t" -o $'\t' -c './text()' \
         -b -n \
         "$@"
 }
@@ -202,7 +206,7 @@ dir2tsv () {
             tsv=${tsv%%.xml}.tsv
             tsv=$(echo "$tsv" | normalisePoS)
             # Why does this sometimes return non-zero even though good output?
-            dict_xml2tsv "${restriction}" "${xml}" > "${tsv}" || true
+            dict_xml2tsv ${dir} "${restriction}" "${xml}" > "${tsv}" || true
         done
     fi
     if [[ ${dir} = nobsmj || ${dir} = smjnob ]]; then
@@ -262,7 +266,7 @@ kintel2tsv () {
         xml=$GTHOME/words/dicts/smjnob-kintel/src/${dir2}/*.xml
         tsv=${dir}/${pos}_kintel.tsv
         # Extract the finished translations:
-        dict_xml2tsv "${restriction}" ${xml} > "${tsv}" || true
+        dict_xml2tsv ${dir} "${restriction}" ${xml} > "${tsv}" || true
         # but also include the unfinished ones (no .//t):
         xmlstarlet sel -t \
             -m "//e${restriction}" -c './lg/l/text()' \
