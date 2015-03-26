@@ -1,3 +1,4 @@
+* TODO words/dicts/smanob has xml:lang swe/sme as well
 * TODO freq_annotate doesn't work for sme/when/multiple/alternatives
 * TODO include unchecked of kintel
   with some simple heuristics to remove the worst stuff:
