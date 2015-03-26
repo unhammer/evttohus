@@ -337,3 +337,43 @@ all_lms_of_pos () {
         | cut -f1 \
         | LC_ALL=C sort -u
 }
+
+synonyms () {
+    lang=$1
+    pos=$2
+    # Follows synonyms in dictionaries, but only for "one level".
+    # First we create a big "src→trg" dictionary where the first
+    # column is the src word, and the others are trg translations of
+    # that word. One trg may appear in several lines, e.g.
+    # x b c
+    # y b d
+    # (where x and y might come from different languages, or just from
+    # different directions of the same pair). We skip the first (src)
+    # column, and create the cross product of all words that appear in
+    # the same lines, finally giving
+    # b c
+    # b d
+    # c b
+    # c d
+    # d b
+    # d c
+    :|gawk \
+        -v trgsrc=<(cat words/${lang}???/${pos}.tsv) \
+        -v srctrg=<(cat words/???${lang}/${pos}.tsv) '
+        BEGIN{
+           OFS=FS="\t"
+           while(getline<srctrg) for(i=2;i<=NF;i++)d[$1][$i]++
+           while(getline<trgsrc) for(i=2;i<=NF;i++)d[$i][$1]++
+           for(f in d){o=f;for(t in d[f])o=o"\t"t;print o}
+        }' \
+             | gawk '
+        BEGIN{
+           OFS=FS="\t"
+        }
+        {
+          for(i=2;i<=NF;i++) for(j=2;j<=NF;j++) d[$i][$j]++
+        }
+        END{
+          for(a in d) for(b in d[a]) if(a!=b) print a,b
+        }'
+}
