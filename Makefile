@@ -79,7 +79,7 @@ out/nobsma/%_anymalign: para/anymalign/eval/%.results.100k out/nobsma/.d
 	awk -F'\t' '$$4=="fad"' $< | sort -nr | cut -f5-6 | grep -v '\*' > $@
 
 
-out/nobsma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv
+out/nobsma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.nob
 	./cross.sh nob sme sma $* >$@
 
 
