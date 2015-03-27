@@ -195,7 +195,7 @@ corpus:
 	bash -c "source functions.sh; convert_all sme"
 
 # "make stats" will show corpus coverage
-stats: all tmp/.d
+stats: tmp/.d
 	./coverage.sh
 
 
