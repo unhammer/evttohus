@@ -1,27 +1,3 @@
-* TODO more spelling fixes
-** full words (second cmps)
-  plána -pládna
-  arena-ariedná
-  analysa-analyjssa
-  virge-virgge
-  suorge-suorgge
-
-** endings (second cmps)
-  ijla - ijlla
-  ela- iella
-  árka -árkka
-  ála- álla
-  riekte-riektá
-  ivra-ivrra
-  uvra-uvrra
-  ára-árra
-  ánsa-ánssa
-  ursa-urssa
-  tehta-tiehtta
-  áhta -áhtta
-  ijva-ijvva
-
-  
 * TODO freq_annotate doesn't work for sme/when/multiple/alternatives
 * TODO include unchecked of kintel
   with some simple heuristics to remove the worst stuff:

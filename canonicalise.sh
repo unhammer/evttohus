@@ -109,6 +109,26 @@ spell_norm () {
             $1 ~ /ør$/ && $2 ~ /ørra$/ {      gsub(/ørra$/, "erra", $2);        print; next }
             $1 ~ /ere$/ && $2 ~ /[^i]erit$/ { gsub(/erit$/, "ierit", $2);       print; next }
 
+            # Spell changes that are not necessarily for loan words (so no match on $1):
+            $2 ~ /ijla$/ {    gsub(/ijla$/, "ijlla", $2);        print; next; }
+            $2 ~ /ela$/ {     gsub(/ela$/, "iella", $2);         print; next; }
+            $2 ~ /árka$/ {    gsub(/árka$/, "árkka", $2);        print; next; }
+            $2 ~ /riekte$/ {  gsub(/riekte$/, "riektá", $2);     print; next; }
+            $2 ~ /ivra$/ {    gsub(/ivra$/, "ivrra", $2);        print; next; }
+            $2 ~ /uvra$/ {    gsub(/uvra$/, "uvrra", $2);        print; next; }
+            $2 ~ /ára$/ {     gsub(/ára$/, "árra", $2);          print; next; }
+            $2 ~ /ánsa$/ {    gsub(/ánsa$/, "ánssa", $2);        print; next; }
+            $2 ~ /ursa$/ {    gsub(/ursa$/, "urssa", $2);        print; next; }
+            $2 ~ /tehta$/ {   gsub(/tehta$/, "tiehtta", $2);     print; next; }
+            $2 ~ /áhta$/ {    gsub(/áhta$/, "áhtta", $2);        print; next; }
+            $2 ~ /ijva$/ {    gsub(/ijva$/, "ijvva", $2);        print; next; }
+            $2 ~ /plána$/ {   gsub(/plána$/, "pládna", $2);      print; next; }
+            $2 ~ /arena$/ {   gsub(/arena$/, "ariedná", $2);     print; next; }
+            $2 ~ /analysa$/ { gsub(/analysa$/, "analyjssa", $2); print; next; }
+            $2 ~ /virge$/ {   gsub(/virge$/, "virgge", $2);      print; next; }
+            $2 ~ /suorge$/ {  gsub(/suorge$/, "suorgge", $2);    print; next; }
+            $2 ~ /ála$/ && !($2 ~ /tjála$/) {  gsub(/ála$/, "álla", $2);    print; next; }
+
             # If we reached this far, try also changing in the middle of words,
             # but be safe and print the unchanged candidate as well:
             $1 ~ /i/  && $2 ~ /ija/ {         print; gsub(/ija/, "iddja", $2); print }
