@@ -48,11 +48,11 @@ out/nobsmjsme: $(FREQSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/no
 # Kintel-words are now in SVN, so skip making these:
 # ./merge-kintel.sh
 
-out/%/V_decomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/V.tsv
+out/%/V_decomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/V.tsv words/%/V.rev
 	./decompound.sh $* V
-out/%/N_decomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/N.tsv
+out/%/N_decomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/N.tsv words/%/N.rev
 	./decompound.sh $* N
-out/%/A_decomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/A.tsv
+out/%/A_decomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/A.tsv words/%/A.rev
 	./decompound.sh $* A
 
 out/%/V_precomp: fadwords/all.sme fadwords/all.nob out/%/.d tmp/%/.d words/%/precomp_V.tsv
@@ -125,13 +125,34 @@ fadwords/all.%: fadwords/nonVNA.%
 
 
 # Alignment of decompounded parts of words/dicts:
-words/%/precomp_V.tsv: words/%/V.tsv
+words/%/precomp_V.tsv: words/%/V.tsv words/%/V.rev
 	./precomp.sh $* V > $@
-words/%/precomp_N.tsv: words/%/N.tsv
+words/%/precomp_N.tsv: words/%/N.tsv words/%/N.rev
 	./precomp.sh $* N > $@
-words/%/precomp_A.tsv: words/%/A.tsv
+words/%/precomp_A.tsv: words/%/A.tsv words/%/A.rev
 	./precomp.sh $* A > $@
 
+# These goals let a goal where %==nobsme depend on the reverse words/smenob:
+words/nobsme/%.rev: words/smenob/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
+words/smenob/%.rev: words/nobsme/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
+words/nobsmj/%.rev: words/smjnob/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
+words/smjnob/%.rev: words/nobsmj/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
+words/nobsma/%.rev: words/smanob/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
+words/smanob/%.rev: words/nobsma/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
+words/smesmj/%.rev: words/smjsme/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
+words/smjsme/%.rev: words/smesmj/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
+words/smesma/%.rev: words/smasme/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
+words/smasme/%.rev: words/smesma/%.tsv
+	<$< bash -c "source functions.sh; rev_dict" >$@
 
 
 # For speller:

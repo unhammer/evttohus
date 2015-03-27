@@ -193,6 +193,9 @@ dir2tsv () {
     dir=$2
     test -d ${dir} || mkdir ${dir}
     rm -f ${dir}/[VNA].tsv      # The main files we want
+    # Some source directories are missing a lot of files, ensure at
+    # least these exists:
+    touch "${dir}"/{V,N,A,nonVNA}.tsv
     if [[ ${dir} = smesmj ]]; then
         for csv in $GTHOME/words/dicts/${dir}/src/*.csv; do
             tsv=${dir}/$(basename "$csv")
@@ -224,9 +227,6 @@ dir2tsv () {
         # separate them out in canonicalise.sh; but we only look at
         # plain N.tsv etc. when generating candidates; so N_kintel.tsv
         # is appended to plain N.tsv below.
-    fi
-    if [[ ${dir} = smasme ]]; then
-        touch "${dir}/N.tsv" # TODO: why no N in dicts?
     fi
     if [[ ${dir} = nob* ]]; then
         for pos in V N A; do
@@ -348,6 +348,10 @@ all_lms_of_pos () {
         | posgrep "${pos}" \
         | cut -f1 \
         | LC_ALL=C sort -u
+}
+
+rev_dict () {
+    awk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $i,$1}' "$@"
 }
 
 synonyms () {

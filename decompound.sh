@@ -31,9 +31,9 @@ else
     cat "${maindict}" > "${dict}"
 fi
 
-revdict=words/${lang2}${lang1}/${pos}.tsv
+revdict=words/${lang1}${lang2}/${pos}.rev
 if [[ -f ${revdict} ]]; then
-    <"${revdict}" awk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $i,$1}' >>"${dict}"
+    cat "${revdict}" >>"${dict}"
 fi
 if $precomp; then
     cat words/${dir}/precomp_${pos}.tsv >>"${dict}"
