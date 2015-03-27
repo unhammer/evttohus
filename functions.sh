@@ -225,6 +225,9 @@ dir2tsv () {
         # plain N.tsv etc. when generating candidates; so N_kintel.tsv
         # is appended to plain N.tsv below.
     fi
+    if [[ ${dir} = smasme ]]; then
+        touch "${dir}/N.tsv" # TODO: why no N in dicts?
+    fi
     if [[ ${dir} = nob* ]]; then
         for pos in V N A; do
             <"$GTHOME/words/dicts/${dir}/src/${pos}_${dir}.xml" \
