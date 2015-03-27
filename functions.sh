@@ -377,26 +377,3 @@ synonyms () {
           for(a in d) for(b in d[a]) if(a!=b) print a,b
         }'
 }
-
-cand_coverage () {
-    # Usage:
-    # $ cat out/nobsmjsme/* | cand_coverage
-    # to see corpus coverage of our generated candidates.
-    # If two nob words give one smj word, that's two hits.
-    cut -f1-2,5 \
-        | sort -u \
-        | awk -F'\t' '
-          {
-            tot++
-          }
-          $3{
-            hits++
-            f+=$3
-          }
-          END{
-            OFS="\t"
-            print "# of candidates seen in corpus","sum of their f","# of candidates total"
-            print hits,f,tot
-          }' | column -ts$'\t'
-
-}

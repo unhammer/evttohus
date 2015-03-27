@@ -2,31 +2,43 @@
 
 set -e -u
 
-
-cat <<EOF
-How many words from the src=fad dictionaries do we have candidates
-for? (All numbers restricted to part-of-speech, so SUM SME/NOB is how
-many src=fad words there are from words/dicts/{smenob,nobsme} for that
-PoS; % in FST is how many of SUM candidates had a same-PoS FST
-analysis; all counts are without duplicates.)
-EOF
-
-cov () {
-    lang=$1
-    for pos in V N A nonVNA; do
-        for f in out/nob${lang}sme/${pos}_*; do
-            test -f "$f" && awk -v pos=${pos} -f coverage.awk "$f"
-        done
-        cat out/nob${lang}sme/${pos}_* >tmp/${pos}_all 2>/dev/null
-        awk -v pos=${pos} -f coverage.awk tmp/${pos}_all
-    done \
-        | sed 's%^[^/]*/%%' \
-        | sort -t$'\t' -k2,2nr -k4,4nr -k3,3nr -k5,5nr
+# Number of fad-words we have vs need candidates for:
+already_in () {
+    cut -f1 words/nob${candlang}/${pos}.tsv | sort -u
+}
+need_trans_for () {
+    already_in | comm -23 fadwords/${pos}.nob -
+}
+got_cand_for () {
+    cut -f1 out/nob${candlang}sme/${pos}${method}* 2>/dev/null| sort -u
+}
+got_ana_cand_for () {
+    cut -f1 out/nob${candlang}sme/${pos}${method}_ana* 2>/dev/null| sort -u
+}
+got_missing_cand_for () {
+    comm -12 <(need_trans_for) <(got_cand_for)
+}
+got_missing_ana_cand_for () {
+    comm -12 <(need_trans_for) <(got_ana_cand_for)
+}
+got_freq_for () {
+    cut -f1-2,5 out/nob${candlang}sme/${pos}${method}* 2>/dev/null | sort -u \
+        | awk -v need=<(need_trans_for) 'BEGIN{while(getline<need)d[$0]++;s=0} $1 in d && $3{s++} END{print s}'
 }
 
-for lang in sma smj; do
-    echo
-    cat <(echo -e "${lang}-candidates\t% sme\tsum sme\t% nob\tsum nob\t% in FST\tsum ${lang}"|tr [:lower:] [:upper:]) \
-        <(cov ${lang}) \
-        | column -ts$'\t'
+for candlang in sma smj; do
+    echo "== ${candlang} =="
+    for pos in V N A; do
+        echo "${pos}: $(need_trans_for |wc -l) nob words need translations"
+        for method in _decomp _precomp _anymalign _xfst _lexc '_*'; do
+            missing=$(got_missing_cand_for |wc -l)
+            missing_ana=$(got_missing_ana_cand_for |wc -l)
+            freq=$(got_freq_for)
+            if [[ ${missing} -gt 0 ]]; then
+                if [[ ${method} = '_*' ]]; then method="(sum)";fi
+                echo "${method}	"${missing}" candidates,	"${missing_ana}" of these had analyses,	"${freq}" had corpus hits"
+            fi
+        done|column -ts$'\t'
+        echo
+    done
 done
