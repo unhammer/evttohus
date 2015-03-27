@@ -28,10 +28,10 @@ done
 
 
 # Just print some frequency stats:
-test -d tmp || mkdir tmp
-for t in lms forms; do
-    for out in out/${dir}/*_{xfst,lexc}; do
-        join_freq ${out} freq/$t.smj > tmp/$t.belagt.$(basename ${out})
-    done
-done
-wc -l tmp/{lms,forms}.belagt.*
+# test -d tmp || mkdir tmp
+# for t in lms forms; do
+#     for out in out/${dir}/*_{xfst,lexc}; do
+#         join_freq ${out} freq/$t.smj > tmp/$t.belagt.$(basename ${out})
+#     done
+# done
+# wc -l tmp/{lms,forms}.belagt.*
