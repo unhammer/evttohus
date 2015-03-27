@@ -3,6 +3,7 @@ XPOS=V N A nonVNA
 DECOMPBASES=$(patsubst %,%_decomp,$(DPOS))
 PRECOMPBASES=$(patsubst %,%_precomp,$(DPOS))
 ALIGNBASES=$(patsubst %,%_anymalign,$(DPOS))
+CROSSBASES=$(patsubst %,%_cross,$(DPOS))
 LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 KINTELBASES=$(patsubst %,%_kintel,$(DPOS))
@@ -11,6 +12,7 @@ DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
           $(patsubst %,out/nobsma/%,$(PRECOMPBASES))
 
 ALIGNSMA=$(patsubst %,out/nobsma/%,$(ALIGNBASES))
+CROSSSMA=$(patsubst %,out/nobsma/%,$(CROSSBASES))
 
 DECOMPNOBSMJ=$(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
              $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
@@ -29,6 +31,8 @@ ALIGNSMJ=$(patsubst %,out/nobsmj/%,$(ALIGNBASES)) # TODO
 
 FREQSMA=freq/combined.nob freq/combined.sma freq/combined.sme freq/nobsma.para-kwic
 FREQSMJ=freq/combined.nob freq/combined.sma freq/combined.sme freq/smesmj.para-kwic freq/nobsmj.para-kwic
+
+APERTIUM=apertium-sme-nob.sme-nob.dix apertium-sme-smj.sme-smj.dix apertium-sme-sma.sme-sma.dix
 
 all: out/nobsmasme out/nobsmjsme freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
 	./coverage.sh >out/coverage.txt
@@ -75,8 +79,12 @@ out/nobsma/%_anymalign: para/anymalign/eval/%.results.100k out/nobsma/.d
 	awk -F'\t' '$$4=="fad"' $< | sort -nr | cut -f5-6 | grep -v '\*' > $@
 
 
+out/nobsma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv
+	./cross.sh nob sme sma $* >$@
+
+
 # "Normalised" TSV versions of dictionaries from $GTHOME/words/dicts:
-words/%/V.tsv words/%/N.tsv words/%/A.tsv: words/%/.d
+words/%/V.tsv words/%/N.tsv words/%/A.tsv: words/%/.d $(APERTIUM)
 	bash -c "source functions.sh; cd words; dir2tsv '' '$*'"
 
 words/%.sme: words/smenob/%.tsv words/nobsme/%.tsv \
@@ -167,8 +175,8 @@ freq/smesmj.lemmas.ids: freq/smesmj_sme.ana freq/smesmj_smj.ana
 	para/join-lemmas-on-ids.sh $^ >$@
 
 
-freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA)
-	@cat $(DECOMPSMA) $(ALIGNSMA) >$@.tmp
+freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA)
+	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) >$@.tmp
 	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
 freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ)
@@ -208,7 +216,6 @@ apertium-sme-smj.sme-smj.dix:
 apertium-sme-nob.sme-nob.dix:
 	svn export https://svn.code.sf.net/p/apertium/svn/trunk/apertium-sme-nob/$@
 
-
 # Creating directories:
 words/%/.d: words/.d
 	@test -d $(@D) || mkdir $(@D)
@@ -236,6 +243,6 @@ clean:
 	rm -rf out tmp words fadwords freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
 
 reallyclean: clean
-	rm -rf freq
+	rm -rf freq $(APERTIUM)
 
 .PHONY: corpus all spellms clean reallyclean

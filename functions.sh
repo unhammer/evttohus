@@ -200,6 +200,15 @@ dir2tsv () {
             tsv=$(echo "$tsv" | normalisePoS)
             cut -f1-2 <"${csv}" > "${tsv}"
         done
+    elif [[ ${dir} = smesma ]]; then
+        # Do not try with sme-nob, takes an hour
+        lt-expand ../apertium-sme-sma.sme-sma.dix > apertium-sme-sma.sme-sma.exp
+        for pos in V N A; do
+            grep -i "<${pos}>.*:.*<${pos}>" apertium-sme-sma.sme-sma.exp \
+                | grep -v '<prop>' | sed 's/<[^>]*>//g' \
+                | sed 's/:[<>]:/:/' \
+                | tr ':' '\t' >"${dir}/${pos}.tsv"
+        done
     elif [[ ${dir} != smjnob ]]; then
         for xml in $GTHOME/words/dicts/${dir}/src/*_${dir}.xml; do
             tsv=${dir}/$(basename "${xml}")
