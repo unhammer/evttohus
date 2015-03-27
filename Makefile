@@ -31,6 +31,7 @@ FREQSMA=freq/combined.nob freq/combined.sma freq/combined.sme freq/nobsma.para-k
 FREQSMJ=freq/combined.nob freq/combined.sma freq/combined.sme freq/smesmj.para-kwic freq/nobsmj.para-kwic
 
 all: out/nobsmasme out/nobsmjsme freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
+	./coverage.sh >out/coverage.txt
 
 spellms: $(patsubst %,freq/slms.%.smj,$(DPOS)) \
          $(patsubst %,freq/slms.%.sma,$(DPOS)) 
