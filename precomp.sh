@@ -52,7 +52,7 @@ cat_dict |sort -u \
           # Only print if all are the same frequency, or this is not the lowest freq:
           for(trg in d[src]) {
             f=d[src][trg]
-            if(min==max || f>min) {
+            if(min==max || f>1) {
               print src,trg
             }
           }
