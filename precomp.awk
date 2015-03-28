@@ -14,44 +14,50 @@ BEGIN {
 
   while(getline < srcf) {
     if(NF==3) {
-      src[$1][$2][$3]++
+      src1[$1][$2]++
+      src2[$1][$3]++
     }
     else if(NF==4) {
       # Treat three-parts as two alternative two-parts:
-      src[$1][$2][$3$4]++
-      src[$1][$2$3][$4]++
+      src1[$1][$2]++
+      src2[$1][$3$4]++
+      src1[$1][$2$3]++
+      src2[$1][$4]++
     }
     # Anything longer unlikely to be good.
   }
   while(getline < trgf) {
     if(NF==3) {
-      trg[$1][$2][$3]++
+      trg1[$1][$2]++
+      trg2[$1][$3]++
     }
     else if(NF==4) {
       # Treat three-parts as two alternative two-parts:
-      trg[$1][$2][$3$4]++
-      trg[$1][$2$3][$4]++
+      trg1[$1][$2]++
+      trg2[$1][$3$4]++
+      trg1[$1][$2$3]++
+      trg2[$1][$4]++
     }
     # Anything longer unlikely to be good.
   }
 }
 
 function print_pairs(s, t) {
-  for(sp1 in src[s]) {
-    for(tp1 in trg[t]) {
+  for(sp1 in src1[s]) {
+    for(tp1 in trg1[t]) {
       print sp1,tp1
-      for(sp2 in src[s][sp1]) {
-        for(tp2 in trg[t][tp1]) {
-          print sp2,tp2
-        }
-      }
+    }
+  }
+  for(sp2 in src2[s]) {
+    for(tp2 in trg2[t]) {
+      print sp2,tp2
     }
   }
 }
 
-$1 in src {
+$1 in src1 {
   for(i=2;i<=NF;i++) {
-    if($i in trg) {
+    if($i in trg1) {
       print_pairs($1,$i)
     }
   }
