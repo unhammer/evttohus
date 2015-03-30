@@ -16,6 +16,7 @@
 BEGIN {
   FS=OFS="\t"
   while(getline < dict) {
+    gsub(/[\/#]/, "", $0)         # reserved symbols
     for(i=2;i<=NF;i++) {
       trans[$1][$i]++
     }
@@ -59,33 +60,25 @@ function combine(cand, i) {
   return withthis
 }
 
-$1 in trans {
-  trgs = ""
-  for(trg in trans[$1]) {
-    trgs = trg", "trgs
-  }
-  sub(/, $/, "", trgs)
-  #printf "# %s in %s as %s\n", $1, dict, trgs
-}
-
 # TODO: could try to look up three-part compounds by their two-part
 # combinations, e.g. a word split into a,b,c might get candidates from
 # looking up ab,c or a,bc
 
 {
   del_ar(cand)
+  gsub(/[\/#]/, "", $0)            # reserved symbols
   good=1
   for(i=2; i<=NF; i++) {
     src=$i
     srcnodash=$i; sub(/-$/, "", srcnodash)
     if(src in trans) {
       for(trg in trans[src]) {
-        cand[i-1][trg]++
+        cand[i-1][src"/"trg]++
       }
     }
     else if(srcnodash in trans) {
       for(trg in trans[srcnodash]) {  # look up without dash,
-        cand[i-1][trg"-"]++           # then re-add dash to result
+        cand[i-1][src"/"trg"-"]++           # then re-add dash to result
       }
     }
     else {
@@ -96,7 +89,8 @@ $1 in trans {
     translated_s=combine(cand, 1)
     asplit(translated_s, translated, "\t")
     for(t in translated) {
-      print $1, t
+      split(t, a, /[\/#]/)
+      print $1, a[2]a[4], t
     }
   }
   else {
