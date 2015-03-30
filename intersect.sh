@@ -9,6 +9,8 @@
 ### with that nob-word will end up in work/intersection. The resulting
 ### files will have no duplicates.
 
+# TODO: should be intersection_singles vs intersection_multis
+
 set -e -u
 
 outdir=$1
