@@ -39,12 +39,11 @@ if $precomp; then
     cat words/${dir}/precomp_${pos}.tsv >>"${dict}"
 fi
 
-echo -n "${pos} compound analyses found: " >&2
 < ${words}/${pos}.${lang1} ana ${lang1} \
     | grep -v +Err/ \
     | clean_cmp_ana ${lang1} ${pos} \
     | gawk -f uniq_ana.awk \
-    | tee >(wc -l >&2) \
+    | tee tmp/${dir}/${pos}_${suff}_ana_found \
     | gawk -v dict="${dict}" -f compound_translate.awk \
     | awk -F'\t' '$2' \
     > tmp/${dir}/${pos}_${suff}
@@ -78,5 +77,6 @@ fi
        print $1, $2
      }' >out/${dir}/${pos}_${suff}
 
-echo -n "${pos} compounds translated:    " >&2
-grep -v '^#' out/${dir}/${pos}_${suff}|cut -f1|sort -u| wc -l >&2
+found=$(<tmp/${dir}/${pos}_${suff}_ana_found wc -l)
+trans=$(grep -v '^#' out/${dir}/${pos}_${suff}|cut -f1|sort -u| wc -l)
+echo "${pos} compound analyses found: ${found}, translated: ${trans}" >&2
