@@ -39,7 +39,7 @@ fi
 # put them back together in all the various ways, with #-marks between
 # the parts:
 < words/${pos}.${lang1} ana ${lang1} \
-    | grep -v +Err/ \
+    | grep -ve +Err/ -e +Der/ \
     | clean_cmp_ana ${lang1} ${pos} \
     | gawk -f uniq_ana.awk \
     | tee tmp/${dir}/${pos}_${suff}_ana_found \
@@ -127,11 +127,11 @@ ugly=out/${dir}/${pos}_${suff}low
        curf = good
      }
      {
-       print $1,$2 >curf
+       print $1,$2,g[$3"#"],g[$4] >curf
      }'
 
 found=$(<tmp/${dir}/${pos}_${suff}_ana_found wc -l)
 ngood=$(cut -f1 ${good}|sort -u| wc -l)
 nbad=$(cut  -f1 ${bad}|sort -u| wc -l)
 nugly=$(cut -f1 ${ugly}|sort -u| wc -l)
-echo "${pos} compound analyses found: ${found}, translated: ${ngood} both parts seen, ${nugly} one part seen, ${nbad} no parts seen ($suff)" >&2
+echo "${pos} compound analyses found: ${found}, ${ngood} translated with both parts seen, ${nugly} one part seen, ${nbad} no parts seen ($suff)" >&2
