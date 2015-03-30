@@ -1,3 +1,5 @@
+* TODO precomp-productivity as frequency?
+  sort tmp/nobsmj/N_precomp_goodparts |uniq -c|sort -nr|head
 * TODO try cross.sh for more triplets
 * TODO freq_annotate doesn't work for sme/when/multiple/alternatives
 * TODO include unchecked of kintel
