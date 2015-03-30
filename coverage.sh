@@ -2,6 +2,8 @@
 
 set -e -u
 
+dir=out
+
 # Number of fad-words we have vs need candidates for:
 already_in () {
     cut -f1 words/nob${candlang}/${pos}.tsv | sort -u
@@ -10,10 +12,10 @@ need_trans_for () {
     already_in | comm -23 fadwords/${pos}.nob -
 }
 got_cand_for () {
-    cut -f1 out/nob${candlang}sme/${pos}${method}* 2>/dev/null| sort -u
+    cut -f1 ${dir}/nob${candlang}sme/${pos}${method}* 2>/dev/null| sort -u
 }
 got_ana_cand_for () {
-    cut -f1 out/nob${candlang}sme/${pos}${method}_ana* 2>/dev/null| sort -u
+    cut -f1 ${dir}/nob${candlang}sme/${pos}${method}_ana* 2>/dev/null| sort -u
 }
 got_missing_cand_for () {
     comm -12 <(need_trans_for) <(got_cand_for)
@@ -22,8 +24,11 @@ got_missing_ana_cand_for () {
     comm -12 <(need_trans_for) <(got_ana_cand_for)
 }
 got_freq_for () {
-    cut -f1-2,5 out/nob${candlang}sme/${pos}${method}* 2>/dev/null | sort -u \
-        | awk -v need=<(need_trans_for) 'BEGIN{while(getline<need)d[$0]++;s=0} $1 in d && $3{s++} END{print s}'
+    cut -f1,5 ${dir}/nob${candlang}sme/${pos}${method}* 2>/dev/null | sort -u \
+        | gawk -v need=<(need_trans_for) '
+          BEGIN{while(getline<need)d[$0]++; s=0}
+          $1 in d && $2>0 {s++; delete d[$1]}
+          END{print s}'
 }
 
 for candlang in sma smj; do
