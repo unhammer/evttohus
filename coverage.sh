@@ -36,7 +36,7 @@ for candlang in sma smj; do
             freq=$(got_freq_for)
             if [[ ${missing} -gt 0 ]]; then
                 if [[ ${method} = '_*' ]]; then method="(sum)";fi
-                echo "${method}	"${missing}" candidates,	"${missing_ana}" of these had analyses,	"${freq}" had corpus hits"
+                echo "${method}	"${missing}" had candidates,	"${missing_ana}" of these had analyses,	"${freq}" had corpus hits"
             fi
         done|column -ts$'\t'
         echo
