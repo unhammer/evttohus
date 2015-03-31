@@ -4,7 +4,7 @@ DECOMPBASES=$(patsubst %,%_decomp,$(DPOS))
 PRECOMPBASES=$(patsubst %,%_precomp,$(DPOS))
 ALIGNBASES=$(patsubst %,%_anymalign,$(DPOS))
 CROSSBASES=$(patsubst %,%_cross,$(DPOS))
-CROSSBASES=$(patsubst %,%_syn,$(DPOS))
+SYNBASES=$(patsubst %,%_syn,$(DPOS))
 LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 KINTELBASES=$(patsubst %,%_kintel,$(DPOS))
@@ -27,7 +27,7 @@ XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
 KINTELSMJ=$(patsubst %,out/nobsmj/%,$(KINTELBASES))
 LOANNOBSMJ=out/nobsmj/N_loan
 ALIGNSMJ=$(patsubst %,out/nobsmj/%,$(ALIGNBASES)) # TODO
-CROSSSMJ=$(patsubst %,out/nobsmj/%,$(CROSSBASES)) # TODO
+CROSSNOBSMJ=$(patsubst %,out/nobsmj/%,$(CROSSBASES))
 SYNNOBSMJ=$(patsubst %,out/nobsmj/%,$(SYNBASES))
 SYNSMESMJ=$(patsubst %,out/smesmj/%,$(SYNBASES))
 
@@ -91,6 +91,9 @@ out/nobsma/%_anymalign: para/anymalign/eval/%.results.100k out/nobsma/.d
 
 out/nobsma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.nob
 	./cross.sh nob sme sma $* >$@
+
+out/nobsmj/%_cross: words/smesmj/%.tsv words/smjsme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.nob
+	./cross.sh nob sme smj $* >$@
 
 
 # "Normalised" TSV versions of dictionaries from $GTHOME/words/dicts:
@@ -210,8 +213,8 @@ freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA)
 	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA) >$@.tmp
 	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
-freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ) $(SYNNOBSMJ)
-	@cat $(LOANNOBSMJ) $(DECOMPNOBSMJ) $(SYNNOBSMJ) >$@.tmp
+freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ)
+	@cat $(LOANNOBSMJ) $(DECOMPNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ) >$@.tmp
 	para/kwic.sh freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
 freq/smesmj.para-kwic: freq/smesmj.sents.ids freq/smesmj.lemmas.ids $(DECOMPSMESMJ) $(XIFIEDSMJ) $(SYNSMESMJ)
