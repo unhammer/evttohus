@@ -282,9 +282,11 @@ split_singles () {
     for f in ${inc}/*; do
         b=$(basename "$f")
         if [[ ${fromlang} = nob ]]; then groupfield=1; else groupfield=3; fi
-        <"$f" gawk -F'\t' -v g=${groupfield} \
-                          -v singles=${out}/"$b"_singles \
-                          -v multis=${out}/"$b"_multis '
+        <"$f" sort -u \
+            | gawk -F'\t' \
+            -v g=${groupfield} \
+            -v singles=${out}/"$b"_singles \
+            -v multis=${out}/"$b"_multis '
       function out() { 
         if(n==1) { print lines > singles }
         else { print lines > multis }
