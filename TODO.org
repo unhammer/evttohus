@@ -17,7 +17,7 @@
   with some simple heuristics to remove the worst stuff:
    : <words/nobsmj/N.tsv.unchecked gawk 'BEGIN{OFS=FS="\t"} $2{for(i=2;i<=NF;i++)if($i~/^[( ]*[[:alpha:]]{0,3}[*) ]*$|[?-]$/)$i="";print}'
 
-* TODO follow synsets in order to expand existing translations
+* TODO follow synsets in order to expand existing translations [1/2]
   The nobsma dict has arbeidsform→barkoevuekie already.
 
   The fadwords list has "arbeidsmåte", for which we have no candidate.
@@ -32,40 +32,22 @@
 
 
   There are two main ways to use the synsets:
-  1. Before running sme2smjify and decomp/precomp, we expand the
+  1. [ ] Before running sme2smjify and decomp/precomp, we expand the
      fadwords lists with synonyms. For example, we have the synset
      {toppstilling,lederstilling} (via smjnob); fad contains
      "toppstilling" but not "lederstilling". If we only run decomp on
      the one word when doing smanob, we only get to try translating
      topp#stilling, while the sma word might be better translated by
      leder#stilling (who knows).
-  2. If fad contains both synonyms, but our dictionaries contain only
-     one, we get the other synonym for free. E.g. smjnob says that
-     {arbeidsmåte,arbeidsform} and both of these are in fad. Now if
-     we've added "arbeidsmåte" to nobsma, we can get "arbeidsform" in
-     there for free.
+  2. [X] If fad contains both synonyms, but our dictionaries contain
+     only one, we get the other synonym for free. E.g. smjnob says
+     that {arbeidsmåte,arbeidsform} and both of these are in fad. Now
+     if we've added "arbeidsmåte" to nobsma, we can get "arbeidsform"
+     in there for free. Implemented in =expand-synonyms.sh=, though
+     with room for improvement.
 
      
 ** TODO apertium-sme-nob seems to have some synonyms not in words/dicts  
-** TODO find synonyms (expand <tg>) by comparing dicts
-   Say one candidate is
-   | sma          | nob         |
-   |--------------+-------------|
-   | barkoevuekie | arbeidsform |
-   but the smenob dictionary also contains
-   | sme   | nob    |
-   |-------+--------|
-   | málle | form   |
-   | málle | modell |
-   | málle | måte   |
-   then we can go from (vuekie,form) and look up nob in smenob, giving
-   (málle,form), and look up the sme side to find (málle,{form,modell,måte}),
-   which finally gives us (vuekie,{form,modell,måte}), and we end up with
-   | sma          | nob           |
-   |--------------+---------------|
-   | barkoevuekie | arbeidsform   |
-   | barkoevuekie | arbeidsmodell |
-   | barkoevuekie | arbeidsmåte   |
 * TODO possible to generate loans directly from nob for sma as well?
 * TODO kwic-annotate out-files?
   sentences with hits in freq/*para-kwic now, but 1) not actually

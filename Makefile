@@ -4,6 +4,7 @@ DECOMPBASES=$(patsubst %,%_decomp,$(DPOS))
 PRECOMPBASES=$(patsubst %,%_precomp,$(DPOS))
 ALIGNBASES=$(patsubst %,%_anymalign,$(DPOS))
 CROSSBASES=$(patsubst %,%_cross,$(DPOS))
+CROSSBASES=$(patsubst %,%_syn,$(DPOS))
 LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 KINTELBASES=$(patsubst %,%_kintel,$(DPOS))
@@ -13,21 +14,23 @@ DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
 
 ALIGNSMA=$(patsubst %,out/nobsma/%,$(ALIGNBASES))
 CROSSSMA=$(patsubst %,out/nobsma/%,$(CROSSBASES))
+SYNSMA=$(patsubst %,out/nobsma/%,$(SYNBASES))
 
 DECOMPNOBSMJ=$(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
              $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
 DECOMPSMESMJ=$(patsubst %,out/smesmj/%,$(DECOMPBASES)) \
              $(patsubst %,out/smesmj/%,$(PRECOMPBASES))
-DECOMPSMJ=$(DECOMPNOBSMJ) $(DECOMPSMESMJ)
 
 XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
 
 KINTELSMJ=$(patsubst %,out/nobsmj/%,$(KINTELBASES))
-
 LOANNOBSMJ=out/nobsmj/N_loan
-
 ALIGNSMJ=$(patsubst %,out/nobsmj/%,$(ALIGNBASES)) # TODO
+CROSSSMJ=$(patsubst %,out/nobsmj/%,$(CROSSBASES)) # TODO
+SYNNOBSMJ=$(patsubst %,out/nobsmj/%,$(SYNBASES))
+SYNSMESMJ=$(patsubst %,out/smesmj/%,$(SYNBASES))
+
 
 FREQSMA=freq/combined.nob freq/combined.sma freq/combined.sme freq/nobsma.para-kwic
 FREQSMJ=freq/combined.nob freq/combined.sma freq/combined.sme freq/smesmj.para-kwic freq/nobsmj.para-kwic
@@ -61,6 +64,13 @@ out/%/N_precomp: fadwords/N.sme fadwords/N.nob words/N.sme words/N.nob out/%/.d 
 	./decompound.sh $* N precomp
 out/%/A_precomp: fadwords/A.sme fadwords/A.nob words/A.sme words/A.nob out/%/.d tmp/%/.d words/%/precomp_A.tsv
 	./decompound.sh $* A precomp
+
+out/%/V_syn: fadwords/V.nob words/%/V.tsv words/%/V.rev
+	./expand-synonyms.sh $* V >$@
+out/%/A_syn: fadwords/A.nob words/%/A.tsv words/%/A.rev
+	./expand-synonyms.sh $* A >$@
+out/%/N_syn: fadwords/N.nob words/%/N.tsv words/%/N.rev
+	./expand-synonyms.sh $* N >$@
 
 out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d freq/lms.smj freq/forms.smj
 	./sme2smjify.sh
@@ -196,16 +206,16 @@ freq/smesmj.lemmas.ids: freq/smesmj_sme.ana freq/smesmj_smj.ana
 	para/join-lemmas-on-ids.sh $^ >$@
 
 
-freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA)
-	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) >$@.tmp
+freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA)
+	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA) >$@.tmp
 	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
-freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ)
-	@cat $(LOANNOBSMJ) $(DECOMPNOBSMJ) >$@.tmp
+freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ) $(SYNNOBSMJ)
+	@cat $(LOANNOBSMJ) $(DECOMPNOBSMJ) $(SYNNOBSMJ) >$@.tmp
 	para/kwic.sh freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
-freq/smesmj.para-kwic: freq/smesmj.sents.ids freq/smesmj.lemmas.ids $(DECOMPSMESMJ) $(XIFIEDSMJ)
-	@cat $(DECOMPSMESMJ) $(XIFIEDSMJ) >$@.tmp
+freq/smesmj.para-kwic: freq/smesmj.sents.ids freq/smesmj.lemmas.ids $(DECOMPSMESMJ) $(XIFIEDSMJ) $(SYNSMESMJ)
+	@cat $(DECOMPSMESMJ) $(XIFIEDSMJ) $(SYNSMESMJ) >$@.tmp
 	para/kwic.sh freq/smesmj.sents.ids freq/smesmj.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
 

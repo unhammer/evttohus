@@ -26,7 +26,7 @@ else
     cat "${maindict}" > "${dict}"
 fi
 
-revdict=words/${lang1}${lang2}/${pos}.rev
+revdict=words/${dir}/${pos}.rev
 if [[ -f ${revdict} ]]; then
     cat "${revdict}" >>"${dict}"
 fi
