@@ -17,8 +17,9 @@ outdir=$1
 shift
 
 rev_blocks () {
+    f=$1
     b=$(basename "$f")
-    if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
+    if [[ $b = *_sme ]]; then groupfield=3; else groupfield=1; fi
     revfield=$(( 8 - ${groupfield} ))
     <"$f" rev | LC_ALL=C sort -k${revfield},${revfield} -k6,6 -t$'\t' | rev \
             | gawk -F'\t' -v g=${groupfield} '
@@ -42,8 +43,16 @@ function basename (f) {
   seen[$1][$2][FILENAME]=$0
 }
 END {
-  for(nob in dup) for(smj in dup[nob]){
-    print dup[nob][smj] > out"/intersection"
+  for(nob in dup) {
+    if(length(dup[nob])==1) {
+      curf=out"/intersection_singles"
+    }
+    else {
+      curf=out"/intersection_multis"
+    }
+    for(smj in dup[nob]){
+      print dup[nob][smj] > curf
+    }
   }
   for(nob in seen) if(!(nob in dup)) for(smj in seen[nob]) for(f in seen[nob][smj]) {
     print seen[nob][smj][f] > out"/"basename(f)
@@ -51,7 +60,10 @@ END {
 }
 ' "$@"
 
+
+
 for f in ${tmp}/*; do
     b=$(basename "$f")
-    <"$f" rev_blocks >"${outdir}/$b"
+    rev_blocks "$f" >"${outdir}/$b"
 done
+

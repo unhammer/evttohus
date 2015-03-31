@@ -1,5 +1,16 @@
 * TODO precomp-productivity as frequency?
   sort tmp/nobsmj/N_precomp_goodparts |uniq -c|sort -nr|head
+
+  -----
+
+  In fact we could do EM on it, where Σ_smj p(smj|nob)=1 for smj-parts
+  that are possible translations of the nob-part; and
+  p(nob1 nob2 → smj1 smj2) = p(smj1|nob1)*p(smj2|nob2);
+  unknown pairs would get some very low p.
+
+  This would at least give us a confidence score for candidates not
+  seen in corpus.
+  
 * TODO try cross.sh for more triplets
 * TODO freq_annotate doesn't work for sme/when/multiple/alternatives
 * TODO include unchecked of kintel
