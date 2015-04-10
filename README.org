@@ -92,3 +92,10 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
 
 * TODO stuff
 See [[file:TODO.org][TODO.org]].
+* Quality impressions
+  In general:
+  - candidates from _decomp are better than _precomp
+  - candidates from _sme are better than _nob
+  - candidates from _multis are better than _singles
+  - candidates from _ana are better than _noana
+    

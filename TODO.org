@@ -1,3 +1,9 @@
+* TODO use nouns from apertium for making decomp sme→sma
+  since with decomp, sme→smj was so much better than nob→smj, we
+  should really try decomp sme→smj.
+
+  words/dicts/{smasme,smesma} don't have the nouns, use the ones from
+  apertium instead
 * TODO precomp-productivity as frequency?
   sort tmp/nobsmj/N_precomp_goodparts |uniq -c|sort -nr|head
 
