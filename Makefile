@@ -280,3 +280,8 @@ reallyclean: clean
 	rm -rf freq $(APERTIUM)
 
 .PHONY: corpus all spellms clean reallyclean
+
+# Debugging:
+print-%: 
+	@echo $*=$($*)
+# Usage: make print-DECOMPBASES etc. for any variable
