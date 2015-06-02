@@ -4,21 +4,37 @@ set -e -u
 cd "$(dirname "$0")"
 source functions.sh
 
-dir=$1
-fromlang=${dir%???}
-candlang=${dir#???}
-if [[ ${fromlang} = nob ]]; then
-    fromfield=1
-elif [[ ${fromlang} = sme ]]; then
-    fromfield=3
-else
+declare -r dir=$1
+declare -r fromlang=${dir%???}
+declare -r candlang=${dir#???}
+if [[ ${fromlang} != nob && ${fromlang} != sme ]]; then
     echo "Unknown fromlang ${fromlang}" >&2
     exit 1
 fi
-finaldir=nob${candlang}sme
-para_hits=tmp/${dir}_para-hits
 
+# For apertium-sme-sma, sme is now the output "source":
+declare -ar outfields=(sme ${candlang} nob)
 
+declare -r finaldir=$(printf "%s" "${outfields[@]}")
+declare -r para_hits=tmp/${dir}_para-hits
+
+# TODO: this should happen in makefile:
+test -d out/"${finaldir}" || mkdir out/"${finaldir}"
+
+lang_of_field () {
+    local i=$(( $1 - 1))
+    echo "${outfields[$i]}"
+}
+field_of_lang () {
+    # stupid mac old bash with no assoc arrays
+    for f in "${!outfields[@]}"; do 
+        if [[ ${outfields[$f]} == "$1" ]]; then 
+            echo $(($f+1))
+            return 0
+        fi
+    done
+    return 1
+}
 pos_glob () {
     case $1 in
         V*) echo "V*";;
@@ -155,16 +171,17 @@ add_freq () {
     out=$2
     echo "$dir: Annotate with frequency and parallel sentence hits ..."
     # Normalise frequency sums (to the smallest corpora, ie. smj/sma):
-    sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
-    sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
-    sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
+    local sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
+    local sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
+    local sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
+    local fromfield=$(field_of_lang "${fromlang}")
     for f in ${inc}/*; do
         b=$(basename "$f")
         pos=$(pos_name "$b")
         echo -n "$b "
-        <"$f" freq_annotate 1 freq/combined.nob         ${sumnob}  ${sumcand} \
-            | freq_annotate 2 freq/combined.${candlang} ${sumcand} ${sumcand} \
-            | freq_annotate 3 freq/combined.sme         ${sumsme}  ${sumcand} \
+        <"$f" freq_annotate $(field_of_lang nob) freq/combined.nob         ${sumnob}  ${sumcand} \
+            | freq_annotate 2                    freq/combined.${candlang} ${sumcand} ${sumcand} \
+            | freq_annotate $(field_of_lang sme) freq/combined.sme         ${sumsme}  ${sumcand} \
             | sort -u \
             | gawk -v from=${fromfield} -v hitsf=${para_hits} '
             # Let field 7 be count of hits in parallel sentences:
@@ -241,7 +258,7 @@ split_fst () {
         pos=$(pos_name "$b")
         goodfile=${out}/"$b"_ana
         badfile=${out}/"$b"_noana
-        if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
+        groupfield=$(field_of_lang "${fromlang}")
         <"$f" gawk \
             -v g=${groupfield} \
             -v pos=${pos} -v posf=${posfile} \
@@ -281,8 +298,7 @@ split_singles () {
     echo "$dir: Split into single-candidates vs multiple ..."
     for f in ${inc}/*; do
         b=$(basename "$f")
-        # For apertium-sme-sma, fromlang=sme instead of nob when grouping!
-        if [[ ${fromlang} = sme ]]; then groupfield=1; else groupfield=3; fi
+        groupfield=$(field_of_lang "${fromlang}")
         <"$f" sort -u \
             | gawk -F'\t' \
             -v g=${groupfield} \
@@ -311,8 +327,7 @@ rev_blocks () {
     echo "$dir: Reverse-sort and insert empty lines ..."
     for f in ${inc}/*; do
         b=$(basename "$f")
-        # For apertium-sme-sma, fromlang=sme instead of nob when grouping!
-        if [[ ${fromlang} = sme ]]; then groupfield=1; else groupfield=3; fi
+        groupfield=$(field_of_lang "${fromlang}")
         revfield=$(( 8 - ${groupfield} ))
         <"$f" rev | sort -k${revfield},${revfield} -k6,6 -t$'\t' | rev \
             | gawk -F'\t' -v g=${groupfield} '
