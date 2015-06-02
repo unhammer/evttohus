@@ -34,8 +34,8 @@ BEGIN {
   }
 }
 
-!($1 in trans) {
-  trans[$1]["?????"]++
+!($srccol in trans) {
+  trans[$srccol]["?????"]++
 }
 
 # No /-joining the sme for apertium-sme-sma; all sme words here come
