@@ -16,7 +16,8 @@ fi
 declare -ar outfields=(sme ${candlang} nob)
 
 declare -r finaldir=$(printf "%s" "${outfields[@]}")
-declare -r para_hits=tmp/${dir}_para-hits
+declare -r para_hits_sme=tmp/${dir}_para-hits_sme
+declare -r para_hits_nob=tmp/${dir}_para-hits_nob
 
 # TODO: this should happen in makefile:
 test -d out/"${finaldir}" || mkdir out/"${finaldir}"
@@ -98,7 +99,8 @@ skip_existing () {
             >${out}/"$b"
     done
     echo "$dir: Get para hits of all candidates ..."
-    para/count-para-hits.sh <(sort -u ${out}/*) freq/${dir}.lemmas.ids > ${para_hits}
+    para/count-para-hits.sh <(sort -u ${out}/*) freq/nob${candlang}.lemmas.ids $(field_of_lang nob) > ${para_hits_nob}
+    para/count-para-hits.sh <(sort -u ${out}/*) freq/sme${candlang}.lemmas.ids $(field_of_lang sme) > ${para_hits_sme}
 }
 
 spell_norm () {
@@ -187,12 +189,18 @@ add_freq () {
             | freq_annotate 2 freq/combined.${lang2} ${sum2} ${norm} \
             | freq_annotate 3 freq/combined.${lang3} ${sum3} ${norm} \
             | sort -u \
-            | gawk -v from=${fromfield} -v hitsf=${para_hits} '
+            | gawk -v nob=$(field_of_lang nob) -v sme=$(field_of_lang sme) \
+            -v hitsfsme=${para_hits_sme} -v hitsfnob=${para_hits_nob} '
             # Let field 7 be count of hits in parallel sentences:
-            BEGIN{ OFS=FS="\t"; while(getline<hitsf) hits[$2][$3]=$1 }
+            BEGIN{ 
+              OFS=FS="\t"
+              while(getline<hitsfsme) hitssme[$2][$3]=$1 
+              while(getline<hitsfnob) hitsnob[$2][$3]=$1 
+            }
             {
-              hits[$from][$2] += 0       # default 0 if empty
-              print $0, hits[$from][$2]
+              hits[$sme][$2] += 0       # default 0 if empty
+              hits[$nob][$2] += 0       # default 0 if empty
+              print $-1, hitssme[$sme][$2]+hitsnob[$nob][$2]
             } 
         ' \
             | awk '

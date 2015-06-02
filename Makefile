@@ -32,12 +32,12 @@ SYNNOBSMJ=$(patsubst %,out/nobsmj/%,$(SYNBASES))
 SYNSMESMJ=$(patsubst %,out/smesmj/%,$(SYNBASES))
 
 
-FREQSMA=freq/combined.nob freq/combined.sma freq/combined.sme freq/nobsma.para-kwic
+FREQSMA=freq/combined.nob freq/combined.sma freq/combined.sme freq/smesma.para-kwic freq/nobsma.para-kwic
 FREQSMJ=freq/combined.nob freq/combined.sma freq/combined.sme freq/smesmj.para-kwic freq/nobsmj.para-kwic
 
 APERTIUM=apertium-sme-nob.sme-nob.dix apertium-sme-smj.sme-smj.dix apertium-sme-sma.sme-sma.dix
 
-all: out/nobsmasme out/nobsmjsme freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
+all: out/nobsmasme out/nobsmjsme freq/smesma.para-kwic freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
 	./coverage.sh >out/coverage.txt
 
 spellms: $(patsubst %,freq/slms.%.smj,$(DPOS)) \
@@ -209,6 +209,10 @@ freq/smesmj.lemmas.ids: freq/smesmj_sme.ana freq/smesmj_smj.ana
 	para/join-lemmas-on-ids.sh $^ >$@
 
 
+freq/smesma.para-kwic: freq/smesma.sents.ids freq/smesma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA)
+	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA) >$@.tmp
+	para/kwic.sh freq/smesma.sents.ids freq/smesma.lemmas.ids $@.tmp >$@
+	@rm -f $@.tmp
 freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA)
 	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA) >$@.tmp
 	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
@@ -274,7 +278,7 @@ tmp/%/.d: tmp/.d
 
 # Cleaning:
 clean:
-	rm -rf out tmp words fadwords freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
+	rm -rf out tmp words fadwords freq/smesma.para-kwic freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
 
 reallyclean: clean
 	rm -rf freq $(APERTIUM)
