@@ -86,7 +86,7 @@ BEGIN{
 }
 function ceil(xs) {
   x = sprintf("%d", xs)
-  return (x == int(x)) ? x : int(x)+1
+  return (xs == int(x)) ? x : int(x)+1
 }
 {
   print $0,ceil(freq[$column]*norm/sum)
