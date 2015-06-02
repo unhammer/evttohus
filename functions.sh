@@ -187,6 +187,19 @@ normalisePoS () {
           s/_[a-z]{6,6}[.]/./;'
 }
 
+apertiumpos () {
+    case "$1" in
+        V) echo vblex;;
+        N) echo n;;
+        A) echo a;; # might become adj later!
+        Adv) echo adv;;
+        Pron) echo prn;;
+        Po) echo po;;
+        Pr) echo pr;;
+        *) echo '[^<]*';;
+    esac
+}
+
 dir2tsv () {
     # Will output into "$dir" under cwd
     restriction=$1
@@ -205,12 +218,14 @@ dir2tsv () {
         done
     elif [[ ${dir} = smesma ]]; then
         # Do not try with sme-nob, takes an hour
-        lt-expand ../apertium-sme-sma.sme-sma.dix > apertium-sme-sma.sme-sma.exp
-        for pos in V N A; do
-            grep -i "<${pos}>.*:.*<${pos}>" apertium-sme-sma.sme-sma.exp \
+        adir=sme-sma
+        lt-expand ../apertium-${adir}.${adir}.dix > apertium-${adir}.${adir}.exp
+        for pos in V N A Adv Pron Po Pr; do
+            apos=$(apertiumpos ${pos})
+            grep -i "<${apos}>.*:.*<${apos}>" apertium-${adir}.${adir}.exp \
                 | grep -v '<prop>' | sed 's/<[^>]*>//g' \
                 | sed 's/:[<>]:/:/' \
-                | tr ':' '\t' >"${dir}/${pos}.tsv"
+                | tr ':' '\t' >"${dir}/${pos}_apertium.tsv"
         done
     elif [[ ${dir} != smjnob ]]; then
         for xml in $GTHOME/words/dicts/${dir}/src/*_${dir}.xml; do
