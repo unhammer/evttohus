@@ -53,8 +53,8 @@ add_thirdlang () {
         pos=$(pos_glob "$b")
         <"$f" gawk \
             -v fromlang=${fromlang} \
-            -v smenob=<(cat fadwords/smenob/${pos}.tsv 2>/dev/null) \
-            -v nobsme=<(cat fadwords/nobsme/${pos}.tsv 2>/dev/null) \
+            -v smenob=<(cat words/smenob/${pos}.tsv 2>/dev/null) \
+            -v nobsme=<(cat words/nobsme/${pos}.tsv 2>/dev/null) \
             -f trans_annotate.awk \
             >${out}/"$b"
     done
@@ -63,15 +63,15 @@ add_thirdlang () {
 skip_existing () {
     inc=$1
     out=$2
-    echo "$dir: Skip ${candlang} translations where nob/${candlang} was already in \$GTHOME/words/dicts (or marked bad) ..."
+    echo "$dir: Skip ${candlang} translations where nob/${candlang} was already in apertium (or marked bad) ..."
     for f in ${inc}/*; do           # skipping spell/out/${dir}/* for now
         test -f "$f" || continue
         b=$(basename "$f")
         pos_glob=$(pos_glob "$b")
         pos_name=$(pos_name "$b")
         <"$f" gawk \
-            -v dict=<(cat words/nob${candlang}/${pos_glob}.tsv) \
-            -v badf=<(cat words/nob${candlang}/bad_${pos_name}.tsv) '
+            -v dict=<(cat words/sme${candlang}/${pos_glob}_apertium.tsv) \
+            -v badf=<(cat words/sme${candlang}/bad_${pos_name}.tsv) '
         BEGIN{
           OFS=FS="\t"
           while(getline<dict){ src[$0]++; for(i=2;i<=NF;i++) trg[$i]++ }
@@ -281,7 +281,8 @@ split_singles () {
     echo "$dir: Split into single-candidates vs multiple ..."
     for f in ${inc}/*; do
         b=$(basename "$f")
-        if [[ ${fromlang} = nob ]]; then groupfield=1; else groupfield=3; fi
+        # For apertium-sme-sma, fromlang=sme instead of nob when grouping!
+        if [[ ${fromlang} = sme ]]; then groupfield=1; else groupfield=3; fi
         <"$f" sort -u \
             | gawk -F'\t' \
             -v g=${groupfield} \
@@ -310,7 +311,8 @@ rev_blocks () {
     echo "$dir: Reverse-sort and insert empty lines ..."
     for f in ${inc}/*; do
         b=$(basename "$f")
-        if [[ ${fromlang} = nob ]]; then groupfield=1; else groupfield=3; fi
+        # For apertium-sme-sma, fromlang=sme instead of nob when grouping!
+        if [[ ${fromlang} = sme ]]; then groupfield=1; else groupfield=3; fi
         revfield=$(( 8 - ${groupfield} ))
         <"$f" rev | sort -k${revfield},${revfield} -k6,6 -t$'\t' | rev \
             | gawk -F'\t' -v g=${groupfield} '

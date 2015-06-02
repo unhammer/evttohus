@@ -113,8 +113,9 @@ ugly=out/${dir}/${pos}_${suff}low
        OFS="\t"
        while(getline<fadf) fad[$0]++
        while(getline<goodparts) g[$0]++
+       fad_only=false # false for apertium
      }
-     !($1 in fad) {
+     fad_only && !($1 in fad) {
        next
      }
      {
