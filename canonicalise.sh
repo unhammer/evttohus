@@ -171,17 +171,21 @@ add_freq () {
     out=$2
     echo "$dir: Annotate with frequency and parallel sentence hits ..."
     # Normalise frequency sums (to the smallest corpora, ie. smj/sma):
-    local sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
-    local sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
-    local sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
+    local lang1=$(lang_of_field 1)
+    local lang2=$(lang_of_field 2)
+    local lang3=$(lang_of_field 3)
+    local sum1=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.${lang1})
+    local sum2=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.${lang2})
+    local sum3=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.${lang3})
+    local norm=${sum2}
     local fromfield=$(field_of_lang "${fromlang}")
     for f in ${inc}/*; do
         b=$(basename "$f")
         pos=$(pos_name "$b")
         echo -n "$b "
-        <"$f" freq_annotate $(field_of_lang nob) freq/combined.nob         ${sumnob}  ${sumcand} \
-            | freq_annotate 2                    freq/combined.${candlang} ${sumcand} ${sumcand} \
-            | freq_annotate $(field_of_lang sme) freq/combined.sme         ${sumsme}  ${sumcand} \
+        <"$f" freq_annotate 1 freq/combined.${lang1} ${sum1} ${norm} \
+            | freq_annotate 2 freq/combined.${lang2} ${sum2} ${norm} \
+            | freq_annotate 3 freq/combined.${lang3} ${sum3} ${norm} \
             | sort -u \
             | gawk -v from=${fromfield} -v hitsf=${para_hits} '
             # Let field 7 be count of hits in parallel sentences:
@@ -321,6 +325,16 @@ split_singles () {
     done
 }
 
+skip_untranslated () {
+    inc=$1
+    out=$2
+    echo "$dir: Skip those where output *source* field had no translation ..."
+    for f in ${inc}/*; do
+        b=$(basename "$f")
+        <"$f" gawk -F'\t' '$1 !~ /^\?+/' >${out}/"$b"
+    done
+}
+
 rev_blocks () {
     inc=$1
     out=$2
@@ -344,7 +358,7 @@ rev_blocks () {
 # This is where it happens:
 
 inc=out/${dir}
-for fn in add_thirdlang skip_existing spell_norm add_freq split_kintel split_fst split_singles rev_blocks; do
+for fn in add_thirdlang skip_existing spell_norm add_freq split_kintel split_fst split_singles skip_untranslated rev_blocks; do
     out=tmp/${dir}_${fn}
     rm -rf ${out}; mkdir ${out}
     ${fn} ${inc} ${out}
