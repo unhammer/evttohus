@@ -200,7 +200,7 @@ add_freq () {
             {
               hits[$sme][$2] += 0       # default 0 if empty
               hits[$nob][$2] += 0       # default 0 if empty
-              print $-1, hitssme[$sme][$2]+hitsnob[$nob][$2]
+              print $0, hitssme[$sme][$2]+hitsnob[$nob][$2]
             } 
         ' \
             | awk '
