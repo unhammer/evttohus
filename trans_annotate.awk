@@ -49,7 +49,7 @@ fromlang=="nob" {               # nob is src
   }
 }
 fromlang=="sme" {               # nob is trg
-  for(trg in trans[srccol]) {
+  for(trg in trans[$srccol]) {
     out[$srccol][$2][trg]++
   }
 }
