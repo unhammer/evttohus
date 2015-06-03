@@ -18,7 +18,7 @@ cat_dict () {
     cat words/${l2}${l1}/${pos}.tsv | revtsv | cat - words/${l1}${l2}/${pos}.tsv
 }
 
-<fadwords/${pos}.${srclang} gawk \
+<words/${pos}.${srclang} gawk \
     -v src_mid_f=<(cat_dict ${srclang} ${midlang} ${pos}) \
     -v mid_trg_f=<(cat_dict ${midlang} ${trglang} ${pos}) '
 BEGIN{
