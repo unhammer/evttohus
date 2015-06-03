@@ -8,14 +8,10 @@
 BEGIN {
   OFS=FS="\t"
   if(fromlang=="sme") {
-    srccol=3
-    trgcol=1
     srctrg=smenob
     trgsrc=nobsme
   }
   else if(fromlang=="nob") {
-    srccol=1
-    trgcol=3
     srctrg=nobsme
     trgsrc=smenob
   }
@@ -34,35 +30,31 @@ BEGIN {
   }
 }
 
-!($srccol in trans) {
-  trans[$srccol]["?????"]++
+!($1 in trans) {
+  trans[$1]["?????"]++
 }
 
-# No /-joining the sme for apertium-sme-sma; all sme words here come
-# via nob, but we want to be looking at the sme as the "source" in the
-# final output, ie. we don't want them /-grouped.
-
-# Instead, /-group the nob column:
 fromlang=="nob" {               # nob is src
-  for(trg in trans[$srccol]) {
-    out[trg][$2][$srccol]++
+  for(trg in trans[$1]) {
+    out[trg][$2][$1]++
   }
 }
 fromlang=="sme" {               # nob is trg
-  for(trg in trans[$srccol]) {
-    out[$srccol][$2][trg]++
+  for(trg in trans[$1]) {
+    out[$1][$2][trg]++
   }
 }
 
 END {
-    for(sme in out){
-        for(cand in out[sme]){
-            nobjoined=""
-            for(nob in out[sme][cand]) {
-                nobjoined=nob"/"nobjoined
-            }
-            sub(/\/$/, "", nobjoined)
-            print sme,cand,nobjoined
-        }
+  # for apertium-sme-sma, sme is column 1
+  for(sme in out){
+    for(cand in out[sme]){
+      nobjoined=""
+      for(nob in out[sme][cand]) {
+        nobjoined=nob"/"nobjoined
+      }
+      sub(/\/$/, "", nobjoined)
+      print sme,cand,nobjoined
     }
+  }
 } 
