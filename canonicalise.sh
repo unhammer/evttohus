@@ -84,11 +84,12 @@ skip_existing () {
         pos_glob=$(pos_glob "$b")
         pos_name=$(pos_name "$b")
         <"$f" gawk \
-            -v dict=<(cat words/sme${candlang}/${pos_glob}_apertium.tsv) \
+            -v dict=<(cat words/sme${candlang}/${pos_name}_apertium.tsv) \
             -v badf=<(cat words/sme${candlang}/bad_${pos_name}.tsv) '
         BEGIN{
           OFS=FS="\t"
-          while(getline<dict){ src[$0]++; for(i=2;i<=NF;i++) trg[$i]++ }
+                             # src[$0] to only skip if *pair* was there already
+          while(getline<dict){ src[$1]++; for(i=2;i<=NF;i++) trg[$i]++ }
           while(getline<badf){ bad[$1][$2]++ }
         }
         $1 in src || $2 in trg || ($1 in bad && $2 in bad[$1]) {next}
