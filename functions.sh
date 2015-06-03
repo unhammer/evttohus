@@ -89,7 +89,13 @@ function ceil(xs) {
   return (xs == int(x)) ? x : int(x)+1
 }
 {
-  print $0,ceil(freq[$column]*norm/sum)
+  f=0
+  n=split($column, words, "/")
+  for(i=1;i<=n;i++) {
+    f += freq[words[i]]
+  }
+  fn=f/n
+  print $0,ceil(fn*norm/sum)
 }'
 }
 
