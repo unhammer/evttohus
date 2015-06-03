@@ -15,7 +15,8 @@ DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
 ALIGNSMA=$(patsubst %,out/nobsma/%,$(ALIGNBASES))
 CROSSNOBSMA=$(patsubst %,out/nobsma/%,$(CROSSBASES))
 CROSSSMESMA=$(patsubst %,out/smesma/%,$(CROSSBASES))
-SYNSMA=$(patsubst %,out/nobsma/%,$(SYNBASES))
+SYNNOBSMA=$(patsubst %,out/nobsma/%,$(SYNBASES))
+SYNSMESMA=$(patsubst %,out/smesma/%,$(SYNBASES))
 
 DECOMPNOBSMJ=$(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
              $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
@@ -214,12 +215,12 @@ freq/smesmj.lemmas.ids: freq/smesmj_sme.ana freq/smesmj_smj.ana
 	para/join-lemmas-on-ids.sh $^ >$@
 
 
-freq/smesma.para-kwic: freq/smesma.sents.ids freq/smesma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMESMA) $(SYNSMA)
-	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMESMA) $(SYNSMA) >$@.tmp
+freq/smesma.para-kwic: freq/smesma.sents.ids freq/smesma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMESMA) $(SYNSMESMA)
+	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMESMA) $(SYNSMESMA) >$@.tmp
 	para/kwic.sh freq/smesma.sents.ids freq/smesma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
-freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSNOBSMA) $(SYNSMA)
-	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSNOBSMA) $(SYNSMA) >$@.tmp
+freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSNOBSMA) $(SYNNOBSMA)
+	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSNOBSMA) $(SYNNOBSMA) >$@.tmp
 	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
 freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ)
