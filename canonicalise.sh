@@ -19,9 +19,6 @@ declare -r finaldir=$(printf "%s" "${outfields[@]}")
 declare -r para_hits_sme=tmp/${dir}_para-hits_sme
 declare -r para_hits_nob=tmp/${dir}_para-hits_nob
 
-# TODO: this should happen in makefile:
-test -d out/"${finaldir}" || mkdir out/"${finaldir}"
-
 lang_of_field () {
     local i=$(( $1 - 1))
     echo "${outfields[$i]}"

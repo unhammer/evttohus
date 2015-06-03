@@ -13,7 +13,8 @@ DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
           $(patsubst %,out/nobsma/%,$(PRECOMPBASES))
 
 ALIGNSMA=$(patsubst %,out/nobsma/%,$(ALIGNBASES))
-CROSSSMA=$(patsubst %,out/nobsma/%,$(CROSSBASES))
+CROSSNOBSMA=$(patsubst %,out/nobsma/%,$(CROSSBASES))
+CROSSSMESMA=$(patsubst %,out/smesma/%,$(CROSSBASES))
 SYNSMA=$(patsubst %,out/nobsma/%,$(SYNBASES))
 
 DECOMPNOBSMJ=$(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
@@ -43,7 +44,8 @@ all: out/nobsmasme out/nobsmjsme freq/smesma.para-kwic freq/nobsma.para-kwic fre
 spellms: $(patsubst %,freq/slms.%.smj,$(DPOS)) \
          $(patsubst %,freq/slms.%.sma,$(DPOS)) 
 
-out/nobsmasme: $(FREQSMA) out/nobsmasme/.d tmp/nobsmasme/.d tmp/nobsma/.d               words/all.sma
+out/smesmanob: $(FREQSMA) out/smesmanob/.d tmp/smesmanob/.d tmp/smesma/.d tmp/nobsma/.d words/all.sma
+	./canonicalise.sh smesma
 	./canonicalise.sh nobsma
 out/nobsmjsme: $(FREQSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/nobsmj/.d words/all.smj
 	./canonicalise.sh smesmj
@@ -89,10 +91,13 @@ out/nobsma/%_anymalign: para/anymalign/eval/%.results.100k out/nobsma/.d
 	awk -F'\t' '$$4=="fad"' $< | sort -nr | cut -f5-6 | grep -v '\*' > $@
 
 
-out/nobsma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.nob
+out/nobsma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv words/%.nob out/nobsma/.d
 	./cross.sh nob sme sma $* >$@
 
-out/nobsmj/%_cross: words/smesmj/%.tsv words/smjsme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.nob
+out/smesma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv words/%.sme out/smesma/.d
+	./cross.sh sme nob sma $* >$@
+
+out/nobsmj/%_cross: words/smesmj/%.tsv words/smjsme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv words/%.nob out/nobsmj/.d
 	./cross.sh nob sme smj $* >$@
 
 
@@ -209,12 +214,12 @@ freq/smesmj.lemmas.ids: freq/smesmj_sme.ana freq/smesmj_smj.ana
 	para/join-lemmas-on-ids.sh $^ >$@
 
 
-freq/smesma.para-kwic: freq/smesma.sents.ids freq/smesma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA)
-	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA) >$@.tmp
+freq/smesma.para-kwic: freq/smesma.sents.ids freq/smesma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMESMA) $(SYNSMA)
+	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMESMA) $(SYNSMA) >$@.tmp
 	para/kwic.sh freq/smesma.sents.ids freq/smesma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
-freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA)
-	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA) >$@.tmp
+freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSNOBSMA) $(SYNSMA)
+	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSNOBSMA) $(SYNSMA) >$@.tmp
 	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
 	@rm -f $@.tmp
 freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ)
@@ -270,7 +275,7 @@ tmp/%/.d: tmp/.d
 %/.d:
 	@test -d $(@D) || mkdir $(@D)
 	@touch $@
-.PRECIOUS: freq/.d words/.d out/.d tmp/.d words/.d fadwords/.d out/nobsmasme/.d out/nobsmjsme/.d tmp/nobsmasme/.d tmp/nobsmjsme/.d
+.PRECIOUS: freq/.d words/.d out/.d tmp/.d words/.d fadwords/.d out/smesmanob/.d out/nobsmjsme/.d tmp/smesmanob/.d tmp/nobsmjsme/.d
 
 # Actually, don't delete any intermediates:
 .SECONDARY:
