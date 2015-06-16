@@ -5,9 +5,9 @@ set -e -u
 source functions.sh
 
 # divvun.no runs an old version of bash, so we use a plain array where keys have to match up:
-sme=(      ála  )
-sma=(     aale  )
-pos=(        A  )
+sme=(   al  ála  iija ihkka iila ealle šuvdna iovdna ovdna  ána ihkar uvra evra    alaš alaš eanta tehta uhta )
+sma=( aale aale   ija  ihke ïjle  elle sjovne  jovne  ovne aane ikere uvre ööre ihkeles eles eente teete uhte )
+pos=(    N    A     N     N    N     N      N      N     N    N     N    N    N       A    A     N     N    N )
 
 for k in "${!sme[@]}"; do
     grep "..${sme[k]}$" words/${pos[k]}.sme \
