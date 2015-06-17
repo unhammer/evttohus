@@ -98,7 +98,7 @@ function ceil(xs) {
   for(i=1;i<=n;i++) {
     f += freq[words[i]]
   }
-  fn=f/n
+  fn=f/(n+0.00000001)
   print $0,ceil(fn*norm/sum)
 }'
 }
