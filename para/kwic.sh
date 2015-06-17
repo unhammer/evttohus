@@ -9,7 +9,6 @@ set -e -u
 
 sents_ids=$1
 lemmas_ids=$2
-candidates=$3
 
 b=$(basename "${sents_ids}")
 dir=${b%%.*}
@@ -17,7 +16,7 @@ lang1=${dir%???}
 lang2=${dir#???}
 
 <"${lemmas_ids}" gawk \
-    -v sents_ids="${sents_ids}" -v candidates="${candidates}" \
+    -v sents_ids="${sents_ids}" -v candidates=<(cat "$@") \
     -v lang1=${lang1} -v lang2=${lang2} '
   BEGIN {
     FS="<s xml:lang=\"|\" id=\"|\"/>"

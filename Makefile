@@ -3,18 +3,21 @@ XPOS=V N A nonVNA
 DECOMPBASES=$(patsubst %,%_decomp,$(DPOS))
 PRECOMPBASES=$(patsubst %,%_precomp,$(DPOS))
 ALIGNBASES=$(patsubst %,%_anymalign,$(DPOS))
+LOANBASES=$(patsubst %,%_loan,$(DPOS))
 CROSSBASES=$(patsubst %,%_cross,$(DPOS))
 SYNBASES=$(patsubst %,%_syn,$(DPOS))
 LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 KINTELBASES=$(patsubst %,%_kintel,$(DPOS))
 
-DECOMPSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
-          $(patsubst %,out/nobsma/%,$(PRECOMPBASES))
+DECOMPNOBSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
+			 $(patsubst %,out/nobsma/%,$(PRECOMPBASES))
 
-ALIGNSMA=$(patsubst %,out/nobsma/%,$(ALIGNBASES))
-CROSSSMA=$(patsubst %,out/nobsma/%,$(CROSSBASES))
-SYNSMA=$(patsubst %,out/nobsma/%,$(SYNBASES))
+ALIGNNOBSMA=$(patsubst %,out/nobsma/%,$(ALIGNBASES))
+LOANNOBSMA=$(patsubst %,out/nobsma/%,$(LOANBASES))
+LOANSMESMA=$(patsubst %,out/smesma/%,$(LOANBASES))
+CROSSNOBSMA=$(patsubst %,out/nobsma/%,$(CROSSBASES))
+SYNNOBSMA=$(patsubst %,out/nobsma/%,$(SYNBASES))
 
 DECOMPNOBSMJ=$(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
              $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
@@ -25,25 +28,30 @@ XIFIEDSMJ=$(patsubst %,out/smesmj/%,$(LEXCBASES)) \
           $(patsubst %,out/smesmj/%,$(XFSTBASES))
 
 KINTELSMJ=$(patsubst %,out/nobsmj/%,$(KINTELBASES))
-LOANNOBSMJ=out/nobsmj/N_loan
-ALIGNSMJ=$(patsubst %,out/nobsmj/%,$(ALIGNBASES)) # TODO
+LOANNOBSMJ=$(patsubst %,out/nobsmj/%,$(LOANBASES))
+ALIGNNOBSMJ=$(patsubst %,out/nobsmj/%,$(ALIGNBASES)) # TODO
 CROSSNOBSMJ=$(patsubst %,out/nobsmj/%,$(CROSSBASES))
 SYNNOBSMJ=$(patsubst %,out/nobsmj/%,$(SYNBASES))
 SYNSMESMJ=$(patsubst %,out/smesmj/%,$(SYNBASES))
 
+OUTNOBSMA=$(DECOMPNOBSMA) $(ALIGNNOBSMA) $(LOANNOBSMA) $(CROSSNOBSMA) $(SYNNOBSMA)
+OUTSMESMA=$(LOANSMESMA)
+OUTNOBSMJ=$(DECOMPNOBSMJ) $(LOANNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ)
+OUTSMESMJ=$(DECOMPSMESMJ) $(XIFIEDSMJ) $(SYNSMESMJ)
 
-FREQSMA=freq/combined.nob freq/combined.sma freq/combined.sme freq/nobsma.para-kwic
-FREQSMJ=freq/combined.nob freq/combined.sma freq/combined.sme freq/smesmj.para-kwic freq/nobsmj.para-kwic
+FREQSMA=freq/combined.nob freq/combined.sma freq/combined.sme freq/nobsma.para-kwic freq/smesma.para-kwic
+FREQSMJ=freq/combined.nob freq/combined.smj freq/combined.sme freq/nobsmj.para-kwic freq/smesmj.para-kwic
 
 APERTIUM=apertium-sme-nob.sme-nob.dix apertium-sme-smj.sme-smj.dix apertium-sme-sma.sme-sma.dix
 
-all: out/nobsmasme out/nobsmjsme freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
+all: out/nobsmasme out/nobsmjsme freq/nobsma.para-kwic freq/smesma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
 	./coverage.sh >out/coverage.txt
 
 spellms: $(patsubst %,freq/slms.%.smj,$(DPOS)) \
          $(patsubst %,freq/slms.%.sma,$(DPOS)) 
 
-out/nobsmasme: $(FREQSMA) out/nobsmasme/.d tmp/nobsmasme/.d tmp/nobsma/.d               words/all.sma
+out/nobsmasme: $(FREQSMA) out/nobsmasme/.d tmp/nobsmasme/.d tmp/smesma/.d tmp/nobsma/.d words/all.sma
+	./canonicalise.sh smesma
 	./canonicalise.sh nobsma
 out/nobsmjsme: $(FREQSMJ) out/nobsmjsme/.d tmp/nobsmjsme/.d tmp/smesmj/.d tmp/nobsmj/.d words/all.smj
 	./canonicalise.sh smesmj
@@ -75,8 +83,12 @@ out/%/N_syn: fadwords/N.nob words/%/N.tsv words/%/N.rev
 out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d freq/lms.smj freq/forms.smj
 	./sme2smjify.sh
 
-out/nobsmj/N_loan: fadwords/all.nob out/nobsmj/.d
-	./nob2smj-loan.sh >$@
+out/smesma/%_loan: fadwords/%.sme out/smesma/.d
+	./sme2sma-loan.sh $* >$@
+out/nobsma/%_loan: fadwords/%.nob out/nobsma/.d
+	./nob2sma-loan.sh $* >$@
+out/nobsmj/%_loan: fadwords/%.nob out/nobsmj/.d
+	./nob2smj-loan.sh $* >$@
 
 # Run anymalign-pre, then cd para/anymalign and make:
 anymalign-pre: fadwords/all.nob words/all.nob words/all.sma
@@ -209,18 +221,14 @@ freq/smesmj.lemmas.ids: freq/smesmj_sme.ana freq/smesmj_smj.ana
 	para/join-lemmas-on-ids.sh $^ >$@
 
 
-freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA)
-	@cat $(DECOMPSMA) $(ALIGNSMA) $(CROSSSMA) $(SYNSMA) >$@.tmp
-	para/kwic.sh freq/nobsma.sents.ids freq/nobsma.lemmas.ids $@.tmp >$@
-	@rm -f $@.tmp
-freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(DECOMPNOBSMJ) $(LOANNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ)
-	@cat $(LOANNOBSMJ) $(DECOMPNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ) >$@.tmp
-	para/kwic.sh freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $@.tmp >$@
-	@rm -f $@.tmp
-freq/smesmj.para-kwic: freq/smesmj.sents.ids freq/smesmj.lemmas.ids $(DECOMPSMESMJ) $(XIFIEDSMJ) $(SYNSMESMJ)
-	@cat $(DECOMPSMESMJ) $(XIFIEDSMJ) $(SYNSMESMJ) >$@.tmp
-	para/kwic.sh freq/smesmj.sents.ids freq/smesmj.lemmas.ids $@.tmp >$@
-	@rm -f $@.tmp
+freq/nobsma.para-kwic: freq/nobsma.sents.ids freq/nobsma.lemmas.ids $(OUTNOBSMA)
+	para/kwic.sh $^ >$@
+freq/smesma.para-kwic: freq/smesma.sents.ids freq/smesma.lemmas.ids $(OUTSMESMA) 
+	para/kwic.sh $^ >$@
+freq/nobsmj.para-kwic: freq/nobsmj.sents.ids freq/nobsmj.lemmas.ids $(OUTNOBSMJ)
+	para/kwic.sh $^ >$@
+freq/smesmj.para-kwic: freq/smesmj.sents.ids freq/smesmj.lemmas.ids $(OUTSMESMJ)
+	para/kwic.sh $^ >$@
 
 # Corpora/frequency lists:
 freq/forms.% freq/lms.% freq/combined.%: freq/prepcorp.%.xz freq/plaincorp.%.xz
@@ -274,7 +282,7 @@ tmp/%/.d: tmp/.d
 
 # Cleaning:
 clean:
-	rm -rf out tmp words fadwords freq/nobsma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
+	rm -rf out tmp words fadwords freq/nobsma.para-kwic freq/smesma.para-kwic freq/nobsmj.para-kwic freq/smesmj.para-kwic
 
 reallyclean: clean
 	rm -rf freq $(APERTIUM)

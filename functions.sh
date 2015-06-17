@@ -414,3 +414,20 @@ synonyms () {
           for(a in d) for(b in d[a]) if(a!=b) print a,b
         }'
 }
+
+loans () {
+    srclang=$1
+    trglang=$2
+    dopos=$3
+
+    for k in "${!src[@]}"; do
+        if [[ ${pos[k]} != ${dopos} ]]; then continue; fi
+        grep "..${src[k]}$" fadwords/${pos[k]}."${srclang}" \
+        | sed "s/${src[k]}$/${trg[k]}/" \
+        | ana "${trglang}" \
+        | grep -v +Cmp | posgrep ${pos[k]} \
+        | cut -f1 \
+        | grep "${trg[k]}$" \
+        | awk -v src=${src[k]} -F"${trg[k]}$" '{print $1 src "\t" $0}'
+    done | sort -u
+}
