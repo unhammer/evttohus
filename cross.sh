@@ -3,6 +3,9 @@
 # Usage:
 # ./cross.sh nob sme sma N
 
+set -e -u
+source functions.sh
+
 srclang=$1
 midlang=$2
 trglang=$3
@@ -18,7 +21,12 @@ cat_dict () {
     cat words/${l2}${l1}/${pos}.tsv | revtsv | cat - words/${l1}${l2}/${pos}.tsv
 }
 
-<words/${pos}.${srclang} gawk \
+if ${FAD_ONLY}; then
+    words=fadwords
+else
+    words=words
+fi
+<${words}/${pos}.${srclang} gawk \
     -v src_mid_f=<(cat_dict ${srclang} ${midlang} ${pos}) \
     -v mid_trg_f=<(cat_dict ${midlang} ${trglang} ${pos}) '
 BEGIN{
