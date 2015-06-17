@@ -35,7 +35,7 @@ for candlang in sma smj; do
     echo "== ${candlang} =="
     for pos in V N A; do
         echo "${pos}: $(need_trans_for |wc -l) nob words need translations"
-        for method in _decomp _decomplow _decompno _precomp _precomplow _precompno _anymalign _cross _xfst _lexc _syn '_*'; do
+        for method in _decomp _decomplow _decompno _precomp _precomplow _precompno _anymalign _cross _xfst _lexc _syn _loan '_*'; do
             missing=$(got_missing_cand_for |wc -l)
             missing_ana=$(got_missing_ana_cand_for |wc -l)
             freq=$(got_freq_for)
