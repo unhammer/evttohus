@@ -4,20 +4,42 @@ set -e -u
 cd "$(dirname "$0")"
 source functions.sh
 
-dir=$1
-fromlang=${dir%???}
-candlang=${dir#???}
-if [[ ${fromlang} = nob ]]; then
-    fromfield=1
-elif [[ ${fromlang} = sme ]]; then
-    fromfield=3
-else
+declare -r dir=$1
+declare -r fromlang=${dir%???}
+declare -r candlang=${dir#???}
+if [[ ${fromlang} != nob && ${fromlang} != sme ]]; then
     echo "Unknown fromlang ${fromlang}" >&2
     exit 1
 fi
-finaldir=nob${candlang}sme
-para_hits=tmp/${dir}_para-hits
 
+# For FAD2, nob is the output "source":
+declare -ar outfields=(nob ${candlang} sme)
+
+declare -r finaldir=$(printf "%s" "${outfields[@]}")
+declare -r para_hits_sme=tmp/${dir}_para-hits_sme
+declare -r para_hits_nob=tmp/${dir}_para-hits_nob
+
+declare words
+if ${FAD_ONLY}; then
+    words=fadwords
+else
+    words=words
+fi
+
+lang_of_field () {
+    local i=$(( $1 - 1))
+    echo "${outfields[$i]}"
+}
+field_of_lang () {
+    # stupid mac old bash with no assoc arrays
+    for f in "${!outfields[@]}"; do 
+        if [[ ${outfields[$f]} == "$1" ]]; then 
+            echo $(($f+1))
+            return 0
+        fi
+    done
+    return 1
+}
 
 pos_glob () {
     case $1 in
@@ -53,8 +75,8 @@ add_thirdlang () {
         pos=$(pos_glob "$b")
         <"$f" gawk \
             -v fromlang=${fromlang} \
-            -v smenob=<(cat fadwords/smenob/${pos}.tsv 2>/dev/null) \
-            -v nobsme=<(cat fadwords/nobsme/${pos}.tsv 2>/dev/null) \
+            -v smenob=<(cat ${words}/smenob/${pos}.tsv 2>/dev/null) \
+            -v nobsme=<(cat ${words}/nobsme/${pos}.tsv 2>/dev/null) \
             -f trans_annotate.awk \
             >${out}/"$b"
     done
@@ -63,17 +85,19 @@ add_thirdlang () {
 skip_existing () {
     inc=$1
     out=$2
-    echo "$dir: Skip ${candlang} translations where nob/${candlang} was already in \$GTHOME/words/dicts (or marked bad) ..."
+    sourcelang=$(lang_of_field 1)
+    echo "$dir: Skip ${candlang} translations where ${sourcelang}/${candlang} was already in \$GTHOME/words/dicts (or marked bad) ..."
     for f in ${inc}/*; do           # skipping spell/out/${dir}/* for now
         test -f "$f" || continue
         b=$(basename "$f")
         pos_glob=$(pos_glob "$b")
         pos_name=$(pos_name "$b")
         <"$f" gawk \
-            -v dict=<(cat words/nob${candlang}/${pos_glob}.tsv) \
-            -v badf=<(cat words/nob${candlang}/bad_${pos_name}.tsv) '
+            -v dict=<(cat words/${sourcelang}${candlang}/${pos_glob}.tsv) \
+            -v badf=<(cat words/${sourcelang}${candlang}/bad_${pos_name}.tsv) '
         BEGIN{
           OFS=FS="\t"
+                             # src[$0] to only skip if *pair* was there already
           while(getline<dict){ src[$0]++; for(i=2;i<=NF;i++) trg[$i]++ }
           while(getline<badf){ bad[$1][$2]++ }
         }
@@ -82,7 +106,8 @@ skip_existing () {
             >${out}/"$b"
     done
     echo "$dir: Get para hits of all candidates ..."
-    para/count-para-hits.sh <(sort -u ${out}/*) freq/${dir}.lemmas.ids > ${para_hits}
+    para/count-para-hits.sh <(sort -u ${out}/*) freq/nob${candlang}.lemmas.ids $(field_of_lang nob) > ${para_hits_nob}
+    para/count-para-hits.sh <(sort -u ${out}/*) freq/sme${candlang}.lemmas.ids $(field_of_lang sme) > ${para_hits_sme}
 }
 
 spell_norm () {
@@ -155,23 +180,34 @@ add_freq () {
     out=$2
     echo "$dir: Annotate with frequency and parallel sentence hits ..."
     # Normalise frequency sums (to the smallest corpora, ie. smj/sma):
-    sumnob=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.nob)
-    sumcand=$(awk -F'\t' '{sum+=$1}END{print sum}' freq/combined.${candlang})
-    sumsme=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.sme)
+    local lang1=$(lang_of_field 1)
+    local lang2=$(lang_of_field 2)
+    local lang3=$(lang_of_field 3)
+    local sum1=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.${lang1})
+    local sum2=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.${lang2})
+    local sum3=$(awk  -F'\t' '{sum+=$1}END{print sum}' freq/combined.${lang3})
+    local norm=${sum2}
+    local fromfield=$(field_of_lang "${fromlang}")
     for f in ${inc}/*; do
         b=$(basename "$f")
         pos=$(pos_name "$b")
         echo -n "$b "
-        <"$f" freq_annotate 1 freq/combined.nob         ${sumnob}  ${sumcand} \
-            | freq_annotate 2 freq/combined.${candlang} ${sumcand} ${sumcand} \
-            | freq_annotate 3 freq/combined.sme         ${sumsme}  ${sumcand} \
+        <"$f" freq_annotate 1 freq/combined.${lang1} ${sum1} ${norm} \
+            | freq_annotate 2 freq/combined.${lang2} ${sum2} ${norm} \
+            | freq_annotate 3 freq/combined.${lang3} ${sum3} ${norm} \
             | sort -u \
-            | gawk -v from=${fromfield} -v hitsf=${para_hits} '
+            | gawk -v nob=$(field_of_lang nob) -v sme=$(field_of_lang sme) \
+            -v hitsfsme=${para_hits_sme} -v hitsfnob=${para_hits_nob} '
             # Let field 7 be count of hits in parallel sentences:
-            BEGIN{ OFS=FS="\t"; while(getline<hitsf) hits[$2][$3]=$1 }
+            BEGIN{ 
+              OFS=FS="\t"
+              while(getline<hitsfsme) hitssme[$2][$3]=$1 
+              while(getline<hitsfnob) hitsnob[$2][$3]=$1 
+            }
             {
-              hits[$from][$2] += 0       # default 0 if empty
-              print $0, hits[$from][$2]
+              hits[$sme][$2] += 0       # default 0 if empty
+              hits[$nob][$2] += 0       # default 0 if empty
+              print $0, hitssme[$sme][$2]+hitsnob[$nob][$2]
             } 
         ' \
             | awk '
@@ -241,7 +277,7 @@ split_fst () {
         pos=$(pos_name "$b")
         goodfile=${out}/"$b"_ana
         badfile=${out}/"$b"_noana
-        if [[ $b = *_nob ]]; then groupfield=1; else groupfield=3; fi
+        groupfield=$(field_of_lang "${fromlang}")
         <"$f" gawk \
             -v g=${groupfield} \
             -v pos=${pos} -v posf=${posfile} \
@@ -281,7 +317,7 @@ split_singles () {
     echo "$dir: Split into single-candidates vs multiple ..."
     for f in ${inc}/*; do
         b=$(basename "$f")
-        if [[ ${fromlang} = nob ]]; then groupfield=1; else groupfield=3; fi
+        groupfield=$(field_of_lang "${fromlang}")
         <"$f" sort -u \
             | gawk -F'\t' \
             -v g=${groupfield} \
@@ -304,13 +340,23 @@ split_singles () {
     done
 }
 
+skip_untranslated () {
+    inc=$1
+    out=$2
+    echo "$dir: Skip those where output *source* field had no translation ..."
+    for f in ${inc}/*; do
+        b=$(basename "$f")
+        <"$f" gawk -F'\t' '$1 !~ /^\?+/' >${out}/"$b"
+    done
+}
+
 rev_blocks () {
     inc=$1
     out=$2
     echo "$dir: Reverse-sort and insert empty lines ..."
     for f in ${inc}/*; do
         b=$(basename "$f")
-        if [[ ${fromlang} = nob ]]; then groupfield=1; else groupfield=3; fi
+        groupfield=$(field_of_lang "${fromlang}")
         revfield=$(( 8 - ${groupfield} ))
         <"$f" rev | sort -k${revfield},${revfield} -k6,6 -t$'\t' | rev \
             | gawk -F'\t' -v g=${groupfield} '
@@ -327,7 +373,7 @@ rev_blocks () {
 # This is where it happens:
 
 inc=out/${dir}
-for fn in add_thirdlang skip_existing spell_norm add_freq split_kintel split_fst split_singles rev_blocks; do
+for fn in add_thirdlang skip_existing spell_norm add_freq split_kintel split_fst split_singles skip_untranslated rev_blocks; do
     out=tmp/${dir}_${fn}
     rm -rf ${out}; mkdir ${out}
     ${fn} ${inc} ${out}
