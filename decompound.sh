@@ -104,6 +104,7 @@ ugly=out/${dir}/${pos}_${suff}low
 : > ${good}; : > ${bad}; : > ${ugly} # empty out the files since below awk appends
 <tmp/${dir}/${pos}_${suff}_withgen gawk \
     -v fadf=fadwords/${pos}.${lang1} \
+    -v fad_only=${FAD_ONLY} \
     -v goodparts=tmp/${dir}/${pos}_${suff}_goodparts \
     -v good=${good} \
     -v bad=${bad} \
@@ -114,7 +115,7 @@ ugly=out/${dir}/${pos}_${suff}low
        while(getline<fadf) fad[$0]++
        while(getline<goodparts) g[$0]++
      }
-     !($1 in fad) {
+     fad_only && !($1 in fad) {
        next
      }
      {
