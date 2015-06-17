@@ -19,6 +19,13 @@ declare -r finaldir=$(printf "%s" "${outfields[@]}")
 declare -r para_hits_sme=tmp/${dir}_para-hits_sme
 declare -r para_hits_nob=tmp/${dir}_para-hits_nob
 
+declare words
+if ${FAD_ONLY}; then
+    words=fadwords
+else
+    words=words
+fi
+
 lang_of_field () {
     local i=$(( $1 - 1))
     echo "${outfields[$i]}"
@@ -33,6 +40,7 @@ field_of_lang () {
     done
     return 1
 }
+
 pos_glob () {
     case $1 in
         V*) echo "V*";;
@@ -67,8 +75,8 @@ add_thirdlang () {
         pos=$(pos_glob "$b")
         <"$f" gawk \
             -v fromlang=${fromlang} \
-            -v smenob=<(cat words/smenob/${pos}.tsv 2>/dev/null) \
-            -v nobsme=<(cat words/nobsme/${pos}.tsv 2>/dev/null) \
+            -v smenob=<(cat ${words}/smenob/${pos}.tsv 2>/dev/null) \
+            -v nobsme=<(cat ${words}/nobsme/${pos}.tsv 2>/dev/null) \
             -f trans_annotate.awk \
             >${out}/"$b"
     done
@@ -77,15 +85,16 @@ add_thirdlang () {
 skip_existing () {
     inc=$1
     out=$2
-    echo "$dir: Skip ${candlang} translations where nob/${candlang} was already in apertium (or marked bad) ..."
+    sourcelang=$(lang_of_field 1)
+    echo "$dir: Skip ${candlang} translations where ${sourcelang}/${candlang} was already in \$GTHOME/words/dicts (or marked bad) ..."
     for f in ${inc}/*; do           # skipping spell/out/${dir}/* for now
         test -f "$f" || continue
         b=$(basename "$f")
         pos_glob=$(pos_glob "$b")
         pos_name=$(pos_name "$b")
         <"$f" gawk \
-            -v dict=<(cat words/sme${candlang}/${pos_name}_apertium.tsv) \
-            -v badf=<(cat words/sme${candlang}/bad_${pos_name}.tsv) '
+            -v dict=<(cat words/${sourcelang}${candlang}/${pos_glob}.tsv) \
+            -v badf=<(cat words/${sourcelang}${candlang}/bad_${pos_name}.tsv) '
         BEGIN{
           OFS=FS="\t"
                              # src[$0] to only skip if *pair* was there already
