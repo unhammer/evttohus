@@ -85,11 +85,11 @@ out/%/N_syn: fadwords/N.nob words/%/N.tsv words/%/N.rev
 out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d freq/lms.smj freq/forms.smj
 	./sme2smjify.sh
 
-out/smesma/%_loan: fadwords/%.sme out/smesma/.d
+out/smesma/%_loan: words/%.sme out/smesma/.d
 	./sme2sma-loan.sh $* >$@
-out/nobsma/%_loan: fadwords/%.nob out/nobsma/.d
+out/nobsma/%_loan: words/%.nob out/nobsma/.d
 	./nob2sma-loan.sh $* >$@
-out/nobsmj/%_loan: fadwords/%.nob out/nobsmj/.d
+out/nobsmj/%_loan: words/%.nob out/nobsmj/.d
 	./nob2smj-loan.sh $* >$@
 
 # Run anymalign-pre, then cd para/anymalign and make:
