@@ -37,7 +37,7 @@ SYNNOBSMJ=$(patsubst %,out/nobsmj/%,$(SYNBASES))
 SYNSMESMJ=$(patsubst %,out/smesmj/%,$(SYNBASES))
 
 OUTNOBSMA=$(DECOMPNOBSMA) $(ALIGNNOBSMA) $(LOANNOBSMA) $(CROSSNOBSMA) $(SYNNOBSMA)
-OUTSMESMA=                               $(LOANSMESMA) $(CROSSNOBSMA) $(SYNSMESMA)
+OUTSMESMA=                               $(LOANSMESMA) $(CROSSSMESMA) $(SYNSMESMA)
 OUTNOBSMJ=$(DECOMPNOBSMJ) $(LOANNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ)
 OUTSMESMJ=$(DECOMPSMESMJ) $(XIFIEDSMJ) $(SYNSMESMJ)
 
@@ -293,3 +293,8 @@ reallyclean: clean
 	rm -rf freq $(APERTIUM)
 
 .PHONY: corpus all spellms clean reallyclean
+
+# Debugging:
+print-%: 
+	@echo $*=$($*)
+# Usage: make print-DECOMPBASES etc. for any variable
