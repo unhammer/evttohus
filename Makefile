@@ -17,7 +17,9 @@ ALIGNNOBSMA=$(patsubst %,out/nobsma/%,$(ALIGNBASES))
 LOANNOBSMA=$(patsubst %,out/nobsma/%,$(LOANBASES))
 LOANSMESMA=$(patsubst %,out/smesma/%,$(LOANBASES))
 CROSSNOBSMA=$(patsubst %,out/nobsma/%,$(CROSSBASES))
+CROSSSMESMA=$(patsubst %,out/smesma/%,$(CROSSBASES))
 SYNNOBSMA=$(patsubst %,out/nobsma/%,$(SYNBASES))
+SYNSMESMA=$(patsubst %,out/smesma/%,$(SYNBASES))
 
 DECOMPNOBSMJ=$(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
              $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
@@ -35,7 +37,7 @@ SYNNOBSMJ=$(patsubst %,out/nobsmj/%,$(SYNBASES))
 SYNSMESMJ=$(patsubst %,out/smesmj/%,$(SYNBASES))
 
 OUTNOBSMA=$(DECOMPNOBSMA) $(ALIGNNOBSMA) $(LOANNOBSMA) $(CROSSNOBSMA) $(SYNNOBSMA)
-OUTSMESMA=$(LOANSMESMA)
+OUTSMESMA=                               $(LOANSMESMA) $(CROSSSMESMA) $(SYNSMESMA)
 OUTNOBSMJ=$(DECOMPNOBSMJ) $(LOANNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ)
 OUTSMESMJ=$(DECOMPSMESMJ) $(XIFIEDSMJ) $(SYNSMESMJ)
 
@@ -101,10 +103,13 @@ out/nobsma/%_anymalign: para/anymalign/eval/%.results.100k out/nobsma/.d
 	awk -F'\t' '$$4=="fad"' $< | sort -nr | cut -f5-6 | grep -v '\*' > $@
 
 
-out/nobsma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.nob
+out/nobsma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.nob out/nobsma/.d
 	./cross.sh nob sme sma $* >$@
 
-out/nobsmj/%_cross: words/smesmj/%.tsv words/smjsme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.nob
+out/smesma/%_cross: words/smesma/%.tsv words/smasme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.sme out/smesma/.d
+	./cross.sh sme nob sma $* >$@
+
+out/nobsmj/%_cross: words/smesmj/%.tsv words/smjsme/%.tsv words/nobsme/%.tsv words/smenob/%.tsv fadwords/%.nob out/nobsmj/.d
 	./cross.sh nob sme smj $* >$@
 
 
