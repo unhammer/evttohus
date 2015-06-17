@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# apertium-sme-sma:
+FAD_ONLY=true
+
+FAD_ONLY=${FAD_ONLY-true}
+# by default, only generate suggestions from words that had src=fad in nobsme-dicts
+# if env has false, generate suggestions from all words
+
 if [[ -n $LOOKUP && $LOOKUP != "lookup -q -flags mbTT" ]]; then
         echo "Warning: overriding strange value of LOOKUP: $LOOKUP"
 fi
@@ -416,13 +423,20 @@ synonyms () {
 }
 
 loans () {
-    srclang=$1
-    trglang=$2
-    dopos=$3
+    local -r srclang=$1
+    local -r trglang=$2
+    local -r dopos=$3
+    
+    local words=
+    if ${FAD_ONLY}; then
+        words=fadwords
+    else
+        words=words
+    fi
 
     for k in "${!src[@]}"; do
         if [[ ${pos[k]} != ${dopos} ]]; then continue; fi
-        grep "..${src[k]}$" words/${pos[k]}."${srclang}" \
+        grep "..${src[k]}$" "${words}"/${pos[k]}."${srclang}" \
         | sed "s/${src[k]}$/${trg[k]}/" \
         | ana "${trglang}" \
         | grep -v +Cmp | posgrep ${pos[k]} \
