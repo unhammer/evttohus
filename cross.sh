@@ -39,7 +39,7 @@ src in src_mid {
   for(mid in src_mid[src]) {
     #print src,mid
     if(mid in mid_trg) {
-      print src,mid
+      #print src,mid
       for(trg in mid_trg[mid]) {
         print src,trg
       }
