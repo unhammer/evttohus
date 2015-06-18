@@ -48,6 +48,7 @@ APERTIUM=apertium-sme-nob.sme-nob.dix apertium-sme-smj.sme-smj.dix apertium-sme-
 
 all: out/smesmanob freq/smesma.para-kwic freq/nobsma.para-kwic #out/nobsmjsme freq/nobsmj.para-kwic freq/smesmj.para-kwic
 	./coverage.sh >out/coverage.txt
+	git log -n1 --format='format:%H%n' > out/git.rev
 
 spellms: $(patsubst %,freq/slms.%.smj,$(DPOS)) \
          $(patsubst %,freq/slms.%.sma,$(DPOS)) 
