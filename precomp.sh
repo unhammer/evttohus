@@ -10,10 +10,6 @@ pos=$2
 lang1=${dir%???}
 lang2=${dir#???}
 
-cat_dict () {
-    cat words/${dir}/${pos}.rev words/${dir}/${pos}.tsv
-}
-
 words_to_cmp () {
     lang=$1
     ana ${lang} \
@@ -24,17 +20,17 @@ words_to_cmp () {
 }
 
 srcf () {
-    cat_dict | cut -f1 | words_to_cmp ${lang1} ${pos} | sort -u
+    cat_dict ${lang1} ${lang2} ${pos} | cut -f1 | words_to_cmp ${lang1} ${pos} | sort -u
 }
 
 trgf () {
-    cat_dict | cut -f2- | tr '\t' '\n' | words_to_cmp ${lang2} ${pos} | sort -u
+    cat_dict ${lang1} ${lang2} ${pos} | cut -f2- | tr '\t' '\n' | words_to_cmp ${lang2} ${pos} | sort -u
 }
 
-cat_dict |sort -u \
+cat_dict ${lang1} ${lang2} ${pos} |sort -u \
     | grep -v '^[[:upper:]]' \
     | gawk -v srcf=<(srcf) -v trgf=<(trgf) -f precomp.awk \
-    | gawk -v dict=<(cat_dict) '
+    | gawk -v dict=<(cat_dict ${lang1} ${lang2} ${pos}) '
       BEGIN{
         OFS=FS="\t"
         while(getline<dict){ for(i=2;i<=NF;i++) d[$1][$i]=999 }

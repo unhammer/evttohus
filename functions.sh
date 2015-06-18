@@ -378,9 +378,25 @@ all_lms_of_pos () {
         | LC_ALL=C sort -u
 }
 
-rev_dict () {
-    awk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $i,$1}' "$@"
+rev_tsv () {
+    gawk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $i,$1}' "$@"
 }
+
+cat_tsv () {
+    gawk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $1,$i}' "$@"
+}
+
+cat_dict () {
+    l1=$1
+    l2=$2
+    pos=$3
+    [[ -f words/${l1}${l2}/${pos}_apertium.tsv ]] && cat_tsv words/${l1}${l2}/${pos}_apertium.tsv
+    [[ -f words/${l2}${l1}/${pos}_apertium.tsv ]] && rev_tsv words/${l2}${l1}/${pos}_apertium.tsv 
+    rev_tsv words/${l2}${l1}/${pos}.tsv &&
+    cat_tsv words/${l1}${l2}/${pos}.tsv
+}
+
+
 
 synonyms () {
     lang=$1
