@@ -4,7 +4,7 @@
 # mkdir work/
 # ./intersect.sh work/ out/nobsmjsme/N_*_ana_00_*
 
-srclang=nob
+srclang=sme
 # The source langauge in the _output_ files that we want to check
 
 ### This will copy the given files into work/, but if, for any src
