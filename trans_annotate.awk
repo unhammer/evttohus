@@ -6,14 +6,16 @@
 ### where candidate is in sma or smj
 
 BEGIN {
+  out1="nob"
+  out3="sme"
+  # for apertium-sme-sma, sme is column 1; for FAD2, nob is column 1
+
   OFS=FS="\t"
   if(fromlang=="sme") {
-    trgcol=1
     srctrg=smenob
     trgsrc=nobsme
   }
   else if(fromlang=="nob") {
-    trgcol=3
     srctrg=nobsme
     trgsrc=smenob
   }
@@ -36,30 +38,26 @@ BEGIN {
   trans[$1]["?????"]++
 }
 
-# We have to look up the nob when doing Kintel-grouping, which is a
-# bit more trouble if they're /-separated instead of one per line, so
-# only /-separate for sme:
-fromlang=="sme" {
+fromlang==out1 {
   for(trg in trans[$1]) {
-    if(trgcol==1) {
-      print trg, $2, $1
-    }
-    else {
-      print $1, $2, trg
-    }
+    out[$1][$2][trg]++
+  }
+}
+fromlang==out3 {
+  for(trg in trans[$1]) {
+    out[trg][$2][$1]++
   }
 }
 
-fromlang=="nob" {
-  trgjoined=""
-  for(trg in trans[$1]) {
-    trgjoined=trg"/"trgjoined
+END {
+  for(src in out){
+    for(cand in out[src]){
+      trgjoined=""
+      for(trg in out[src][cand]) {
+        trgjoined=trg"/"trgjoined
+      }
+      sub(/\/$/, "", trgjoined)
+      print src,cand,trgjoined
+    }
   }
-  sub(/\/$/, "", trgjoined)
-  if(trgcol==1) {
-    print trgjoined, $2, $1
-  }
-  else {
-    print $1, $2, trgjoined
-  }
-}
+} 
