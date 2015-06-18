@@ -11,14 +11,12 @@ midlang=$2
 trglang=$3
 pos=$4
 
-revtsv () {
-    gawk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $i,$1}' "$@"
-}
 cat_dict () {
     l1=$1
     l2=$2
     pos=$3
-    cat words/${l2}${l1}/${pos}.tsv | revtsv | cat - words/${l1}${l2}/${pos}.tsv
+    gawk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $i,$1}' words/${l2}${l1}/${pos}.tsv && # reversed
+    gawk 'BEGIN{OFS=FS="\t"} {for(i=2;i<=NF;i++)print $1,$i}' words/${l1}${l2}/${pos}.tsv
 }
 
 if ${FAD_ONLY}; then
