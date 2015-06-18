@@ -165,25 +165,25 @@ words/%/precomp_A.tsv: words/%/A.tsv words/%/A.rev
 
 # These goals let a goal where %==nobsme depend on the reverse words/smenob:
 words/nobsme/%.rev: words/smenob/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 words/smenob/%.rev: words/nobsme/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 words/nobsmj/%.rev: words/smjnob/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 words/smjnob/%.rev: words/nobsmj/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 words/nobsma/%.rev: words/smanob/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 words/smanob/%.rev: words/nobsma/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 words/smesmj/%.rev: words/smjsme/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 words/smjsme/%.rev: words/smesmj/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 words/smesma/%.rev: words/smasme/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 words/smasme/%.rev: words/smesma/%.tsv
-	<$< bash -c "source functions.sh; rev_dict" >$@
+	<$< bash -c "source functions.sh; rev_tsv" >$@
 
 
 # For speller:

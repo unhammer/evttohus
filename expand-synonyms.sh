@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 set -e -u
 cd "$(dirname "$0")"
 source functions.sh
@@ -11,12 +9,8 @@ lang1=${dir%???}
 lang2=${dir#???}
 pos=$2
 
-cat_dict () {
-    cat words/${dir}/${pos}.tsv words/${dir}/${pos}.rev
-}
-
 < fadwords/${pos}.${lang1} gawk \
-    -v dict=<(cat_dict) \
+    -v dict=<(cat_dict ${lang1} ${lang2} ${pos}) \
     -v synf=<(synonyms ${lang1} ${pos}) '
 BEGIN{
   OFS=FS="\t"
