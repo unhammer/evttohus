@@ -6,6 +6,10 @@
 ### where candidate is in sma or smj
 
 BEGIN {
+  out1="sme"
+  out3="nob"
+  # for apertium-sme-sma, sme is column 1; for FAD2, nob is column 1
+
   OFS=FS="\t"
   if(fromlang=="sme") {
     srctrg=smenob
@@ -34,27 +38,26 @@ BEGIN {
   trans[$1]["?????"]++
 }
 
-fromlang=="nob" {               # nob is src
-  for(trg in trans[$1]) {
-    out[trg][$2][$1]++
-  }
-}
-fromlang=="sme" {               # nob is trg
+fromlang==out1 {
   for(trg in trans[$1]) {
     out[$1][$2][trg]++
   }
 }
+fromlang==out3 {
+  for(trg in trans[$1]) {
+    out[trg][$2][$1]++
+  }
+}
 
 END {
-  # for apertium-sme-sma, sme is column 1
-  for(sme in out){
-    for(cand in out[sme]){
-      nobjoined=""
-      for(nob in out[sme][cand]) {
-        nobjoined=nob"/"nobjoined
+  for(src in out){
+    for(cand in out[src]){
+      trgjoined=""
+      for(trg in out[src][cand]) {
+        trgjoined=trg"/"trgjoined
       }
-      sub(/\/$/, "", nobjoined)
-      print sme,cand,nobjoined
+      sub(/\/$/, "", trgjoined)
+      print src,cand,trgjoined
     }
   }
 } 
