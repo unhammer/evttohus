@@ -4,9 +4,12 @@
 # mkdir work/
 # ./intersect.sh work/ out/nobsmjsme/N_*_ana_00_*
 
-### This will copy the given files into work/, but if, for any sme
-### word, there was a sma-sme pair in more than one file, all pairs
-### with that sme-word will end up in work/intersection. The resulting
+srclang=nob
+# The source langauge in the _output_ files that we want to check
+
+### This will copy the given files into work/, but if, for any src
+### word, there was a src-trg pair in more than one file, all pairs
+### with that src-word will end up in work/intersection. The resulting
 ### files will have no duplicates.
 
 # TODO: should be intersection_singles vs intersection_multis
@@ -19,7 +22,11 @@ shift
 rev_blocks () {
     f=$1
     b=$(basename "$f")
-    if [[ $b = *_nob ]]; then groupfield=3; else groupfield=1; fi
+    case "$b" in
+        *_${srclang} ) groupfield=1;;
+        intersection* ) groupfield=1;;
+        * ) groupfield=3;;
+    esac
     revfield=$(( 8 - ${groupfield} ))
     <"$f" rev | LC_ALL=C sort -k${revfield},${revfield} -k6,6 -t$'\t' | rev \
             | gawk -F'\t' -v g=${groupfield} '
@@ -34,16 +41,14 @@ rev_blocks () {
 tmp=$(mktemp -d -t evttohus.XXXXXXXXX)
 trap 'rm -rf "${tmp}"' EXIT
 
-# for apertium-sme-sma, src field is 3 (sme), not 1 (nob)
-gawk -v out="${tmp}" \
-     -v src=3 '
+gawk -v out="${tmp}" '
 BEGIN{OFS=FS="\t"}
 function basename (f) {
   cmd="basename "f; cmd | getline b; close(cmd); return b
 }
 /./{
-  if($src in seen && $2 in seen[$src]) dup[$src][$2]=$0
-  seen[$src][$2][FILENAME]=$0
+  if($1 in seen && $2 in seen[$1]) dup[$1][$2]=$0
+  seen[$1][$2][FILENAME]=$0
 }
 END {
   for(src in dup) {
