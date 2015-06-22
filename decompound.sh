@@ -18,18 +18,8 @@ fi
 
 dict=tmp/${dir}/${pos}_${suff}.dict
 
-maindict=words/${dir}/${pos}.tsv
-if [[ ! -f ${maindict} ]]; then
-    echo "${maindict} doesn't exist"
-    exit 1
-else
-    cat "${maindict}" > "${dict}"
-fi
+cat_dict "${lang1}" "${lang2}" "${pos}"> "${dict}"
 
-revdict=words/${dir}/${pos}.rev
-if [[ -f ${revdict} ]]; then
-    cat "${revdict}" >>"${dict}"
-fi
 if $precomp; then
     cat words/${dir}/precomp_${pos}.tsv >>"${dict}"
 fi
