@@ -3,7 +3,7 @@
 
 ## Run like:
 
-# cat A_* | gawk -v -v pos=A -f tsv2xml.awk | xmllint --format -
+# cat A_* | gawk -v pos=A -f tsv2dix.awk
 
 
 BEGIN {
@@ -11,7 +11,8 @@ BEGIN {
   trglang="smj"
   OFS=FS="\t"
   print "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-  print "<r id=\""srclang trglang"\" xml:lang=\""srclang"\">"
+  print "<dictionary>"
+  print "<section id=\"inc\">"
   qlines=""
 }
 function del_ar(ar) {
@@ -29,11 +30,9 @@ function output() {
   }
   else {
     for(src in good) {
-      print "<e><lg><l pos=\""pos"\" src=\"fad\">"src"</l></lg><mg><tg xml:lang=\""trglang"\">"
       for(trg in good[src]) {
-        print "<t pos=\""pos"\">"trg"</t>"
+        print "<e><p><l>"src"<s n=\""pos"\"/></l><r>"trg"<s n=\""pos"\"/></r></p></e>"
       }
-      print "</tg></mg></e>"
     }
   }
 }
@@ -94,5 +93,6 @@ END {
   print "<!-- Questionable suggestions, look more at: "
   print qlines
   print " -->"
-  print "</r>"
+  print "</section>"
+  print "</dictionary>"
 }
