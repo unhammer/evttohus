@@ -87,7 +87,7 @@ END {
 	output()
   print ""
   print "<!-- Bad suggestions, remove next time round: "
-  for(src in bad) for(trg in bad[src]) print src" ::: "trg
+  for(src in bad) for(trg in bad[src]) print src" ::: "trg" ::: "pos
   print " -->"
   print ""
   print "<!-- Questionable suggestions, look more at: "
