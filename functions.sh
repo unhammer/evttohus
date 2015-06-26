@@ -259,6 +259,16 @@ dir2tsv () {
                 awk -F' ::: ' '$2{print $1"\t"$2}' >"${dir}/bad_${pos}.tsv"
         done
         touch "${dir}/bad_nonVNA.tsv" # TODO: some dirs don't even have nonVNA xml's
+    elif [[ ${dir} = sme* ]]; then
+        lang1=${dir%???}
+        lang2=${dir#???}
+        for pos in V N A; do
+            apos=$(apertiumpos "${pos}")
+            <"../apertium-${lang1}-${lang2}.${lang1}-${lang2}.dix" \
+                gawk -v pos="${apos}" -F' ::: ' '$2 && $3==pos{print $1"\t"$2}' \
+                >"${dir}/bad_${pos}.tsv"
+        done
+        touch "${dir}/bad_nonVNA.tsv" # TODO: some dirs don't even have nonVNA xml's
     fi
     # We only use files named $dir/$pos_$dir.tsv, e.g.
     # smenob/V_smenob.tsv; append some entries from the more funnily
