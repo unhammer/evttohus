@@ -97,11 +97,11 @@ skip_existing () {
             -v badf=<(cat words/${sourcelang}${candlang}/bad_${pos_name}.tsv) '
         BEGIN{
           OFS=FS="\t"
-                             # src[$0] to only skip if *pair* was there already
-          while(getline<dict){ src[$0]++; for(i=2;i<=NF;i++) trg[$i]++ }
+          while(getline<dict){ src[$1]++; for(i=2;i<=NF;i++) trg[$i]++ }
           while(getline<badf){ bad[$1][$2]++ }
         }
-        $1 in src || $2 in trg || ($1 in bad && $2 in bad[$1]) {next}
+        # Could do && to check if only *pair* is seen before, if we want to find alternatives for existing translations
+        ($1 in src || $2 in trg) || ($1 in bad && $2 in bad[$1]) {next}
         {print}' \
             >${out}/"$b"
     done
