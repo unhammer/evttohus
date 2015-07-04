@@ -9,6 +9,7 @@ SYNBASES=$(patsubst %,%_syn,$(DPOS))
 LEXCBASES=$(patsubst %,%_lexc,$(XPOS))
 XFSTBASES=$(patsubst %,%_xfst,$(XPOS))
 KINTELBASES=$(patsubst %,%_kintel,$(DPOS))
+GVBASES=$(patsubst %,%_gv,$(DPOS))
 
 DECOMPNOBSMA=$(patsubst %,out/nobsma/%,$(DECOMPBASES)) \
 			 $(patsubst %,out/nobsma/%,$(PRECOMPBASES))
@@ -20,6 +21,7 @@ CROSSNOBSMA=$(patsubst %,out/nobsma/%,$(CROSSBASES))
 CROSSSMESMA=$(patsubst %,out/smesma/%,$(CROSSBASES))
 SYNNOBSMA=$(patsubst %,out/nobsma/%,$(SYNBASES))
 SYNSMESMA=$(patsubst %,out/smesma/%,$(SYNBASES))
+GVNOBSMA=$(patsubst %,out/nobsma/%,$(GVBASES))
 
 DECOMPNOBSMJ=$(patsubst %,out/nobsmj/%,$(DECOMPBASES)) \
              $(patsubst %,out/nobsmj/%,$(PRECOMPBASES))
@@ -36,7 +38,7 @@ CROSSNOBSMJ=$(patsubst %,out/nobsmj/%,$(CROSSBASES))
 SYNNOBSMJ=$(patsubst %,out/nobsmj/%,$(SYNBASES))
 SYNSMESMJ=$(patsubst %,out/smesmj/%,$(SYNBASES))
 
-OUTNOBSMA=$(DECOMPNOBSMA) $(ALIGNNOBSMA) $(LOANNOBSMA) $(CROSSNOBSMA) $(SYNNOBSMA)
+OUTNOBSMA=$(DECOMPNOBSMA) $(ALIGNNOBSMA) $(LOANNOBSMA) $(CROSSNOBSMA) $(SYNNOBSMA) $(GVNOBSMA)
 OUTSMESMA=                               $(LOANSMESMA) $(CROSSSMESMA) $(SYNSMESMA)
 OUTNOBSMJ=$(DECOMPNOBSMJ) $(LOANNOBSMJ) $(CROSSNOBSMJ) $(SYNNOBSMJ)
 OUTSMESMJ=$(DECOMPSMESMJ) $(XIFIEDSMJ) $(SYNSMESMJ)
@@ -82,6 +84,9 @@ out/%/A_syn: fadwords/A.nob words/%/A.tsv words/%/A.rev
 	./expand-synonyms.sh $* A >$@
 out/%/N_syn: fadwords/N.nob words/%/N.tsv words/%/N.rev
 	./expand-synonyms.sh $* N >$@
+
+out/nobsma/%_gv: $(GTHOME)/words/dicts/nobsma/scripts/GVclean/data/gaerjiste-vaalteme_2001.tsv fadwords/%.nob words/%.nob
+	bash -c "source functions.sh; gaerjiste-vaalteme '$*' '$<'" > $@
 
 out/%/V_lexc out/%/N_lexc out/%/A_lexc out/%/nonVNA_lexc out/%/V_xfst out/%/N_xfst out/%/A_xfst out/%/nonVNA_xfst: fadwords/all.sme out/%/.d freq/lms.smj freq/forms.smj
 	./sme2smjify.sh
