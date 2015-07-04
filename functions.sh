@@ -471,3 +471,12 @@ loans () {
         | awk -v src=${src[k]} -F"${trg[k]}$" '{print $1 src "\t" $0}'
     done | sort -u
 }
+
+gaerjiste-vaalteme () {
+    if ${FAD_ONLY}; then
+        words=fadwords
+    else
+        words=words
+    fi
+    gawk -v w="${words}" -v pos="$1" 'BEGIN{OFS=FS="\t"; while(getline<(w"/"pos".nob"))nob[$0]} $1 in nob{print}' "$2"
+}
