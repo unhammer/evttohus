@@ -3,12 +3,11 @@
 
 ## Run like:
 
-# cat A_* | gawk -v -v pos=A -f tsv2xml.awk | xmllint --format -
+# cat A_* | gawk -v trglang=smj -v pos=A -f tsv2xml.awk | xmllint --format -
 
 
 BEGIN {
   srclang="nob"
-  trglang="smj"
   OFS=FS="\t"
   print "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
   print "<r id=\""srclang trglang"\" xml:lang=\""srclang"\">"
