@@ -110,15 +110,15 @@ ugly=out/${dir}/${pos}_${suff}low
      }
      {
        curf = bad
+       f3 = 0
+       f4 = 0
      }
-     $3"#" in g || $4 in g {
-       curf = ugly
-     }
-     $3"#" in g && $4 in g {
-       curf = good
-     }
+     $3"#" in g { f3 = g[$3"#"] }
+     $4    in g { f4 = g[$4] }
+     f3 || f4 { curf = ugly }
+     f3 && f4 { curf = good }
      {
-       print $1,$2,g[$3"#"],g[$4] >curf
+       print $1,$2,f3,f4 >curf
      }'
 
 found=$(<tmp/${dir}/${pos}_${suff}_ana_found wc -l)
