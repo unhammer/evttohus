@@ -66,9 +66,9 @@ if [[ ${pos} = N ]]; then
          }
          trglm in gen { 
            for(trg in gen[trglm]) print $1, trg, $3
-         }' >tmp/${dir}/${pos}_${suff}_withgen
+         }' | sort -u >tmp/${dir}/${pos}_${suff}_withgen
 else
-    cat tmp/${dir}/${pos}_${suff} > tmp/${dir}/${pos}_${suff}_withgen
+    sort -u tmp/${dir}/${pos}_${suff} > tmp/${dir}/${pos}_${suff}_withgen
 fi
 
 # Filter out those candidates that are in the already existing
@@ -105,7 +105,7 @@ ugly=out/${dir}/${pos}_${suff}low
        while(getline<fadf) fad[$0]++
        while(getline<goodparts) g[$0]++
      }
-     fad_only && !($1 in fad) {
+     fad_only=="true" && !($1 in fad) {
        next
      }
      {
