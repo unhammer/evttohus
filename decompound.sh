@@ -85,6 +85,17 @@ fi
        print $3
      }' >tmp/${dir}/${pos}_${suff}_goodparts
 
+<tmp/${dir}/${pos}_${suff}_withgen gawk \
+    -v dict=words/${dir}/bad_${pos}.tsv \
+    'BEGIN{
+       OFS=FS="\t"
+       while(getline<dict) for(i=2;i<=NF;i++) if($i) d[$1"\t"$i]++
+     }
+     $1"\t"$2 in d{
+       sub(/#/,"#\n",$3)
+       print $3
+     }' >tmp/${dir}/${pos}_${suff}_badparts
+
 # Now split candidates into those where both parts are in the
 # "created-good-translations" file, or none, or only one
 # (also, at this point we skip the non-fad words):
@@ -96,6 +107,7 @@ ugly=out/${dir}/${pos}_${suff}low
     -v fadf=fadwords/${pos}.${lang1} \
     -v fad_only=${FAD_ONLY} \
     -v goodparts=tmp/${dir}/${pos}_${suff}_goodparts \
+    -v badparts=tmp/${dir}/${pos}_${suff}_badparts \
     -v good=${good} \
     -v bad=${bad} \
     -v ugly=${ugly} \
@@ -104,6 +116,7 @@ ugly=out/${dir}/${pos}_${suff}low
        OFS="\t"
        while(getline<fadf) fad[$0]++
        while(getline<goodparts) g[$0]++
+       while(getline<badparts) b[$0]++
      }
      fad_only=="true" && !($1 in fad) {
        next
