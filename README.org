@@ -34,6 +34,10 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
 
    : nob 	candidate	sme	fr_nob	fr_candidate	fr_sme	para_hits
 
+   (Note that parallel counts can actually be higher than
+   fr_candidate, since they consider dynamic compounds as hits for the
+   concatenated lemmas.)
+   
 *** Kintel files
 
     The files named =*_kintel_*= have been merged with words from
@@ -98,4 +102,5 @@ See [[file:TODO.org][TODO.org]].
   - candidates from _sme are better than _nob
   - candidates from _multis are better than _singles
   - candidates from _ana are better than _noana
+
     
