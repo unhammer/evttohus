@@ -85,6 +85,9 @@ fi
        print $3
      }' >tmp/${dir}/${pos}_${suff}_goodparts
 
+# Filter out those candidates that are in the already existing
+# translations, and extract the compound-part-pairs that created the
+# bad translations:
 <tmp/${dir}/${pos}_${suff}_withgen gawk \
     -v dict=words/${dir}/bad_${pos}.tsv \
     'BEGIN{
@@ -97,8 +100,9 @@ fi
      }' >tmp/${dir}/${pos}_${suff}_badparts
 
 # Now split candidates into those where both parts are in the
-# "created-good-translations" file, or none, or only one
-# (also, at this point we skip the non-fad words):
+# "created-good-translations" file (and with higher frequency there than in the
+# "created-bad-translations" file), or none or only one. Also, at this point we
+# skip the non-fad # words:
 good=out/${dir}/${pos}_${suff}
 bad=out/${dir}/${pos}_${suff}no
 ugly=out/${dir}/${pos}_${suff}low
@@ -123,15 +127,19 @@ ugly=out/${dir}/${pos}_${suff}low
      }
      {
        curf = bad
-       f3 = 0
-       f4 = 0
+       f3g = 0
+       f3b = 0
+       f4g = 0
+       f4b = 0
      }
-     $3"#" in g { f3 = g[$3"#"] }
-     $4    in g { f4 = g[$4] }
-     f3 || f4 { curf = ugly }
-     f3 && f4 { curf = good }
+     $3"#" in g { f3g = g[$3"#"]     }
+     $3"#" in b { f3b = b[$3"#"]-0.1 }
+     $4    in g { f4g = g[$4]     }
+     $4    in b { f4b = b[$4]-0.1 }
+     f3g>f3b || f4g>f4b { curf = ugly }
+     f3g>f3b && f4g>f4b { curf = good }
      {
-       print $1,$2,f3,f4 >curf
+       print $1,$2,f3g,f4g,f3b,f4b >curf
      }'
 
 found=$(<tmp/${dir}/${pos}_${suff}_ana_found wc -l)
