@@ -100,8 +100,9 @@ skip_existing () {
           while(getline<dict){ src[$1]++; for(i=2;i<=NF;i++) trg[$i]++ }
           while(getline<badf){ bad[$1][$2]++ }
         }
-        # Could do && to check if only *pair* is seen before, if we want to find alternatives for existing translations
-        ($1 in src || $2 in trg) || ($1 in bad && $2 in bad[$1]) {next}
+        # Could do && $2 in trg to check if only *pair* is seen before, if we want to find alternatives for existing translations
+        # Had test || $2 in trg but removed too much:
+        ($1 in src             ) || ($1 in bad && $2 in bad[$1]) {next}
         {print}' \
             >${out}/"$b"
     done
