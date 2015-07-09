@@ -1,6 +1,10 @@
 Various scripts and such used to create dictionary candidates for
 nob2smj and nob2sma from nob2sme dictionary + corpora.
 
+The scripts are as of now quite tied to Giellatekno's formats and
+infrastructure, and would probably need a lot of work to be made
+generally re-usable.
+
 * Prerequisites
   The main prerequisites are
 
@@ -44,7 +48,7 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
     nobsmj-kintel. For every candidate we generate (whether from smj
     or nob), we also include the Kintel translation of the Bokmål
     word. The words are grouped by the Bokmål word, and the Kintel
-    translations are marked with an initial + symbol. Some times the
+    translations are marked with an initial `+' symbol. Some times the
     Kintel translation was part of our generated candidates, in which
     case it'll have frequency numbers, other times it was not, in
     which case only the nob and smj words will be listed for that
@@ -96,6 +100,7 @@ nob2smj and nob2sma from nob2sme dictionary + corpora.
 
 * TODO stuff
 See [[file:TODO.org][TODO.org]].
+
 * Quality impressions
   In general:
   - candidates from _decomp are better than _precomp
@@ -103,4 +108,3 @@ See [[file:TODO.org][TODO.org]].
   - candidates from _multis are better than _singles
   - candidates from _ana are better than _noana
 
-    
