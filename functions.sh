@@ -124,7 +124,8 @@ clean_cmp_ana () {
         # kjerneområde	kjerne	+N#+Cmp+område+N+Neu+Sg+Indef
         # kystfiskerlag	kystfisker	+N#+Cmp+lag+N+Neu+Pl+Indef
     else
-        grep "+Cmp#.*+${pos}[^#]*$" \
+        sed 's/\([^	+]*\)\([^#	]*\)+Cmp-/\1-\2+Cmp/g' \
+            | grep "+Cmp-*#.*+${pos}[^#]*$" \
             | sed 's/+[^#]*#*/	/g' \
             | sed 's/		*/	/g' \
             | sed 's/	$//'
