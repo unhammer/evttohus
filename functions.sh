@@ -254,6 +254,15 @@ dir2tsv () {
         # plain N.tsv etc. when generating candidates; so N_kintel.tsv
         # is appended to plain N.tsv below.
     fi
+    if [[ ${dir} = smanob ]]; then
+        for xml in $GTHOME/words/dicts/smaswe/src/*_smaswe.xml; do
+            tsv=${dir}/$(basename "${xml}")
+            tsv=${tsv%%.xml}.tsv
+            tsv=$(echo "$tsv" | normalisePoS)
+            # Why does this sometimes return non-zero even though good output?
+            dict_xml2tsv ${dir} "${restriction}" "${xml}" >> "${tsv}" || true
+        done
+    fi
     if [[ ${dir} = nob* ]]; then
         for pos in V N A; do
             <"$GTHOME/words/dicts/${dir}/src/${pos}_${dir}.xml" \
