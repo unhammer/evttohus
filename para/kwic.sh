@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### Usage:
-#para/kwic.sh freq/smesmj.sents.ids freq/smesmj.lemmas.ids <(cat out/nobsmjsme/*_sme_*)
+# para/kwic.sh freq/smesmj.sents.ids freq/smesmj.lemmas.ids out/nobsmjsme/*_sme
 
 ### TODO: not actually kwic yet, just full sentences …
 
@@ -9,6 +9,8 @@ set -e -u
 
 sents_ids=$1
 lemmas_ids=$2
+shift
+shift
 
 b=$(basename "${sents_ids}")
 dir=${b%%.*}
@@ -26,4 +28,4 @@ lang2=${dir#???}
   }
   $1 in sent && $2 in cand && $3 in cand[$2]{
     print $2,$3,sent[$1][lang1],sent[$1][lang2]
-  }' | sort -u -k1,2 -t$'\t'
+  }' | sort -u
