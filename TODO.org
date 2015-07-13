@@ -1,6 +1,6 @@
 * TODO include concatenated dynamic-compound lemmas in freq/*combined*?
   now that we're running out of corpus-covered analyses
-* TODO use bad-marked candidates as input to precomp-ranking?
+
 * TODO use nouns from apertium for making decomp sme→sma
   since with decomp, sme→smj was so much better than nob→smj, we
   should really try decomp sme→smj.

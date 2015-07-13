@@ -21,7 +21,7 @@ generally re-usable.
 * Running the candidate generation
 
   Run =make= to make the stuff; the first time around you need to also
-  run =make corpus=.
+  run =make corpus= (just runs =convert2xml= on your corpora).
 
 ** Output file format
 
