@@ -2,7 +2,7 @@
 
 
 # $ for lang in sma smj; do for pos in V N A; do
-#     gawk  -F'\t' -v words=words/nobsmj/${pos}.tsv -f  para/pretty-kwic.awk freq/nob${lang}.para-kwic >para-nob${lang}.${pos}
+#     gawk  -F'\t' -v words=words/nob${lang}/${pos}.tsv -f  para/pretty-kwic.awk freq/nob${lang}.para-kwic >para-nob${lang}.${pos}
 #   done;done
 
 
