@@ -189,7 +189,7 @@ dict_xml2tsv () {
         -m "//e${restriction}" -c './lg/l/text()' \
         -m "./mg//tg[@xml:lang='${lang2}' or not(@xml:lang)]/t" -o $'\t' -c './text()' \
         -b -n \
-        "$@"
+        "$@" | gawk -F'\t' '$1 && $2'
 }
 
 normalisePoS () {
