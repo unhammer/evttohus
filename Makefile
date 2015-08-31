@@ -73,10 +73,13 @@ out/%/A_decomp: fadwords/A.sme fadwords/A.nob words/A.sme words/A.nob out/%/.d t
 
 out/%/V_precomp: fadwords/V.sme fadwords/V.nob words/V.sme words/V.nob out/%/.d tmp/%/.d words/%/precomp_V.tsv
 	./decompound.sh $* V precomp
+	cat words/$*/precomp_V.tsv >> $@
 out/%/N_precomp: fadwords/N.sme fadwords/N.nob words/N.sme words/N.nob out/%/.d tmp/%/.d words/%/precomp_N.tsv
 	./decompound.sh $* N precomp
+	cat words/$*/precomp_N.tsv >> $@
 out/%/A_precomp: fadwords/A.sme fadwords/A.nob words/A.sme words/A.nob out/%/.d tmp/%/.d words/%/precomp_A.tsv
 	./decompound.sh $* A precomp
+	cat words/$*/precomp_A.tsv >> $@
 
 out/%/V_syn: fadwords/V.nob words/%/V.tsv words/%/V.rev
 	./expand-synonyms.sh $* V >$@
