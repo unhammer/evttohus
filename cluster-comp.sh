@@ -21,6 +21,7 @@ decomp () {
     ana ${l} |
     grep -ve +Err/ -e +Der/ |
     clean_cmp_ana ${l} ${p} |
+    grep -v '	.*	.*	' |
     gawk -f uniq_ana.awk
 }
 
